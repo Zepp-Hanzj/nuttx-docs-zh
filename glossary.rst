@@ -1,368 +1,370 @@
 ========
-Glossary
+术语表
 ========
+
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
 .. glossary::
 
   6LoWPAN
-    IPv6 over Low power Wireless Personal Area Networks
+    基于低功耗无线个人区域网络的 IPv6 (IPv6 over Low power Wireless Personal Area Networks)
 
   ACM
-    Abstract Control Model (USB)
+    抽象控制模型 (Abstract Control Model, USB)
 
   ADC
-    Analog to Digital Conversion
+    模数转换 (Analog to Digital Conversion)
 
   AIC
-    Advanced Interrupt Controller (Atmel SAM)
+    高级中断控制器 (Advanced Interrupt Controller, Atmel SAM)
 
   ARP
-    Address Resolution Protocol (networking)
+    地址解析协议 (Address Resolution Protocol, 网络)
 
   BCH
-    Block to Character
+    块到字符转换 (Block to Character)
 
   BINFMT
-    Binary Format (Dynamic Loader)
+    二进制格式 (Binary Format, 动态加载器)
 
   BLE
-    Bluetooth4 Low Energy
+    蓝牙 4 低功耗 (Bluetooth 4 Low Energy)
 
   BPP
-    Bits Per Pixel
+    每像素位数 (Bits Per Pixel)
 
   CAN
-    Controller Area Network
+    控制器局域网 (Controller Area Network)
 
   CDC
-    Communication Device Class (USB)
+    通信设备类 (Communication Device Class, USB)
 
   CP15
-    Coprocessor 15 (ARM)
+    协处理器 15 (Coprocessor 15, ARM)
 
   CPU
-    Central Processing Unit
+    中央处理器 (Central Processing Unit)
 
   DEVIF
-    Device Interface (networking)
+    设备接口 (Device Interface, 网络)
 
   DAC
-    Digital to Analog Conversion
+    数模转换 (Digital to Analog Conversion)
 
   DCD
-    Device Controller Driver (USB)
+    设备控制器驱动 (Device Controller Driver, USB)
 
   DCMI
-    Digital Camera Interface
+    数字摄像头接口 (Digital Camera Interface)
 
   DEV
-    Device
+    设备 (Device)
 
   DHCP
-    Dynamic Host Configuration Protocol
+    动态主机配置协议 (Dynamic Host Configuration Protocol)
 
   DHCPC
-    DHCP Client
+    DHCP 客户端 (DHCP Client)
 
   DHCPD
-    DHCP Daemon (server)
+    DHCP 守护进程（服务器）(DHCP Daemon/Server)
 
   DMA
-    Direct Memory Access (hardware)
+    直接内存访问 (Direct Memory Access, 硬件)
 
   DMAC
-    DMA Controller (hardware)
+    DMA 控制器 (DMA Controller, 硬件)
 
   DNS
-    Domain Name Service (or System or Server) (networking)
+    域名服务/域名系统/域名服务器 (Domain Name Service/System/Server, 网络)
 
   DRAM
-    Dynamic RAM
+    动态随机存取存储器 (Dynamic RAM)
 
   EABI
-    Embedded-Application Binary Interface
+    嵌入式应用二进制接口 (Embedded-Application Binary Interface)
 
   EEPROM
-    Electrically Erasable Programmable Read-Only Memory
+    电可擦可编程只读存储器 (Electrically Erasable Programmable Read-Only Memory)
 
   EMAC
-    Ethernet Media Access Controller (networking)
+    以太网媒体访问控制器 (Ethernet Media Access Controller, 网络)
 
   EPROM
-    Erasable Programmable Read-Only Memory
+    可擦可编程只读存储器 (Erasable Programmable Read-Only Memory)
 
   FAT
-    File Allocation Table (file systems)
+    文件分配表 (File Allocation Table, 文件系统)
 
   FB
-    Frame Buffer (video interface)
+    帧缓冲区 (Frame Buffer, 视频接口)
 
   FSMC
-    Flexible Static Memory Controller (STM32)
+    灵活静态存储控制器 (Flexible Static Memory Controller, STM32)
 
   FTL
-    FLASH Translation Layer (MTD)
+    闪存转换层 (FLASH Translation Layer, MTD)
 
   GPIO
-    General Purpose Input/Output
+    通用输入/输出 (General Purpose Input/Output)
 
   GMAC
-    Gigabit Media Access Controller (networking)
+    千兆媒体访问控制器 (Gigabit Media Access Controller, 网络)
 
   HCD
-    Host Controller Driver (USB)
+    主机控制器驱动 (Host Controller Driver, USB)
 
   HSMCI
-    High Speed Memory Card Interface (Atmel)
+    高速存储卡接口 (High Speed Memory Card Interface, Atmel)
 
-    I/O    Input/Output
+    I/O    输入/输出 (Input/Output)
 
   IOCTL
-    Input/Output Control
+    输入/输出控制 (Input/Output Control)
 
   IoT
-    Internet of Things (marketing BS)
+    物联网 (Internet of Things)
 
   IP
-    Internet Protocol (version 4?) (networking)
+    网络协议（第 4 版？）(Internet Protocol, 网络)
 
   IPv4
-    Internet Protocol Version 4 (networking)
+    网际协议第 4 版 (Internet Protocol Version 4, 网络)
 
   IPv6
-    Internet Protocol Version 6 (networking)
+    网际协议第 6 版 (Internet Protocol Version 6, 网络)
 
   IRQ
-    Interrupt Request (hardware)
+    中断请求 (Interrupt Request, 硬件)
 
   I2C
-    Inter-Integrated Circuit (serial interface)
+    内部集成电路 (Inter-Integrated Circuit, 串行接口)
 
   I2S
-    Inter IC Sound (serial interface)
+    集成电路间音频总线 (Inter IC Sound, 串行接口)
 
   ICMP
-    Internet Control Message Protocol (networking)
+    互联网控制消息协议 (Internet Control Message Protocol, 网络)
 
   ICMPv6
-    Internet Control Message Protocol for IPv6 (networking)
+    面向 IPv6 的互联网控制消息协议 (Internet Control Message Protocol for IPv6, 网络)
 
   IGMP
-    Internet Group Multicast Protocol (networking)
+    互联网组播协议 (Internet Group Multicast Protocol, 网络)
 
   IOB
-    I/O Buffer (networking)
+    输入/输出缓冲区 (I/O Buffer, 网络)
 
   LAN
-    Local Area Network (networking)
+    局域网 (Local Area Network, 网络)
 
   LCD
-    Liquid Crystal Display
+    液晶显示器 (Liquid Crystal Display)
 
   LIBC
-    The "C" Library
+    C 标准库
 
   LIBM
-    The "C" Math Library
+    C 数学库
 
   LP
-    Low Power
+    低功耗 (Low Power)
 
   MAC
-    Media Access Control (networking, OSI model)
+    媒体访问控制 (Media Access Control, 网络, OSI 模型)
 
   MCI
-    Memory Card Interface
+    存储卡接口 (Memory Card Interface)
 
   MCU
-    Microcontroller Unit
+    微控制器单元 (Microcontroller Unit)
 
   MM
-    Memory Management/Manager
+    内存管理/管理器 (Memory Management/Manager)
 
   MMAP
-    Memory Map
+    内存映射 (Memory Map)
 
   MMC
-    Multi-Media Card
+    多媒体卡 (Multi-Media Card)
 
   MMCSD
-    See MMC and SD
+    参见 MMC 和 SD
 
   MMU
-    Memory Management Unit
+    内存管理单元 (Memory Management Unit)
 
   MPU
-    Memory Protection Unit
+    内存保护单元 (Memory Protection Unit)
 
   MTD
-    Memory Technology Device
+    存储技术设备 (Memory Technology Device)
 
   NFS
-    Network File System
+    网络文件系统 (Network File System)
 
   NETDB
-    Network Data Base (networking)
+    网络数据库 (Network Database, 网络)
 
   NETDEV
-    Network Device (networking)
+    网络设备 (Network Device, 网络)
 
   NSH
     NuttShell
 
   NVM
-    Non-Volatile Memory
+    非易失性存储器 (Non-Volatile Memory)
 
   NTP
-    Network Time Protocol (networking)
+    网络时间协议 (Network Time Protocol, 网络)
 
   NX
-    NuttX, the NuttX Graphics server (graphics)
+    NuttX 图形服务器 (NuttX Graphics Server, 图形)
 
   NXFFS
-    NuttX Flash File System
+    NuttX 闪存文件系统 (NuttX Flash File System)
 
   NXWM
-    The NuttX Window Manager (graphics)
+    NuttX 窗口管理器 (The NuttX Window Manager, 图形)
 
   PID
-    Process ID (operating systems)
+    进程 ID (Process ID, 操作系统)
 
   Peripheral
-    ID (Atmel SAM)
+    外设 ID (Atmel SAM)
 
   PROM
-    Programmable Read-Only Memory
+    可编程只读存储器 (Programmable Read-Only Memory)
 
   OS
-    Operating System
+    操作系统 (Operating System)
 
   OTG
     On-The-Go (USB)
 
   OTP
-    One-Time Programmable
+    一次性可编程 (One-Time Programmable)
 
   POR
-    Power-On Reset
+    上电复位 (Power-On Reset)
 
   PWM
-    Pulse Width Modulation
+    脉宽调制 (Pulse Width Modulation)
 
   PKT
-    "Raw" Packet socket (networking)
+    原始数据包套接字 ("Raw" Packet Socket, 网络)
 
   PRNG
-    Pseudo-Random Number Generator
+    伪随机数生成器 (Pseudo-Random Number Generator)
 
   QSPI
-    Quad SPI
+    四线 SPI (Quad SPI)
 
   RAM
-    Random Access Memory
+    随机存取存储器 (Random Access Memory)
 
   RNG
-    Random Number Generator
+    随机数生成器 (Random Number Generator)
 
   ROM
-    Read-Only Memory
+    只读存储器 (Read-Only Memory)
 
   RNDIS
-    Remote Network Driver Interface Specification (USB, networking)
+    远程网络驱动接口规范 (Remote Network Driver Interface Specification, USB, 网络)
 
   RTC
-    Real Time Clock
+    实时时钟 (Real Time Clock)
 
   RTCC
-    Real Time Clock/Calendar
+    实时时钟/日历 (Real Time Clock/Calendar)
 
   RTOS
-    Real Time Operating System
+    实时操作系统 (Real Time Operating System)
 
   SAIC
-    Secure Advanced Interrupt Controller (Atmel SAM)
+    安全高级中断控制器 (Secure Advanced Interrupt Controller, Atmel SAM)
 
   SCI
-    Serial Communications Interface
+    串行通信接口 (Serial Communications Interface)
 
   SD
-    Secure Digital (flash memory)
+    安全数字（闪存）(Secure Digital)
 
   SDHC
-    Secure Digital High Capacity (flash memory),
+    安全数字高容量（闪存）(Secure Digital High Capacity)
 
   Secure
-    Digital Host Controller (hardware)
+    数字主机控制器 (Digital Host Controller, 硬件)
 
   SDIO
-    Secure Digital I/O
+    安全数字输入/输出 (Secure Digital I/O)
 
   SDRAM
-    Synchronous Dynamic Random Access Memory
+    同步动态随机存取存储器 (Synchronous Dynamic Random Access Memory)
 
   SLCD
-    Segment Liquid Crystal Display
+    段式液晶显示器 (Segment Liquid Crystal Display)
 
   SMC
-    Static Memory Controller (hardware)
+    静态存储控制器 (Static Memory Controller, 硬件)
 
   SPI
-    Serial Peripheral Interface
+    串行外设接口 (Serial Peripheral Interface)
 
   SPRNG
-    Scalable Parallel Random Number Generator
+    可扩展并行随机数生成器 (Scalable Parallel Random Number Generator)
 
   SRAM
-    Static RAM
+    静态随机存取存储器 (Static RAM)
 
   SYSLOG
-    System Log
+    系统日志 (System Log)
 
   TCP
-    Transmission Control Protocol (networking)
+    传输控制协议 (Transmission Control Protocol, 网络)
 
   TRNG
-    True Random Number Generator
+    真随机数生成器 (True Random Number Generator)
 
   TSC
-    Touchscreen Controller
+    触摸屏控制器 (Touchscreen Controller)
 
   TUN
-    network TUNnel
+    网络隧道 (Network Tunnel)
 
   TWI
-    Two-Wire Interface (serial interface)
+    双线接口 (Two-Wire Interface, 串行接口)
 
   UDP
-    User Datagram Protocol (networking)
+    用户数据报协议 (User Datagram Protocol, 网络)
 
   UART
-    Universal Asynchronous Receiver/Transmitter
+    通用异步收发器 (Universal Asynchronous Receiver/Transmitter)
 
   USB
-    Universal Serial Bus (serial interface)
+    通用串行总线 (Universal Serial Bus, 串行接口)
 
   USART
-    Universal Synchronous/Asynchronous Receiver/Transmitter
+    通用同步/异步收发器 (Universal Synchronous/Asynchronous Receiver/Transmitter)
 
   VNC
-    Virtual Network Computing (graphics, remote desktop)
+    虚拟网络计算 (Virtual Network Computing, 图形, 远程桌面)
 
   WAN
-    Wide Area Network (networking)
+    广域网 (Wide Area Network, 网络)
 
   WLAN
-    Wireless Local Area Network (networking)
+    无线局域网 (Wireless Local Area Network, 网络)
 
   WPAN
-    Wireless Personal Area Network (networking)
+    无线个人区域网络 (Wireless Personal Area Network, 网络)
 
   WDT
-    Watchdog Timer (hardware)
+    看门狗定时器 (Watchdog Timer, 硬件)
 
   XIP
-    eXecute In Place
+    就地执行 (eXecute In Place)
 
   XDMAC
-    Extended DMA Controller (Atmel)
+    扩展 DMA 控制器 (Extended DMA Controller, Atmel)
 
