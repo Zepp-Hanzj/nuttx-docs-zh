@@ -1,0 +1,12 @@
+.. _sphx_tag_arch-arm:
+
+Tags: arch:arm
+##############
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Pages with this tag
+
+    ../_upstream/platforms/arm/ht32f491x3/boards/esk32/index.rst
+    ../_upstream/platforms/arm/imx9/boards/imx93-qsb/index.rst
+    ../_upstream/platforms/arm/tiva/boards/tm4c123g-launchpad/index.rst

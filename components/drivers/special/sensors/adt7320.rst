@@ -1,0 +1,8 @@
+ADT7320
+=======
+
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+
+由 Augusto Fraga Giachero 贡献
+
+ADT7320 是一款 SPI 温度传感器，温度范围为 -40°C 至 +150°C。

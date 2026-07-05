@@ -1,0 +1,46 @@
+========================
+MPR121 电容式键盘
+========================
+
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+
+**什么是 MPR121 键盘**
+MPR 电容式键盘是一种小型键盘，有 12 个键，类似于电话键盘，但键的编号从 0 到 11。
+
+这是 MPR121 电容式键盘的图片：
+
+.. image:: images/mpr121.png
+  :alt: MPR121 电容式键盘
+  :align: center
+  :width: 200px
+
+**用途**。MPR121 驱动程序为此电容式键盘提供通用键盘实现。MPR121 使用 I2C 总线设置和读取触摸/释放的键，并使用 IRQ 引脚（开漏）来指示键何时被按下/释放或发生意外问题（当前未使用）。
+
+驱动程序还启用去抖动，并通过通用键盘上半部分发出键盘事件。这使设备可用作字符驱动程序（例如 ``/dev/keypad0``），使用标准键盘接口。
+
+**驱动程序概述**。MPR121 下半部分扫描矩阵，并在检测到按键或释放时调用 ``keyboard_event()``。键盘上半部分在请求的 ``devpath`` 注册字符设备，并将事件存储在循环缓冲区中。应用程序从设备读取 ``struct keyboard_event_s`` 或使用可选的 kbd-codec 层。
+
+**板卡支持**。要支持 MPR121，板卡必须提供：
+
+#. **IRQ 定义**
+
+   - 定义启用上拉的 GPIO 输入引脚（因为 IRQ 引脚是开漏的），用于检测中断。
+
+#. **注册钩子**
+
+   - 定义一个 ``struct xxx_mpr121config_s``，将 ``struct mpr121_config_s config`` 作为第一个成员包装，以及 irq 参数和 ISR 处理程序（xcpt_t isr）。``config`` 需要将其 ``.irq_attach`` 和 ``keymap`` 初始化为板卡 IRQ ISR 函数和键映射数组。
+   - 实现 ``board_mpr121_initialize(int devno, int busno)`` 以调用 ``mpr121_register(&config, devpath)``。它需要初始化用于与 MPR121 通信的 I2C 主端口/通道以及该 ``xxx_mpr121config_s`` 结构的实例。
+   - 在启动期间调用板卡钩子（例如 ``board_mpr121_initialize(0, 1)`` 对应 ``/dev/keymap0`` 和 ``i2c1``）。
+
+**参考实现（STM32F4Discovery）**。当前参考实现位于 ``boards/arm/stm32/common/src/stm32_mpr121.c``：
+
+- 键映射：4x3 键盘布局
+- 注册：``board_mpr121_initialize()`` 调用 ``mpr121_register()``
+
+**数据路径摘要**。
+
+- 板卡调用 ``board_mpr121_initialize(0, 1)``
+- ``mpr121_register()`` 初始化并配置 MPR121 芯片，并调用 ``keyboard_register(&lower, devpath, buflen)``
+- 上半部分在 ``devpath`` 注册设备节点
+- 每次在 IRQ 引脚上产生中断时，将调用 ``mpr121_worker()``，它在按键/释放时调用 ``keyboard_event()``
+- 应用程序从设备节点（``/dev/keypad0``）读取事件。

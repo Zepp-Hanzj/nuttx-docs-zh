@@ -1,0 +1,27 @@
+==============
+N25Q NOR Flash
+==============
+
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+
+NuttX 为 N25Q 系列的基于 QSPI 的 NOR Flash 提供支持。
+支持的容量最高可达 1 Gbit（128 MB）。
+
+驱动程序通过选项 ``CONFIG_MTD_N25QXX`` 启用。可以通过
+``CONFIG_N25QXX_QSPIMODE`` 选项选择 QSPI 模式，并通过
+``CONFIG_N25QXX_QSPI_FREQUENCY`` 选项选择通信频率。
+
+如果启用了 ``CONFIG_N25QXX_SECTOR512`` 选项，该 Flash 允许
+模拟 512 字节的大擦除块。
+
+Flash 的大小在设备初始化期间自动设置。
+
+闪存在使用前必须初始化。这通常在板卡启动阶段从板级支持包层完成。
+此操作由以下函数执行。
+
+.. code-block:: C
+
+   #include <nuttx/mtd/mtd.h>
+
+   FAR struct mtd_dev_s *n25qxxx_initialize(FAR struct qspi_dev_s *qspi,
+                                            bool unprotect)

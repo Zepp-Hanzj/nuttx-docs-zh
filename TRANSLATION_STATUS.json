@@ -1,0 +1,46 @@
+{
+  "introduction": {
+    "total": 7,
+    "translated": 6
+  },
+  "quickstart": {
+    "total": 8,
+    "translated": 8
+  },
+  "guides": {
+    "total": 60,
+    "translated": 60
+  },
+  "contributing": {
+    "total": 8,
+    "translated": 7
+  },
+  "faq": {
+    "total": 1,
+    "translated": 1
+  },
+  "components": {
+    "total": 47,
+    "translated": 47
+  },
+  "reference": {
+    "total": 36,
+    "translated": 36
+  },
+  "debugging": {
+    "total": 20,
+    "translated": 20
+  },
+  "implementation": {
+    "total": 1,
+    "translated": 1
+  },
+  "standards": {
+    "total": 1,
+    "translated": 1
+  },
+  "testing": {
+    "total": 1,
+    "translated": 1
+  }
+}

@@ -1,0 +1,233 @@
+.. _qmi8658:
+
+=======
+QMI8658
+=======
+
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+
+QMI8658 是 QST 生产的高性能 6 轴 IMU 传感器，具有 3 轴加速度计
+和 3 轴陀螺仪。它支持 I2C 和 SPI 接口，但此驱动程序目前仅支持
+I2C 通信。
+
+此驱动程序使用 :doc:`uorb
+</components/drivers/special/sensors/sensors_uorb>` 接口。它支持
+加速度计和陀螺仪的自检功能。
+
+驱动程序支持全面的功能，包括多种满量程范围、可配置的 ODR 设置、
+低通滤波器、FIFO 缓冲区管理、温度感应和设备校准。
+
+.. note::
+   QMI8658 是功能丰富的传感器，具有高级功能，如点击检测、运动
+   检测和各种低功耗模式。此驱动程序实现了加速度计和陀螺仪数据
+   采集的核心功能，为将来的功能扩展留有空间。
+
+应用编程接口
+=================================
+
+.. code-block:: c
+
+   #include <nuttx/sensors/qmi8658.h>
+
+QMI8658 驱动程序提供一个注册函数：
+
+- **uORB 接口**：``qmi8658_uorb_register()``
+
+注册
+------------
+
+uORB 接口注册驱动程序并在 ``/dev/uorb/`` 下为加速度计和陀螺仪数据
+创建单独的 uORB 主题：``sensor_accel<n>`` 和 ``sensor_gyro<n>``，
+其中 ``n`` 是设备号。
+
+.. code-block:: c
+
+   /* uORB 注册示例 */
+
+   ret = qmi8658_uorb_register(0, i2c_bus, QMI8658_I2C_ADDR_DEFAULT);
+   if (ret < 0)
+     {
+       syslog(LOG_ERR, "Couldn't register QMI8658 uORB: %d\n", ret);
+       return ret;
+     }
+
+uORB 接口注册驱动程序并在 ``/dev/uorb/`` 下为加速度计和陀螺仪数据
+创建单独的 uORB 主题：``sensor_accel<n>`` 和 ``sensor_gyro<n>``，
+其中 ``n`` 是设备号。
+
+.. code-block:: c
+
+   /* uORB 注册示例 */
+
+   ret = qmi8658_uorb_register(0, i2c_bus, QMI8658_I2C_ADDR_DEFAULT);
+   if (ret < 0)
+     {
+       syslog(LOG_ERR, "Couldn't register QMI8658 uORB: %d\n", ret);
+       return ret;
+     }
+
+配置选项
+=====================
+
+QMI8658 驱动程序支持以下 Kconfig 选项：
+
+* ``CONFIG_SENSORS_QMI8658``：启用 QMI8658 驱动程序支持（需要 UORB）
+* ``CONFIG_SENSORS_QMI8658_POLL``：启用轮询模式，可配置间隔
+* ``CONFIG_SENSORS_QMI8658_POLL_INTERVAL``：设置轮询间隔（默认 1s）
+* ``CONFIG_QMI8658_I2C_FREQUENCY``：设置 I2C 通信频率（默认 400kHz）
+
+支持的功能
+==================
+
+加速度计
+-------------
+
+* **满量程范围**：±2g、±4g、±8g、±16g
+* **输出数据速率**：1000Hz、500Hz、250Hz、125Hz、62.5Hz、31.25Hz
+* **低功耗 ODR**：128Hz、21Hz、11Hz、3Hz
+* **低通滤波器**：4 种不同模式 + OFF
+
+陀螺仪
+---------
+
+* **满量程范围**：±16、±32、±64、±128、±256、±512、±1024 dps
+* **输出数据速率**：7174.4Hz、3587.2Hz、1793.6Hz、896.8Hz、448.4Hz、224.2Hz、112.1Hz、56.05Hz、28.025Hz
+* **低通滤波器**：4 种不同模式 + OFF
+
+附加功能
+-----------------
+
+* **温度传感器**：16 位温度数据，256 LSB/°C 比例因子
+* **FIFO 缓冲区**：可配置的 FIFO，支持水印和中断
+* **采样模式**：同步和异步采样
+* **中断支持**：数据就绪、FIFO 水印、运动检测
+* **自检**：两个传感器的内置自检功能
+* **校准**：按需校准支持
+
+IOCTL 命令
+==============
+
+uORB IOCTL
+-----------
+
+* ``SNIOC_SETFULLSCALE``：设置满量程范围（加速度计参数以 g 为单位，陀螺仪以 dps 为单位）
+* ``SNIOC_SET_CALIBVALUE``：设置校准偏移
+* ``SNIOC_SELFTEST``：执行传感器自检
+* ``SNIOC_WHO_AM_I``：读取设备 ID（应返回 0x05）
+
+比例因子
+=============
+
+驱动程序提供预定义的比例因子，用于将原始传感器数据转换为物理单位：
+
+加速度计比例因子（LSB/g）：
+
+.. code-block:: c
+
+   #define QMI8658_ACC_SCALE_2G       (16384.0f)
+   #define QMI8658_ACC_SCALE_4G       (8192.0f)
+   #define QMI8658_ACC_SCALE_8G       (4096.0f)
+   #define QMI8658_ACC_SCALE_16G      (2048.0f)
+
+陀螺仪比例因子（LSB/dps）：
+
+.. code-block:: c
+
+   #define QMI8658_GYRO_SCALE_16DPS   (2048.0f)
+   #define QMI8658_GYRO_SCALE_32DPS   (1024.0f)
+   #define QMI8658_GYRO_SCALE_64DPS   (512.0f)
+   #define QMI8658_GYRO_SCALE_128DPS  (256.0f)
+   #define QMI8658_GYRO_SCALE_256DPS  (128.0f)
+   #define QMI8658_GYRO_SCALE_512DPS  (64.0f)
+   #define QMI8658_GYRO_SCALE_1024DPS (32.0f)
+
+温度比例因子（LSB/°C）：
+
+.. code-block:: c
+
+   #define QMI8658_TEMP_SCALE         (256.0f)
+
+数据转换
+===============
+
+将原始传感器数据转换为物理单位：
+
+.. code-block:: c
+
+   /* 将加速度计原始数据转换为 g */
+
+   float accel_x_g = (float)raw_accel_x / QMI8658_ACC_SCALE_8G;
+   float accel_y_g = (float)raw_accel_y / QMI8658_ACC_SCALE_8G;
+   float accel_z_g = (float)raw_accel_z / QMI8658_ACC_SCALE_8G;
+
+   /* 将陀螺仪原始数据转换为 dps */
+
+   float gyro_x_dps = (float)raw_gyro_x / QMI8658_GYRO_SCALE_512DPS;
+   float gyro_y_dps = (float)raw_gyro_y / QMI8658_GYRO_SCALE_512DPS;
+   float gyro_z_dps = (float)raw_gyro_z / QMI8658_GYRO_SCALE_512DPS;
+
+   /* 将温度原始数据转换为 °C */
+
+   float temp_c = (float)raw_temp / QMI8658_TEMP_SCALE;
+
+调试和测试
+=====================
+
+要调试 QMI8658 设备，您可以：
+
+1. **启用调试输出**：设置 ``CONFIG_DEBUG_SENSORS`` 和 ``CONFIG_DEBUG_INFO``
+2. **使用 uORB 监听器**：包含 ``uorb_listener`` 应用程序以监控传感器数据
+
+性能注意事项
+==========================
+
+* **I2C 频率**：默认 400kHz，可通过 ``CONFIG_QMI8658_I2C_FREQUENCY`` 配置
+* **轮询开销**：尽可能使用中断驱动模式以获得更好的效率
+* **FIFO 使用**：启用 FIFO 以减少 I2C 流量和 CPU 开销
+* **电源管理**：利用低功耗 ODR 设置用于电池供电应用
+
+限制
+===========
+
+* 目前仅支持 I2C 接口（可以添加 SPI 支持）
+* 尚未实现点击检测和运动检测等高级功能
+* FIFO 中断处理尚未完全实现
+* 某些低功耗模式需要额外配置
+
+硬件连接
+====================
+
+I2C 接口
+--------------
+
+* **VDD**：电源（1.71V 至 3.6V）
+* **GND**：地
+* **SDA/SDI**：I2C 串行数据
+* **SCL/SCLK**：I2C 串行时钟
+* **CS**：片选（I2C 模式下连接到 VDD）
+* **INT1/INT2**：中断引脚（可选）
+
+典型 I2C 地址：
+* **主地址**：0x6B
+* **辅助地址**：0x6D（当 SDO/SA0 引脚为高时）
+
+.. note::
+   确保 SDA 和 SCL 线路上有适当的上拉电阻（3.3V 时通常为 4.7kΩ）。
+
+故障排除
+===============
+
+**设备无响应**
+* 检查 I2C 地址和连接
+* 验证电源电压
+* 确保 CS 引脚已正确配置为 I2C 模式
+
+**读数不正确**
+* 验证满量程范围设置
+* 检查比例因子计算
+* 确保传感器已正确校准
+
+**通信错误**
+* 降低 I2C 频率
+* 检查信号完整性问题
+* 验证上拉电阻值

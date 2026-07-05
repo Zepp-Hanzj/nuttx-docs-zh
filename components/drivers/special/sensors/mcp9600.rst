@@ -1,0 +1,148 @@
+=======
+MCP9600
+=======
+
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+
+由 Matteo Golin 贡献。
+
+MCP9600 是 Microchip 生产的热电偶 EMF 到温度转换器。它也作为
+`Adafruit 扩展板模块
+<https://learn.adafruit.com/adafruit-mcp9600-i2c-thermocouple-amplifier>`_
+销售。
+
+应用编程接口
+==================================
+
+MCP9600 驱动程序接口的头文件可以使用以下方式包含：
+
+.. code-block:: c
+
+   #include <nuttx/sensors/mcp9600.h>
+
+MCP9600 注册函数允许将驱动程序注册为
+:doc:`UORB </components/drivers/special/sensors/sensors_uorb>` 传感器。
+
+MCP9600 测量三种类型的温度：
+ * 热结温度
+ * 冷结温度
+ * 温度差
+
+注册此传感器将创建三个 UORB 温度主题，每个都有自己唯一的设备号。
+您必须在注册函数中为每个主题指定唯一的设备号：
+
+.. code-block:: c
+
+   /* 注册 sensor_temp1、sensor_temp2 和 sensor_temp3，其中 1 是热结
+    * 主题，2 是冷结主题，3 是差值
+    */
+
+   int err;
+   err = mcp9600_register(i2c_master, 0x60, 1, 2, 3);
+   if (err < 0) {
+     syslog(LOG_ERR, "Could not register MCP9600: %d\n", err);
+   }
+
+
+此传感器提供一些附加控制命令，用于标准 UORB 接口无法访问的功能。
+
+ * :c:macro:`SNIOC_SET_THERMO`
+ * :c:macro:`SNIOC_WHO_AM_I`
+ * :c:macro:`SNIOC_READ_RAW_DATA`
+ * :c:macro:`SNIOC_CHECK_STATUS_REG`
+ * :c:macro:`SNIOC_CONFIGURE`
+ * :c:macro:`SNIOC_WRITECONF`
+
+``SNIOC_SET_THERMO``
+--------------------
+
+此命令配置 MCP9600 的热电偶类型。设备支持以下热电偶类型：
+
+ * K
+ * J
+ * T
+ * N
+ * E
+ * S
+ * B
+ * R
+
+.. code-block:: c
+
+   int err;
+   err = orb_ioctl(sensor, SNIOC_SET_THERMO, SENSOR_THERMO_TYPE_J);
+   if (err < 0) {
+     syslog(LOG_ERR, "Failed to set thermocouple type: %d\n", err);
+   }
+
+``SNIOC_WHO_AM_I``
+------------------
+
+此命令读取 MCP9600 传感器的设备 ID 寄存器。设备 ID、主版本号和
+次版本号在参数中返回，参数类型必须为 ``struct mcp9600_devinfo_s *``。
+
+.. code-block:: c
+
+  struct mcp9600_devinfo_s devinfo;
+  err = orb_ioctl(sensor, SNIOC_WHO_AM_I, &devinfo);
+
+  uint8_t revision_minor = MCP9600_REV_MINOR(devinfo.revision);
+  uint8_t revision_major = MCP9600_REV_MAJOR(devinfo.revision);
+
+``SNIOC_READ_RAW_DATA``
+-----------------------
+
+此命令允许调用者读取传感器 ADC 返回的原始数据。
+
+此命令的参数必须是 ``int32_t`` 指针。原始数据将在此处返回。
+转换原始 ADC 数据的过程取决于配置的分辨率；请参阅数据手册。
+
+.. code-block:: c
+
+  int32_t raw;
+  err = orb_ioctl(sensor, SNIOC_READ_RAW_DATA, &raw);
+
+``SNIOC_CHECK_STATUS_REG``
+--------------------------
+
+此命令让您检查设备的状态寄存器。此命令的参数必须是指向
+``struct mcp9600_status_s`` 类型的指针。
+
+.. code-block:: c
+
+  struct mcp9600_status_s status;
+  err = orb_ioctl(sensor, SNIOC_CHECK_STATUS_REG, &status);
+
+``SNIOC_CONFIGURE``
+-------------------
+
+此命令让您配置 MCP9600 的操作，包括热电偶类型、操作模式、
+ADC 分辨率等。
+
+此命令的参数必须是指向 ``struct mcp9600_devconf_s`` 类型的指针。
+
+.. code-block:: c
+
+  struct mcp9600_devconf_s conf = {
+    .thermo_type = MCP9600_THERMO_TYPE_K,
+    .resolution = MCP9600_ADC_RES_18,
+    /* 更多字段 ... */
+  };
+  err = orb_ioctl(sensor, SNIOC_CONFIGURE, &conf);
+
+``SNIOC_WRITECONF``
+-------------------
+
+此命令让您按每个警报配置 MCP9600 的警报。
+
+此命令的参数必须是指向 ``struct mcp9600_alertconf_s`` 类型的指针。
+
+.. code-block:: c
+
+  struct mcp9600_alertconf_s conf = {
+    .alert = MCP9600_ALERT1,
+    .enable = true,
+    .limit = 40 / 0.25,
+    /* 更多字段 ... */
+  };
+  err = orb_ioctl(sensor, SNIOC_WRITECONF, &conf);

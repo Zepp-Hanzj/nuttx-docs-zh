@@ -1,0 +1,99 @@
+=======
+KTD2052
+=======
+
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+
+这是 Kinetic Technologies KTD2052 的驱动程序，KTD2052 是一个具有 I2C 接口的 4 模块（12 通道）RGB LED 驱动器。此驱动程序将 KTD2052 的功能暴露为标准 NuttX 字符设备。
+
+驱动程序配置
+====================
+
+此驱动程序依赖于为您的板卡启用和配置的 I2C。要使用此驱动程序，请在 menuconfig 中启用以下选项：
+
+- ``Device Drivers -> LED Support -> KTD2052 I2C LED Driver``
+  (``CONFIG_KTD2052``)
+
+驱动程序使用方法
+============
+
+该驱动程序注册为字符设备，通常位于 ``/dev/leds0`` 路径。
+
+初始化
+--------------
+
+要使用此驱动程序，板级特定逻辑必须在板初始化序列中调用 ``ktd2052_register``。此函数接受设备路径、I2C 主控实例、设备的 I2C 地址和 I2C 频率。
+
+.. code-block:: c
+
+    #include <nuttx/leds/ktd2052.h>
+
+    /* 在您的板初始化逻辑中 */
+    FAR struct i2c_master_s *i2c; /* I2C 总线实例 */
+    /* ... */
+    ktd2052_register("/dev/leds0", i2c, 0x74, 400000);
+
+
+应用程序接口
+---------------------
+
+应用程序可以通过打开设备路径并使用标准的 ``read()``、``write()`` 和 ``ioctl()`` 调用与设备交互。设备在打开时会自动退出关闭模式。
+
+**write()**
+
+``write()`` 调用提供了一种简单的方式来设置一个或多个连接的 RGB 模块的原始电流值。缓冲区应包含每个模块的红、绿、蓝电流值序列，从模块 1 开始。设备的输出电流在 0（无电流）和 192（满量程电流）之间呈线性关系。设置高于 192 的值将导致满量程电流输出。满量程电流在正常模式下为 24mA，在夜间模式下为 1.5mA。使用 ``write()`` 调用写入设备时始终从模块 1 开始。可以通过重复调用 ``write()`` 来更新整个字符串，而无需先回退到 0。支持部分写入。
+
+- **缓冲区格式**：``[R1, G1, B1, R2, G2, B2, R3, G3, B3, R4, G4, B4]``
+- **缓冲区长度**：1 到 12 字节。
+
+.. code-block:: c
+
+    /* 示例：将模块 1 设为红色，模块 2 设为蓝色 */
+    uint8_t colors[6] = { 0xc0, 0x00, 0x00, 0x00, 0x00, 0xc0 };
+    int fd = open("/dev/leds0", O_WRONLY);
+    write(fd, colors, sizeof(colors));
+    close(fd);
+
+**read()**
+
+``read()`` 调用从设备检索状态信息。
+
+- 读取 1 字节返回 MONITOR 寄存器的内容。
+- 读取 2 字节返回 MONITOR 寄存器后跟 CONTROL 寄存器。
+
+MONITOR 寄存器位在 ``nuttx/leds/ktd2052.h`` 中定义。
+
+**ioctl()**
+
+对于更高级的控制，驱动程序实现了多个 ``ioctl`` 命令，定义在 ``nuttx/leds/ktd2052.h`` 中。
+
+- ``KTDIOSETRGB``
+  设置单个 RGB 模块的颜色。
+
+  - **参数**：指向 ``uint8_t[4]`` 数组的指针：
+    ``{module number [1-4], r, g, b}``。
+
+- ``KTDIOSETMODE``
+  配置设备的工作模式。有关可用模式的更多信息，请参阅设备数据手册中的 CONTROL 寄存器。
+
+  - **参数**：指向 ``struct ktd2052_mode_s`` 的指针。
+
+- ``KTDIOSETPATTERN``
+  配置硬件模式生成器。有关使用硬件模式生成器的更多信息，请参阅设备数据手册。
+
+  - **参数**：指向 ``struct ktd2052_pattern_s`` 的指针。
+
+- ``KTDIOSETSLOTS``
+  配置每个模式槽中哪些 RGB 模块处于活动状态。
+
+  - **参数**：指向 ``struct ktd2052_slots_s`` 的指针。
+
+- ``KTDIOGETMONITOR``
+  读取 MONITOR 寄存器。
+
+  - **参数**：指向 ``uint8_t`` 的指针，用于存储结果。
+
+- ``KTDIOSETWDOG``
+  喂模式生成器看门狗定时器。
+
+  - **参数**：要设置的看门狗周期计数值的 ``uint8_t`` 值。

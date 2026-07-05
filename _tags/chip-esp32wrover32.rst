@@ -1,0 +1,14 @@
+.. _sphx_tag_chip-esp32wrover32:
+
+Tags: chip:esp32wrover32
+########################
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Pages with this tag
+
+    ../_upstream/platforms/xtensa/esp32/boards/esp32-2432S028/index.rst
+    ../_upstream/platforms/xtensa/esp32/boards/esp32-ethernet-kit/index.rst
+    ../_upstream/platforms/xtensa/esp32/boards/esp32-lyrat/index.rst
+    ../_upstream/platforms/xtensa/esp32/boards/esp32-wrover-kit/index.rst
+    ../_upstream/platforms/xtensa/esp32/boards/heltec_wifi_lora32/index.rst

@@ -1,0 +1,20 @@
+===========
+AT25 EEPROM
+===========
+
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+
+NuttX 为基于 SPI 的 EEPROM AT25 提供支持。支持的容量为 4 MB。
+
+驱动程序通过选项 ``CONFIG_MTD_AT25`` 启用。可以通过
+``CONFIG_AT25_SPIMODE`` 选项选择 SPI 模式，并通过
+``CONFIG_AT25_SPIFREQUENCY`` 选项选择通信频率。
+
+存储器在使用前必须初始化。这通常在板卡启动阶段从板级支持包层
+完成。此操作由以下函数执行。
+
+.. code-block:: C
+
+   #include <nuttx/mtd/mtd.h>
+
+   FAR struct mtd_dev_s *at25_initialize(FAR struct spi_dev_s *dev)

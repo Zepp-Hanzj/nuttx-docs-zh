@@ -1,0 +1,219 @@
+=======
+NAU7802
+=======
+
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+
+由 Daniel Byshkin 贡献。
+
+Adafruit NAU7802 是一款高分辨率 24 位 ADC，带有集成的称重传感器
+放大器。它设计用于需要高精度和低噪声测量的称重传感器和其他传感器。
+NAU7802 具有内置的可编程增益放大器（PGA），便于校准和调整传感器
+的输出。
+
+驱动程序使用 :doc:`uorb
+</components/drivers/special/sensors/sensors_uorb>` 接口。
+
+应用编程接口
+=================================
+
+.. code-block:: c
+
+   #include <nuttx/sensors/nau7802.h>
+
+NAU7802 注册函数允许将驱动程序注册为 UORB 驱动程序。注册此驱动
+程序将导致 ``/dev/uorb/sensor_force<n>`` 主题出现，其中 ``n`` 是
+``devno`` 的值。
+
+以轮询模式注册设备将创建一个内核线程来轮询传感器。
+
+.. code-block:: c
+
+   int err = nau7802_register(i2c_master, 0, 0x2a);
+   if(err < 0){
+     printf("Failed to register NAU7802: %d\n", err);
+   }
+
+以下是 NAU7802 驱动程序可用的命令：
+
+``SNIOC_RESET``
+----------------
+
+对 NAU7802 的所有寄存器执行复位。
+
+.. code-block:: c
+
+   orb_ioctl(sensor, SNIOC_RESET);
+
+``SNIOC_SET_GAIN``
+------------------------
+
+此命令设置 NAU7802 的增益。可能的值由 ``nau7802_gain_e`` 枚举决定。
+默认值为 128x。
+
+.. code-block:: c
+
+   orb_ioctl(sensor, SNIOC_SET_GAIN, NAU7802_GAIN_128);
+
+``SNIOC_SET_INTERVAL``
+------------------------
+
+此命令设置 NAU7802 的轮询间隔。可能的值由 ``nau7802_odr_e`` 枚举
+决定。默认值为 10HZ。
+
+.. code-block:: c
+
+   orb_ioctl(sensor, SNIOC_SET_INTERVAL, NAU7802_ODR_10HZ);
+
+``SNIOC_SET_LDO``
+------------------------
+
+此命令设置 NAU7802 的 LDO 电压。可能的值由 ``nau7802_ldo_e`` 枚举
+决定。默认值为 3.0V。
+
+.. code-block:: c
+
+    orb_ioctl(sensor, SNIOC_SET_LDO, NAU7802_LDO_3V0);
+
+``SNIOC_CALIBRATE``
+------------------------
+
+此命令执行 NAU7802 的校准程序之一。可能的校准模式为：
+
+ - NAU7802_CALMOD_INTERNAL：消除内部 PGA 增益和偏移误差。
+ - NAU7802_CALMOD_OFFSET：校准传感器的零点。
+ - NAU7802_CALMOD_GAIN：校准传感器的最大值。
+
+.. code-block:: c
+
+   orb_ioctl(sensor, SNIOC_CALIBRATE, NAU7802_CALMOD_INTERNAL);
+
+对于增益校准模式，用户必须在传感器上放置已知重量。不幸的是，NAU7802
+将其记录为最大值，因此如果您的称重传感器支持最大 100kg，您应放置
+100kg 的重量。
+
+变通方法是通过放置较小的已知重量并轮询传感器以获取平均点来进行手动
+校准，然后使用该点来偏移记录的值。下面提供了一个示例。
+
+.. code-block:: c
+
+  #include "stdio.h"
+  #include <errno.h>
+  #include <fcntl.h>
+  #include <nuttx/sensors/nau7802.h>
+  #include <signal.h>
+  #include <stdbool.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <sys/ioctl.h>
+  #include <uORB/uORB.h>
+  #include <unistd.h>
+
+  int get_data(const struct orb_metadata *imu_meta, int imu, struct sensor_force *data) {
+    int err = 0;
+    bool update = false;
+    err = orb_check(imu, &update);
+    if (err < 0) {
+        return err;
+    }
+
+    err = orb_copy(imu_meta, imu, data);
+    if (err < 0) {
+        return err;
+    }
+    return err;
+  }
+
+  int main(int argc, char **argv) {
+    int err;
+    int imu;
+    char *name = "sensor_force0";
+
+    const struct orb_metadata *imu_meta = orb_get_meta(name);
+    if (imu_meta == NULL) {
+        fprintf(stderr, "Failed to get metadata for %s\n", name);
+        return EXIT_FAILURE;
+    }
+
+    imu = orb_subscribe(imu_meta);
+    if (imu < 0) {
+        fprintf(stderr, "Could not subscribe to %s: %d\n", name, errno);
+        return EXIT_FAILURE;
+    }
+
+    struct sensor_force data;
+
+    // 冲洗 10 个读数
+    for (int i = 0; i < 10; i++) {
+        err = get_data(imu_meta, imu, &data);
+        if (err < 0) {
+            printf("Error reading data\n");
+        }
+        usleep(100000);
+    }
+
+    long zero_point = 0;
+    for (int i = 0; i < 10; i++) {
+        err = get_data(imu_meta, imu, &data);
+        if (err < 0) {
+            printf("Error reading data\n");
+        } else {
+            zero_point += data.force / 10;
+        }
+        usleep(100000);
+    }
+    printf("Zero point: %ld\n", zero_point);
+
+    printf("Place weight on the sensor... you have 5 seconds from when you see this message\n");
+    usleep(5000000);
+    printf("Starting gain calibration\n");
+
+    long weight_point = 0;
+    for (int i = 0; i < 10; i++) {
+        err = get_data(imu_meta, imu, &data);
+        if (err < 0) {
+            printf("Error reading data\n");
+        } else {
+            weight_point += data.force / 10;
+        }
+        usleep(100000);
+    }
+    printf("Weight value: %ld\n", weight_point);
+    float known_weight_val = 15000; // 1.5kg
+
+    while (true) {
+        err = get_data(imu_meta, imu, &data);
+        if (err < 0) {
+            printf("Error reading data\n");
+        } else {
+            printf("Force: %.3f\n", known_weight_val * (data.force - zero_point) / (weight_point - zero_point));
+        }
+        usleep(50000);
+    }
+
+    orb_unsubscribe(imu);
+    return EXIT_SUCCESS;
+  }
+
+
+``SNIOC_GET_CALIBVALUE:``
+----------------------------
+
+此命令获取通过 ``SNIOC_CALIBRATE`` 命令设置的增益校准值。
+
+.. code-block:: c
+
+    uint32_t cal_value;
+    orb_ioctl(sensor, SNIOC_GET_CALIBVALUE, (unsigned long)&cal_value);
+
+
+``SNIOC_SET_CALIBVALUE:``
+---------------------------
+
+此命令设置增益校准值，当您使用增益校准模式校准传感器后想要稍后
+重用时很有用。
+
+.. code-block:: c
+
+    uint32_t cal_value;
+    orb_ioctl(sensor, SNIOC_SET_CALIBVALUE, cal_value);

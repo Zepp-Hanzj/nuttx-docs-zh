@@ -1,0 +1,9 @@
+sphinx>=7.0
+sphinx-rtd-theme>=2.0
+sphinx-tabs
+sphinx-tags
+sphinx-copybutton
+sphinx-design
+sphinx-collapse
+sphinxcontrib-plantuml
+myst-parser
