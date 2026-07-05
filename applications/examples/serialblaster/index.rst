@@ -1,0 +1,9 @@
+========================================
+``serialblaster`` Serial Blaster example
+========================================
+
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+
+Sends a repeating pattern (the alphabet) out a serial port continuously. This
+may be useful if you are trying run down other problems that you think might
+only occur when the serial port usage is high.
