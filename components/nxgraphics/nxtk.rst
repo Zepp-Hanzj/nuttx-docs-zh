@@ -1,78 +1,57 @@
 ======================
-NX Tool Kit (``NXTK``)
+NX 工具包 (``NXTK``)
 ======================
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-NXTK implements where the *framed 窗口*. NX framed 窗口s consist of
-three components within one NX 窗口:
+NXTK 实现了*框架窗口*。NX 框架窗口在单个 NX 窗口中包含三个组成部分：
 
-  #. The 窗口 *border*,
-  #. The main *client 窗口* area, and
-  #. A *toolbar* area
+  #. 窗口*边框*，
+  #. 主*客户窗口*区域，以及
+  #. *工具栏*区域
 
-Each sub-窗口 represents a region within one 窗口. `Figure
-1 <#屏幕shot>`__ shows some simple NX framed 窗口s. NXTK allows
-these sub-窗口s to be managed more-or-less independently:
+每个子窗口代表一个窗口内的某个区域。`图 1 <#screenshot>`__
+展示了一些简单的 NX 框架窗口示例。NXTK 允许对这些子窗口进行相对独立的管理：
 
-  -  Each component has its own callbacks for redraw and position events
-     as well as mouse and keyboard 输入s. The client sub-窗口 callbacks
-     are 注册ed when the framed 窗口 is 创建d with a call to
-     :c:func:`nxtk_打开窗口`; Separate toolbar
-     sub-窗口 callbacks are reigistered when the toolbar is 添加ed using
-     :c:func:`nxtk_打开toolbar`. (NOTES: (1) only the
-     client sub-窗口 接收s keyboard 输入 and, (2) border callbacks
-     are not currently accessible by the user).
-  -  All position informational provided within the callback is relative
-     to the specific sub-窗口. That is, the origin (0,0) of the
-     coordinate system for each sub-窗口 begins at the top left
-     corner of the sub窗口. This means that toolbar logic need not
-     be concerned about client 窗口 geometry (and vice versa) and,
-     例如, common toolbar logic 可用于 with different 窗口s.
+  -  每个组件都有自己的回调函数，用于处理重绘、位置事件以及鼠标和键盘输入。客户子窗口的回调函数在通过
+     :c:func:`nxtk_openwindow` 创建框架窗口时注册；工具栏子窗口的回调函数在通过
+     :c:func:`nxtk_opentoolbar` 添加工具栏时注册。（注意：(1)
+     只有客户子窗口会接收键盘输入，(2) 边框回调函数目前不对用户开放。）
+  -  回调中提供的所有位置信息都是相对于特定子窗口的。也就是说，每个子窗口的坐标系原点
+     (0,0) 位于该子窗口的左上角。这意味着工具栏逻辑无需关心客户窗口的几何信息（反之亦然），例如，通用的工具栏逻辑可以在不同的窗口中复用。
 
 .. c:type:: FAR void *NXTKWINDOW
 
-  这是 the 句柄 that 可用于 to access the 窗口 数据 region.
+  这是用于访问窗口数据区域的句柄。
 
 .. c:function:: int nxtk_block(NXWINDOW hwnd, FAR void *arg)
 
-  The response to this 函数 call is two things: (1)
-  any queued callback messages to the 窗口 are 'blocked' and then (2)
-  also subsequent 窗口 messaging is blocked.
+  调用此函数会产生两个效果：(1)
+  该窗口的所有已排队的回调消息将被"阻塞"，(2)
+  后续的窗口消息也将被阻塞。
 
-  The ``event`` callback with the ``NXEVENT_BLOCKED`` event is the
-  response from ``nxtk_block()``. This blocking 接口 用于 to
-  assure that no further messages are are directed to the 窗口. Receipt
-  of the ``NXEVENT_BLOCKED`` event signifies that (1) there are no further
-  pending callbacks and (2) that the 窗口 is now *defunct* and will
-  接收 no further callbacks.
+  ``NXEVENT_BLOCKED`` 事件的 ``event`` 回调是
+  ``nxtk_block()`` 的响应。此阻塞接口用于确保不再有消息发送到该窗口。收到
+  ``NXEVENT_BLOCKED`` 事件表示：(1) 没有待处理的回调，且 (2)
+  该窗口已处于*失效*状态，不会再收到任何回调。
 
-  This callback 支持s coordinated destruction of a 窗口. The client
-  窗口 logic must stay intact until all of the queued callbacks are
-  processed. Then the 窗口 may be safely 关闭d. Closing the 窗口
-  prior with pending callbacks can lead to bad behavior when the callback
-  is 执行d.
+  此回调支持窗口的协调销毁。客户窗口逻辑必须保持完整，直到所有已排队的回调都被处理完毕，然后才能安全地关闭窗口。如果在有待处理回调的情况下关闭窗口，可能会导致回调执行时出现异常行为。
 
-  :param wnd: The 窗口 to be blocked
-  :param arg: An 参数 that will accompany the block messages (这是 ``arg2`` in
-    the event callback).
+  :param wnd: 要被阻塞的窗口
+  :param arg: 伴随阻塞消息的参数（在事件回调中为 ``arg2``）。
 
-  :返回: OK on 成功; ERROR on 失败 with errno 设置
-    appropriately.
+  :return: 成功时返回 OK；失败时返回 ERROR 并设置相应的 errno。
 
 .. c:function:: int nxtk_synch(NXWINDOW hwnd, FAR void *arg);
 
-  This 接口 可用于 to synchronize the 窗口
-  client with the NX server. It really just implements an *echo*: A synch
-  message is sent from the 窗口 client to the server which then responds
-  immediately by 发送ing the ``NXEVENT_SYNCHED`` back to the 窗口s
-  client.
+  此接口用于同步窗口客户端与 NX
+  服务器。它实际上实现了一个*回显*机制：同步消息从窗口客户端发送到服务器，服务器立即通过将
+  ``NXEVENT_SYNCHED`` 发送回窗口客户端来进行响应。
 
-  Due to the highly asynchronous nature of client-server communications,
-  ``nx_synch()`` is sometimes necessary to assure that the client and
-  server are fully synchronized in time.
+  由于客户端-服务器通信具有高度异步性，``nx_synch()``
+  有时是必要的，以确保客户端和服务器在时间上完全同步。
 
-  Usage by the 窗口 client might be something like this:
+  窗口客户端的用法示例如下：
 
   .. code-block:: c
 
@@ -80,10 +59,10 @@ these sub-窗口s to be managed more-or-less independently:
     extern sem_t g_synch_sem;
 
     g_synched = false;
-    ret = nxtk_synch(hfwnd, 句柄);
+    ret = nxtk_synch(hfwnd, handle);
     if (ret < 0)
       {
-         -- 句柄 the 错误 --
+         -- Handle the error --
       }
 
     while (!g_synched)
@@ -91,319 +70,270 @@ these sub-窗口s to be managed more-or-less independently:
         ret = sem_wait(&g_sync_sem);
         if (ret < 0)
           {
-             -- 句柄 the 错误 --
+             -- Handle the error --
           }
       }
 
-  When the 窗口 listener th读取 接收s the ``NXEVENT_SYNCHED`` event,
-  it would set ``g_synched`` to ``true`` and post ``g_synch_sem``, waking
-  up the above loop.
+  当窗口监听线程收到 ``NXEVENT_SYNCHED`` 事件时，会将 ``g_synched``
+  设置为 ``true`` 并释放 ``g_synch_sem`` 信号量，从而唤醒上述循环。
 
   :param wnd:
-     The 窗口 to be synched
+     要同步的窗口
   :param arg:
-     An 参数 that will accompany the synch messages (这是 ``arg2``
-     in the event callback).
+     伴随同步消息的参数（在事件回调中为 ``arg2``）。
 
-  :返回: OK on 成功; ERROR on 失败 with errno 设置
-    appropriately
+  :return: 成功时返回 OK；失败时返回 ERROR 并设置相应的 errno。
 
 .. c:function:: NXTKWINDOW nxtk_openwindow(NXHANDLE handle, uint8_t flags, \
                            FAR const struct nx_callback_s *cb, \
                            FAR void *arg);
 
-  创建 a new, framed 窗口.
+  创建一个新的框架窗口。
 
-  :param 句柄:
-     The 句柄 返回ed by ```nx_连接()`` <#nx连接instance>`__.
+  :param handle:
+     由 ```nx_connect()`` <#nxconnectinstance>`__ 返回的句柄。
   :param flags:
-     选项al flags. These include:
+     可选标志，包括：
 
-     -  ``NXBE_WINDOW_RAMBACKED``: 创建s a RAM backed 窗口. This
-        选项 is only valid if ``CONFIG_NX_RAMBACKED`` 启用.
-     -  ``NXBE_WINDOW_HIDDEN``: The 窗口 is 创建 in the HIDDEN state
-        and can be made visible later with ``nxtk_设置visibility()``.
+     -  ``NXBE_WINDOW_RAMBACKED``：创建 RAM 支持的窗口。此选项仅在启用
+        ``CONFIG_NX_RAMBACKED`` 时有效。
+     -  ``NXBE_WINDOW_HIDDEN``：以隐藏状态创建窗口，之后可通过
+        ``nxtk_setvisibility()`` 使其可见。
 
   :param cb:
-     Callbacks used to process 窗口 events
+     用于处理窗口事件的回调函数。
   :param arg:
-     User provided 参数 (see ```nx_打开窗口()`` <#nx打开窗口>`__)
+     用户提供的参数（参见 ```nx_openwindow()`` <#nxopenwindow>`__）。
 
-  :返回: Success: A non-NULL 句柄 used with subsequent NXTK 窗口 accesses
-    Failure: NULL is 返回ed and errno is 设置 appropriately.
+  :return: 成功时返回一个非 NULL 的句柄，用于后续 NXTK 窗口操作；失败时返回 NULL 并设置相应的
+    errno。
 
 .. c:function:: int nxtk_closewindow(NXTKWINDOW hfwnd);
 
-  关闭 the 窗口 打开ed by
-  ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+  关闭由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 打开的窗口。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_getposition(NXTKWINDOW hfwnd);
 
-  Request the position and 大小 information for the
-  selected framed 窗口. The 大小/position for the client 窗口 and
-  toolbar will be 返回 asynchronously through the client callback
-  函数 指针.
+  请求指定框架窗口的位置和大小信息。客户窗口和工具栏的大小/位置将通过客户回调函数指针异步返回。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_setposition(NXTKWINDOW hfwnd, FAR struct nxgl_point_s *pos);
 
-  设置 the position for the selected client 窗口. This
-  position does not include the off设置s for the borders nor for any
-  toolbar. Those off设置s will be 添加ed in to 设置 the full 窗口 position.
+  设置指定客户窗口的位置。此位置不包括边框或工具栏的偏移量。这些偏移量会被自动添加，以设置完整的窗口位置。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param pos:
-     The new position of the client sub-窗口
+     客户子窗口的新位置。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_setsize(NXTKWINDOW hfwnd, FAR struct nxgl_size_s *size);
 
-  设置 the 大小 for the selected client 窗口. This 大小
-  does not include the 大小s of the borders nor for any toolbar. Those
-  大小s will be 添加ed in to 设置 the full 窗口 大小.
+  设置指定客户窗口的大小。此大小不包括边框或工具栏的尺寸。这些尺寸会被自动添加，以设置完整的窗口大小。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
-  :param 大小:
-     The new 大小 of the client sub-窗口.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
+  :param size:
+     客户子窗口的新大小。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_raise(NXTKWINDOW hfwnd);
 
-  Bring the 窗口 containing the specified client
-  sub-窗口 to the top of the 显示.
+  将包含指定客户子窗口的窗口提升到显示的最顶层。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__ specifying the 窗口 to
-     be raised.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄，指定要提升的窗口。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_lower(NXTKWINDOW hfwnd);
 
-  Lower the 窗口 containing the specified client
-  sub-窗口 to the bottom of the 显示.
+  将包含指定客户子窗口的窗口降低到显示的最底层。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__ specifying the 窗口 to
-     be lowered.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄，指定要降低的窗口。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_modal(NXWINDOW hwnd, bool modal);
 
-  May be used to either (1) raise a 窗口 to the top of
-  the 显示 and select modal behavior, or (2) 禁用 modal behavior.
+  可用于：(1) 将窗口提升到显示的最顶层并启用模态行为，或 (2) 禁用模态行为。
 
   :param hwnd:
-     The 句柄 返回ed by ```nxtk_打开窗口()`` <#nxtk打开窗口>`__
-     specifying the 窗口 to be modified.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 返回的句柄，指定要修改的窗口。
   :param modal:
-     True: enter modal state; False: leave modal state
+     True：进入模态状态；False：退出模态状态。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_setvisibility(NXWINDOW hwnd, bool hide);
 
-  Select if the 窗口 is visible or hidden. A hidden
-  窗口 is still present and will update normally, but will not be
-  visible on the 显示 until it is unhidden.
+  设置窗口是否可见。隐藏的窗口仍然存在并会正常更新，但在取消隐藏之前不会在显示上可见。
 
   :param hwnd:
-     The 句柄 返回ed by ```nxtk_打开窗口()`` <#nxtk打开窗口>`__
-     specifying the 窗口 to be modified.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 返回的句柄，指定要修改的窗口。
   :param hide:
-     True: 窗口 will be hidden; false: 窗口 will be visible
+     True：窗口将被隐藏；False：窗口将可见。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: bool nxtk_ishidden(NXTKWINDOW hfwnd);
 
-  返回 true if the 窗口 is hidden.
+  如果窗口处于隐藏状态则返回 true。
 
-  **NOTE**: There will be a delay between the time that the visibility of
-  the 窗口 is changed via
-  ```nxtk_设置visibily()`` <#nxtk设置visibility>`__ before that new 设置
-  is reported by ``nxtk_ishidden()``. ``nxtk_synch()`` may be used if
-  temporal synchronization 需要.
+  **注意**：通过 ```nxtk_setvisibility()`` <#nxtksetvisibility>`__
+  更改窗口可见性后，在 ``nxtk_ishidden()``
+  报告新设置之前会有一段延迟。如果需要时间同步，可以使用
+  ``nxtk_synch()``。
 
   :param hfwnd:
-     The 句柄 返回ed by ```nxtk_打开窗口()`` <#nxtk打开窗口>`__
-     that identifies the 窗口 to be queried.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 返回的句柄，标识要查询的窗口。
 
-  :返回: *True*: the 窗口 is hidden, *false*: the 窗口 is
-    visible
+  :return: *True*：窗口已隐藏；*false*：窗口可见。
 
 .. c:function:: int nxtk_fillwindow(NXTKWINDOW hfwnd, FAR const struct nxgl_rect_s *rect, \
-                    nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                    nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Fill the specified rectangle in the client 窗口 with
-  the specified 颜色.
+  用指定颜色填充客户窗口中的指定矩形区域。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param rect:
-     The location within the client 窗口 to be filled
-  :param 颜色:
-     The 颜色 to use in the fill
+     客户窗口内要填充的位置。
+  :param color:
+     填充使用的颜色。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: void nxtk_getwindow(NXTKWINDOW hfwnd, FAR const struct nxgl_rect_s *rect, \
                     unsigned int plane, FAR uint8_t *dest, \
                     unsigned int deststride);
 
-  获取 the raw contents of graphic 内存 within a
-  rectangular region. 注意： Since raw graphic 内存 is 返回ed, the
-  返回ed 内存 content may be the 内存 of 窗口s above this one and
-  may not necessarily belong to this 窗口 unless you assure that this is
-  the top 窗口.
+  获取矩形区域内图形内存的原始内容。注意：由于返回的是原始图形内存，返回的内存内容可能是位于此窗口之上的其他窗口的内存，除非确保此窗口是最顶层窗口，否则内容不一定属于此窗口。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param rect:
-     The location within the client 窗口 to be retrieved.
+     客户窗口内要检索的位置。
   :param plane:
-     Specifies the 颜色 plane to 获取 from.
+     指定要获取的颜色平面。
   :param dest:
-     The location to copy the 内存 region
+     复制内存区域的目标位置。
   :param deststride:
-     The 宽度, in 字节s, of the dest 内存
+     目标内存的宽度（以字节为单位）。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_filltrapwindow(NXTKWINDOW hfwnd, \
                         FAR const struct nxgl_trapezoid_s *trap, \
-                        nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                        nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Fill the specified trapezoid in the client 窗口 with
-  the specified 颜色
+  用指定颜色填充客户窗口中的指定梯形区域。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param trap:
-     The trapezoidal region to be filled.
-  :param 颜色:
-     The 颜色 to use in the fill.
+     要填充的梯形区域。
+  :param color:
+     填充使用的颜色。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_drawlinewindow(NXTKWINDOW hfwnd, FAR struct nxgl_vector_s *vector, \
-                        nxgl_coord_t 宽度, nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES], \
+                        nxgl_coord_t width, nxgl_mxpixel_t color[CONFIG_NX_NPLANES], \
                         uint8_t caps);
 
-  Fill the specified trapezoidal region in the 窗口
-  with the specified 颜色. Fill the specified line in the 窗口 with the
-  specified 颜色. 这是 simply a wrapper that uses ``nxgl_splitline()``
-  to break the line into trapezoids and then calls
-  ``nxtk_filltrap窗口()`` to render the line.
+  在窗口中用指定颜色绘制指定线段。这实际上是一个封装函数，使用
+  ``nxgl_splitline()`` 将线段分解为梯形，然后调用
+  ``nxtk_filltrapwindow()`` 来渲染线段。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param vector:
-     Describes the line to be drawn.
-  :param 宽度:
-     The 宽度 of the line
-  :param 颜色:
-     The 颜色 to use to fill the line
+     描述要绘制的线段。
+  :param width:
+     线段的宽度。
+  :param color:
+     绘制线段使用的颜色。
   :param caps:
-     Draw a circular cap on the ends of the line to 支持 better line
-     joins. One of:
+     在线段端点绘制圆形端帽，以支持更好的线段连接。取值为：
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_drawcirclewindow(NXTKWINDOW hfwnd, FAR const struct nxgl_point_s *center, \
-                          nxgl_coord_t radius, nxgl_coord_t 宽度, \
-                          nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                          nxgl_coord_t radius, nxgl_coord_t width, \
+                          nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Draw a circular outline using the specified line
-  thickness and 颜色.
+  使用指定的线宽和颜色绘制圆形轮廓。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param center:
-     A 指针 to the point that is the center of the circle.
+     指向圆心的指针。
   :param radius:
-     The radius of the circle in 像素s.
-  :param 宽度:
-     The 宽度 of the line
-  :param 颜色:
-     The 颜色 to use to fill the line
+     圆的半径（以像素为单位）。
+  :param width:
+     线段的宽度。
+  :param color:
+     绘制线段使用的颜色。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_fillcirclewindow(NXWINDOW hfwnd, FAR const struct nxgl_point_s *center, \
-                          nxgl_coord_t radius, nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                          nxgl_coord_t radius, nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Fill a circular region using the specified 颜色.
+  使用指定颜色填充圆形区域。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param center:
-     A 指针 to the point that is the center of the circle.
+     指向圆心的指针。
   :param radius:
-     The 宽度 of the line
-  :param 颜色:
-     The 颜色 to use to fill the circle
+     圆的半径。
+  :param color:
+     填充圆形使用的颜色。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_movewindow(NXTKWINDOW hfwnd, FAR const struct nxgl_rect_s *rect, \
-                    FAR const struct nxgl_point_s *off设置);
+                    FAR const struct nxgl_point_s *offset);
 
-  Move a rectangular region within the client sub-窗口
-  of a framed 窗口.
+  移动框架窗口客户子窗口内的矩形区域。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__ specifying the client
-     sub-窗口 within which the move is to be done.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄，指定要执行移动操作的客户子窗口。
   :param rect:
-     Describes the rectangular region relative to the client sub-窗口 to
-     move.
-  :param off设置:
-     The off设置 to move the region
+     描述相对于客户子窗口的要移动的矩形区域。
+  :param offset:
+     移动区域的偏移量。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_bitmapwindow(NXTKWINDOW hfwnd, \
                       FAR const struct nxgl_rect_s *dest, \
@@ -411,141 +341,118 @@ these sub-窗口s to be managed more-or-less independently:
                       FAR const struct nxgl_point_s *origin, \
                       unsigned int stride);
 
-  Copy a rectangular region of a larger 图像 into the
-  rectangle in the specified client sub-窗口.
+  将较大图像中的矩形区域复制到指定客户子窗口的矩形区域中。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__ specifying the client
-     sub-窗口 that will 接收 the 位map.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄，指定接收位图的客户子窗口。
   :param dest:
-     Describes the rectangular region on in the client sub-窗口 will
-     接收 the 位 map.
+     描述客户子窗口中接收位图的矩形区域。
   :param src:
-     The 启动 of the source 图像(s). 这是 an array source 图像s of
-     大小 ``CONFIG_NX_NPLANES`` (probably 1).
+     源图像的起始地址。这是一个大小为 ``CONFIG_NX_NPLANES``（通常为 1）的源图像数组。
   :param origin:
-     The origin of the upper, left-most corner of the full 位map. Both
-     dest and origin are in sub-窗口 coordinates, however, the origin
-     may lie outside of the sub-窗口 显示.
+     完整位图左上角的原点。dest 和 origin 均使用子窗口坐标，但 origin 可能位于子窗口显示区域之外。
   :param stride:
-     The 宽度 of the full source 图像 in 像素s.
+     完整源图像的宽度（以像素为单位）。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_opentoolbar(NXTKWINDOW hfwnd, nxgl_coord_t height, \
                      FAR const struct nx_callback_s *cb, \
                      FAR void *arg);
 
-  创建 a tool bar at the top of the specified framed
-  窗口.
+  在指定框架窗口的顶部创建工具栏。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
-  :param 高度:
-     The requested 高度 of the toolbar in 像素s.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
+  :param height:
+     请求的工具栏高度（以像素为单位）。
   :param cb:
-     Callbacks used to process toolbar events.
+     用于处理工具栏事件的回调函数。
   :param arg:
-     User provided 值 that will be 返回ed with toolbar callbacks.
+     用户提供的值，将在工具栏回调中返回。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_closetoolbar(NXTKWINDOW hfwnd);
 
-  移除 the tool bar at the top of the specified framed
-  窗口.
+  移除指定框架窗口顶部的工具栏。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_filltoolbar(NXTKWINDOW hfwnd, FAR const struct nxgl_rect_s *rect, \
-                     nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                     nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Fill the specified rectangle in the toolbar sub-窗口
-  with the specified 颜色.
+  用指定颜色填充工具栏子窗口中的指定矩形区域。
 
   :param hfwnd:
-    A 句柄 previously 返回ed by
-    ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+    由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param rect:
-    The location within the toolbar 窗口 to be filled.
-  :param 颜色:
-    The 颜色 to use in the fill.
+    工具栏窗口内要填充的位置。
+  :param color:
+    填充使用的颜色。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_gettoolbar(NXTKWINDOW hfwnd, FAR const struct nxgl_rect_s *rect, \
                     unsigned int plane, FAR uint8_t *dest, \
                     unsigned int deststride);
 
-  获取 the raw contents of graphic 内存 within a
-  rectangular region. 注意： Since raw graphic 内存 is 返回ed, the
-  返回ed 内存 content may be the 内存 of 窗口s above this one and
-  may not necessarily belong to this 窗口 unless you assure that this is
-  the top 窗口.
+  获取矩形区域内图形内存的原始内容。注意：由于返回的是原始图形内存，返回的内存内容可能是位于此窗口之上的其他窗口的内存，除非确保此窗口是最顶层窗口，否则内容不一定属于此窗口。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param rect:
-     The location within the toolbar 窗口 to be retrieved.
+     工具栏窗口内要检索的位置。
   :param plane:
-     Specifies the 颜色 plane to 获取 from.
+     指定要获取的颜色平面。
   :param dest:
-     The location to copy the 内存 region.
+     复制内存区域的目标位置。
   :param deststride:
-     The 宽度, in 字节s, of the dest 内存.
+     目标内存的宽度（以字节为单位）。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_filltraptoolbar(NXTKWINDOW hfwnd, FAR const struct nxgl_trapezoid_s *trap, \
-                         nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                         nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Fill the specified trapezoid in the toolbar sub-窗口
-  with the specified 颜色.
+  用指定颜色填充工具栏子窗口中的指定梯形区域。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param trap:
-     The trapezoidal region to be filled
-  :param 颜色:
-     The 颜色 to use in the fill
+     要填充的梯形区域。
+  :param color:
+     填充使用的颜色。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_drawlinetoolbar(NXTKWINDOW hfwnd, FAR struct nxgl_vector_s *vector, \
-                         nxgl_coord_t 宽度, nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES], \
+                         nxgl_coord_t width, nxgl_mxpixel_t color[CONFIG_NX_NPLANES], \
                          uint8_t caps);
 
-  Fill the specified line in the toolbar sub-窗口 with
-  the specified 颜色. 这是 simply a wrapper that uses
-  ``nxgl_splitline()`` to break the line into trapezoids and then calls
-  ``nxtk_filltraptoolbar()`` to render the line.
+  在工具栏子窗口中用指定颜色绘制指定线段。这实际上是一个封装函数，使用
+  ``nxgl_splitline()`` 将线段分解为梯形，然后调用
+  ``nxtk_filltraptoolbar()`` 来渲染线段。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param vector:
-     Describes the line to be drawn.
-  :param 宽度:
-     The 宽度 of the line
-  :param 颜色:
-     The 颜色 to use to fill the line
+     描述要绘制的线段。
+  :param width:
+     线段的宽度。
+  :param color:
+     绘制线段使用的颜色。
   :param caps:
-     Draw a circular cap on the ends of the line to 支持 better line
-     joins. One of:
+     在线段端点绘制圆形端帽，以支持更好的线段连接。取值为：
 
      .. code-block:: c
 
@@ -556,67 +463,60 @@ these sub-窗口s to be managed more-or-less independently:
       #define NX_LINECAP_PT2   0x02  /* Line cap on pt2 on of the vector only */
       #define NX_LINECAP_BOTH  0x03  /* Line cap on both ends of the vector only */
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_drawcircletoolbar(NXTKWINDOW hfwnd, FAR const struct nxgl_point_s *center, \
-                           nxgl_coord_t radius, nxgl_coord_t 宽度, \
-                           nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                           nxgl_coord_t radius, nxgl_coord_t width, \
+                           nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Draw a circular outline using the specified line
-  thickness and 颜色.
+  使用指定的线宽和颜色绘制圆形轮廓。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param center:
-     A 指针 to the point that is the center of the circle.
+     指向圆心的指针。
   :param radius:
-     The radius of the circle in 像素s.
-  :param 宽度:
-     The 宽度 of the line
-  :param 颜色:
-     The 颜色 to use to fill the line
+     圆的半径（以像素为单位）。
+  :param width:
+     线段的宽度。
+  :param color:
+     绘制线段使用的颜色。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_fillcircletoolbar(NXWINDOW hfwnd, FAR const struct nxgl_point_s *center, \
-                           nxgl_coord_t radius, nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                           nxgl_coord_t radius, nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Fill a circular region using the specified 颜色.
+  使用指定颜色填充圆形区域。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param center:
-     A 指针 to the point that is the center of the circle.
+     指向圆心的指针。
   :param radius:
-     The 宽度 of the line
-  :param 颜色:
-     The 颜色 to use to fill the circle
+     圆的半径。
+  :param color:
+     填充圆形使用的颜色。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_movetoolbar(NXTKWINDOW hfwnd, FAR const struct nxgl_rect_s *rect, \
-                     FAR const struct nxgl_point_s *off设置);
+                     FAR const struct nxgl_point_s *offset);
 
-  Move a rectangular region within the toolbar sub-窗口
-  of a framed 窗口.
+  移动框架窗口工具栏子窗口内的矩形区域。
 
   :param hfwnd:
-     A 句柄 identifying sub-窗口 containing the toolbar within which
-     the move is to be done. This 句柄 must have previously been
-     返回ed by ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     标识包含工具栏的子窗口的句柄，用于执行移动操作。此句柄必须由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回。
   :param rect:
-     Describes the rectangular region relative to the toolbar sub-窗口
-     to move.
-  :param off设置:
-     The off设置 to move the region
+     描述相对于工具栏子窗口的要移动的矩形区域。
+  :param offset:
+     移动区域的偏移量。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. c:function:: int nxtk_bitmaptoolbar(NXTKWINDOW hfwnd, \
                        FAR const struct nxgl_rect_s *dest, \
@@ -624,26 +524,20 @@ these sub-窗口s to be managed more-or-less independently:
                        FAR const struct nxgl_point_s *origin, \
                        unsigned int stride);
 
-  Copy a rectangular region of a larger 图像 into the
-  rectangle in the specified toolbar sub-窗口.
+  将较大图像中的矩形区域复制到指定工具栏子窗口的矩形区域中。
 
   :param hfwnd:
-     A 句柄 previously 返回ed by
-     ```nxtk_打开窗口()`` <#nxtk打开窗口>`__.
+     由 ```nxtk_openwindow()`` <#nxtkopenwindow>`__ 先前返回的句柄。
   :param dest:
-     Describes the rectangular region on in the toolbar sub-窗口 will
-     接收 the 位 map.
+     描述工具栏子窗口中接收位图的矩形区域。
   :param src:
-     The 启动 of the source 图像.
+     源图像的起始地址。
   :param origin:
-     The origin of the upper, left-most corner of the full 位map. Both
-     dest and origin are in sub-窗口 coordinates, however, the origin
-     may lie outside of the sub-窗口 显示.
+     完整位图左上角的原点。dest 和 origin 均使用子窗口坐标，但 origin 可能位于子窗口显示区域之外。
   :param stride:
-     The 宽度 of the full source 图像 in 字节s.
+     完整源图像的宽度（以字节为单位）。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功时返回 ``OK``；失败时返回 ``ERROR`` 并设置相应的
+    ``errno``。
 
 .. _nx-fonts-support-nxfonts-1:
-

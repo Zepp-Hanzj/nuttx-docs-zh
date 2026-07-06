@@ -7,70 +7,56 @@ NX
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-NX provides a tiny 窗口ing system in the spirit of X, but greatly scaled
-down and appropriate for most resource-limited embedded environments.
-The current NX implementation 支持s the general following, high-level
-特性s:
+NX 提供了一个精简的窗口系统，其设计思路源自 X Window，但做了大幅裁剪，
+适用于大多数资源受限的嵌入式环境。当前 NX 实现支持以下高层特性：
 
-* **Virtual Vertical Graphics Space** 窗口s that reside in a virtual,
-  vertical space so that it makes sense to talk about one 窗口 being
-  on top of another and obscuring the 窗口 below it.
+* **虚拟垂直图形空间** 窗口存在于一个虚拟的垂直空间中，因此可以讨论一个
+  窗口位于另一个窗口之上并遮挡下方窗口这样的概念。
 
-* **Client/Server Model** A standard client server/model was adopted.
-  NX may be considered a server and other logic that presents the 窗口s
-  are NX clients.
+* **客户端/服务器模型** 采用标准的客户端/服务器模型。NX 可被视为服务器，
+  而负责呈现窗口的其他逻辑则为 NX 客户端。
 
-* **Multi-User 支持** NX includes front-end logic to an NX server
-  daemon that can serve multiple NX client th读取s. The NX sever
-  th读取/daemon serializes graphics 操作s from multiple clients.
-  
-* **Minimal Graphics Tool设置** The actual implementation of the graphics
-  操作s is performed by common, back-end logic. This back-end 支持s
-  only a primitive 设置 of graphic and rendering 操作s.
+* **多用户支持** NX 包含面向 NX 服务器守护进程的前端逻辑，该守护进程可以
+  为多个 NX 客户端线程提供服务。NX 服务器线程/守护进程负责将来自多个客户端
+  的图形操作进行序列化处理。
 
-* **设备 接口** NX 支持s any graphics 设备 either of two
-  设备 接口s:
+* **精简图形工具集** 图形操作的实际实现由通用的后端逻辑完成。该后端仅支持
+  一组基础的图形和渲染操作。
 
-  #. Any 设备 with random access video 内存 using the NuttX frame缓冲区
-     驱动 接口 (see include/nuttx/video/fb.h).
-  #. Any LCD-like 设备 than can accept raster line 运行s through a parallel
-     or serial 接口 (see include/nuttx/lcd/lcd.h). By 默认, NX is
-     configured to use the frame 缓冲区 驱动 unless CONFIG_NX_LCDDRIVER
-     定义 =y in your NuttX 配置 文件.
+* **设备接口** NX 支持任意图形设备，可通过以下两种设备接口之一进行访问：
 
-* **Transparent to NX Client** The 窗口 client on "sees" the sub-窗口
-  that is operates in and does not need to be concerned with the virtual,
-  vertical space (other that to respond to redraw requests from NX when needed).
+  #. 任何具有随机访问显存的设备，使用 NuttX 帧缓冲驱动接口
+     （参见 include/nuttx/video/fb.h）。
+  #. 任何可通过并行或串行接口接收光栅行数据的类 LCD 设备
+     （参见 include/nuttx/lcd/lcd.h）。默认情况下，NX 使用帧缓冲驱动，
+     除非在 NuttX 配置文件中将 CONFIG_NX_LCDDRIVER 定义为 =y。
 
-* **Framed 窗口s and Toolbars** NX also 添加s the capability to 支持
-  窗口s with frames and toolbars on top of the basic 窗口ing 支持.
-  These are 窗口s such as those shown in the 屏幕shot above. These framed
-  窗口s sub-divide one one 窗口 into three relatively independent
-  sub窗口s: A frame, the contained 窗口 and an (选项al) toolbar 窗口.
+* **对 NX 客户端透明** 窗口客户端只能"看到"其操作所在的子窗口，
+  无需关心虚拟垂直空间的问题（仅在需要时响应 NX 发来的重绘请求即可）。
 
-* **Mouse 支持** NX provides 支持 for a mouse or other X/Y pointing
-  设备s. APIs 提供 to allow external 设备s to give X/Y position
-  information and mouse button presses to NX. NX will then provide the mouse
-  输入 to the relevant 窗口 clients via callbacks. Client 窗口s only
-  接收 the mouse 输入 callback if the mouse is positioned over a visible
-  portion of the client 窗口; X/Y position 提供 to the client in the
-  relative coordinate system of the client 窗口.
+* **带边框的窗口和工具栏** NX 还在基本窗口功能之上，增加了对带边框和工具栏
+  窗口的支持。这些窗口即为上图截图中所示的类型。这类带边框的窗口会将一个窗口
+  划分为三个相对独立的子窗口：边框、所包含的窗口以及（可选的）工具栏窗口。
 
-* **Keyboard 输入** NX also 支持s keyboard/keypad 设备s. APIs 提供
-  to allow external 设备s to give keypad information to NX. NX will then
-  provide the mouse 输入 to the top 窗口 on the 显示 (the 窗口 that
-  has the focus) via a callback 函数.
+* **鼠标支持** NX 支持鼠标或其他 X/Y 指点设备。提供了相应的 API，允许外部
+  设备向 NX 报告 X/Y 位置信息和鼠标按键事件。NX 随后会通过回调函数将鼠标
+  输入传递给相关的窗口客户端。客户端窗口仅在鼠标位于其可见区域内时才会收到
+  鼠标输入回调；X/Y 位置会以客户端窗口的相对坐标系提供给客户端。
+
+* **键盘输入** NX 还支持键盘/小键盘设备。提供了相应的 API，允许外部设备向
+  NX 报告键盘信息。NX 随后会通过回调函数将键盘输入传递给显示顶层窗口（即
+  拥有焦点的窗口）。
 
 预处理器定义
 =========================
 
-The 默认 server message queue 名称 used by the :c:macro:`nx_运行` macro:
+:c:macro:`nx_run` 宏使用的默认服务器消息队列名称：
 
 .. code-block:: c
 
   #define NX_DEFAULT_SERVER_MQNAME "/dev/nxs"
 
-Mouse button 位s:
+鼠标按键位定义：
 
 .. code-block:: c
 
@@ -82,17 +68,16 @@ Mouse button 位s:
 NX 类型
 ========
 
-The 接口 to the NX server is managed using a opaque 句柄:
+NX 服务器的接口通过一个不透明句柄来管理：
 
 .. c:type:: FAR void *NXHANDLE
 
-The 接口 to a specific 窗口 is managed using an opaque 句柄:
+特定窗口的接口同样通过一个不透明句柄来管理：
 
 .. c:type:: FAR void *NXWINDOW
 
-These define callbacks that must be provided to :c:func:`nx_打开窗口`.
-These callbacks will be invoked as part of the processing performed by
-:c:func:`nx_event句柄r`.
+以下定义了必须提供给 :c:func:`nx_openwindow` 的回调函数。这些回调会在
+:c:func:`nx_eventhandler` 的处理过程中被调用。
 
 .. c:struct:: nx_callback_s
 
@@ -102,7 +87,7 @@ These callbacks will be invoked as part of the processing performed by
     {
       void (*redraw)(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                      bool more, FAR void *arg);
-      void (*position)(NXWINDOW hwnd, FAR const struct nxgl_大小_s *大小,
+      void (*position)(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
                        FAR const struct nxgl_point_s *pos,
                        FAR const struct nxgl_rect_s *bounds,
                        FAR void *arg);
@@ -115,30 +100,25 @@ These callbacks will be invoked as part of the processing performed by
     #endif
     };
 
-Starting the NX Server
+启动 NX 服务器
 ======================
 
-The *NX Server* is a kernel daemon that 接收s and serializes graphic
-commands. Before you can use the NX graphics system, you must first
-启动 this daemon. There are two ways that this can be done:
+*NX 服务器*是一个内核守护进程，负责接收和序列化图形命令。在使用 NX 图形系统
+之前，必须先启动该守护进程。有两种方式可以完成此操作：
 
-#. The NX server may be 启动ed in your board 启动up logic by simply
-   calling the 函数 ``nxmu_启动()``. The board 启动up logic
-   usually resides the ``boards/arch/chip/board/src`` 目录. The
-   board 启动up logic can 运行 automatically during the early system if
-   ``CONFIG_BOARD_LATE_INITIALIZE`` 定义 in the 配置. Or,
-   the board 启动up logic can 执行 under control of the application
-   by calling :c:func:`boardctl` as:
+#. 可以在板级启动逻辑中通过简单地调用函数 ``nxmu_start()`` 来启动 NX 服务器。
+   板级启动逻辑通常位于 ``boards/arch/chip/board/src`` 目录中。如果配置中定义了
+   ``CONFIG_BOARD_LATE_INITIALIZE``，则板级启动逻辑会在系统启动早期自动运行。
+   或者，板级启动逻辑也可以由应用程序通过以下方式调用 :c:func:`boardctl` 来执行：
 
    .. code-block:: c
 
      boardctl(BOARDIOC_INIT, arg)
 
-   The board initialization logic will 运行 in either case and the simple
-   call to ``nxmu_启动()`` will 启动 the NX server.
+   无论哪种情况，板级初始化逻辑都会运行，简单地调用 ``nxmu_start()`` 即可启动
+   NX 服务器。
 
-#. The NX server may also be 启动ed later by the application via
-   :c:func:`boardctl` as:
+#. NX 服务器也可以由应用程序稍后通过 :c:func:`boardctl` 来启动：
 
    .. code-block:: c
 
@@ -146,260 +126,220 @@ commands. Before you can use the NX graphics system, you must first
 
 .. c:function:: int nxmu_start(int display, int plane);
 
-  Provides a wrapper 函数 to
-  simplify and standardize the 启动ing of the NX server.
+  提供一个包装函数，用于简化和标准化 NX 服务器的启动过程。
 
-  :param 显示: The 显示 数量 to be served by this new NXMU instance.
-  :param plane: The plane 数量 to use to 获取 information about the 显示 geometry and 颜色 format.
+  :param display: 此新 NXMU 实例所服务的显示器编号。
+  :param plane: 用于获取显示器几何信息和颜色格式的平面编号。
 
-  :返回: Zero (``OK``) is 返回ed on 成功. This indicates
-    that the NX server has been 成功fully 启动ed, is 运行ning, and
-    waiting to accept 连接ions from NX clients.
-    A negated ``errno`` value is returned on failure. The ``errno`` value
-    indicates the nature of the 失败.
+  :return: 成功时返回零（``OK``）。这表示 NX 服务器已成功启动、正在运行，
+    并等待接受来自 NX 客户端的连接。失败时返回取负的 ``errno`` 值，该值
+    指示了失败的原因。
 
-NX Server Callbacks
+NX 服务器回调
 ===================
 
 .. c:function:: void redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect, bool more, FAR void *arg);
 
-  NX requests that the client re-draw the portion of the
-  窗口 within with rectangle.
+  NX 请求客户端重绘窗口中指定矩形区域的内容。
 
   :param hwnd:
-     The 句柄 创建d by :c:func:`nx_打开窗口` or :c:func:`nx_requestbkgd`
+     由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd` 创建的句柄
   :param rect:
-     The rectangle that needs to be re-drawn (in 窗口 relative
-     coordinates)
+     需要重绘的矩形区域（使用窗口相对坐标）
   :param more:
-     true: More re-draw requests will follow
+     true：后续还有更多重绘请求
   :param arg:
-     User provided 参数 (see :c:func:`nx_打开窗口`)
+     用户提供的参数（参见 :c:func:`nx_openwindow`）
 
 .. c:function:: void position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size, \
               FAR const struct nxgl_point_s *pos, \
               FAR const struct nxgl_rect_s *bounds, \
               FAR void *arg);
 
-  The 大小 or position of the 窗口 has changed (or the
-  窗口 was just 创建d with zero 大小.
+  窗口的大小或位置发生了变化（或者窗口刚以零大小创建）。
 
   :param hwnd:
-     The 句柄 创建d by :c:func:`nx_打开窗口` or :c:func:`nx_requestbkgd`
-  :param 大小:
-     The 大小 of the 窗口
+     由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd` 创建的句柄
+  :param size:
+     窗口的大小
   :param pos:
-     The position of the upper left hand corner of the 窗口 on the
-     overall 显示
+     窗口左上角在整个显示器上的位置
   :param bounds:
-     The bounding rectangle that the describes the entire 显示
+     描述整个显示器的边界矩形
   :param arg:
-     User provided 参数 (see :c:func:`nx_打开窗口`)
+     用户提供的参数（参见 :c:func:`nx_openwindow`）
 
 .. c:function:: void mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos, \
              uint8_t buttons, FAR void *arg);
 
-  New mouse 数据 可用 for the 窗口
+  窗口收到了新的鼠标数据
 
   :param hwnd:
-     The 句柄 创建d by :c:func:`nx_打开窗口` or :c:func:`nx_requestbkgd`
+     由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd` 创建的句柄
   :param pos:
-     The (x,y) position of the mouse
+     鼠标的 (x,y) 位置
   :param buttons:
-     See ``NX_MOUSE_*`` definitions
+     参见 ``NX_MOUSE_*`` 定义
   :param arg:
-     User provided 参数 (see :c:func:`nx_打开窗口`)
+     用户提供的参数（参见 :c:func:`nx_openwindow`）
 
 .. c:var:: void (*kbdin)(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch, FAR void *arg);
 
-  New keyboard/keypad 数据 可用 for the 窗口.
+  窗口收到了新的键盘/小键盘数据。
 
   :param hwnd:
-       The 句柄 创建d by :c:func:`nx_打开窗口` or :c:func:`nx_requestbkgd`
+       由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd` 创建的句柄
   :param nch:
-     The 数量 of characters that 可用 in ch[]
+     ch[] 中可用的字符数量
   :param ch:
-     The array of characters
+     字符数组
   :param arg:
-     User provided 参数 (see :c:func:`nx_打开窗口`)
+     用户提供的参数（参见 :c:func:`nx_openwindow`）
 
 .. c:var:: void (*event)(NXWINDOW hwnd, enum nx_event_e event, FAR void *arg1, FAR void *arg2);
 
-  This callback 用于 to communicate server events to the 窗口 listener.
+  此回调用于将服务器事件通知给窗口监听器。
 
-  - ``NXEVENT_BLOCKED``: Window messages are blocked.
-     This callback is the response from :c:func:`nx_block`,
-     :c:func:`nxtk_block`. Those blocking 接口s 用于
-     to assure that no further messages are directed to the 窗口.
-     Receipt of the blocked callback signifies that (1) there are no
-     further pending callbacks and (2) that the 窗口 is now *defunct*
-     and will 接收 no further callbacks. This callback 支持s
-     coordinated destruction of a 窗口. In the multi-user mode, the
-     client 窗口 logic must stay intact until all of the queued
-     callbacks are processed. Then the 窗口 may be safely 关闭d.
-     Closing the 窗口 prior with pending callbacks can lead to bad
-     behavior when the callback is 执行d.
-  - ``NXEVENT_SYNCHED``: Synchronization handshake
-     This completes the handshake 启动ed by
-     :c:func:`nx_synch`, or :c:func:`nxtk_synch`.
-     Those 接口s 发送 a synchronization messages to the NX server
-     which responds with this event. The sleeping client is awakened and
-     continues graphics processing, completing the handshake. Due to the
-     highly asynchronous nature of client-server communications,
-     synchronization is sometimes necessary to assure that the client and
-     server are working to获取her properly.
+  - ``NXEVENT_BLOCKED``：窗口消息被阻塞。
+     此回调是对 :c:func:`nx_block` 或 :c:func:`nxtk_block` 的响应。
+     这些阻塞接口用于确保不再有消息被发送到该窗口。收到阻塞回调表示
+     （1）没有更多的待处理回调，且（2）该窗口现已失效，不会再收到任何
+     回调。此回调支持窗口的协调销毁。在多用户模式下，客户端窗口逻辑
+     必须保持完整，直到所有排队的回调都被处理完毕。之后窗口才能被安全
+     关闭。在有待处理回调的情况下关闭窗口，可能会在回调执行时导致异常
+     行为。
+  - ``NXEVENT_SYNCHED``：同步握手
+     此事件完成了由 :c:func:`nx_synch` 或 :c:func:`nxtk_synch` 发起的
+     握手过程。这些接口向 NX 服务器发送同步消息，服务器随即响应该事件。
+     处于等待状态的客户端被唤醒后继续图形处理，从而完成握手。由于客户端
+     与服务器之间的通信具有高度异步性，有时需要进行同步以确保客户端和
+     服务器能够正确协调工作。
 
   :param hwnd:
-     T窗口 句柄 of 窗口 receiving the event
+     接收事件的窗口句柄
   :param event:
-     The server event
+     服务器事件
   :param arg1:
-     User provided 参数 (see :c:func:`nx_打开窗口`,
-     :c:func:`nx_requestbkgd`, or :c:func:`nxtk_打开toolbar`)
+     用户提供的参数（参见 :c:func:`nx_openwindow`、
+     :c:func:`nx_requestbkgd` 或 :c:func:`nxtk_opentoolbar`）
   :param arg2:
-     TUser provided 参数 (see :c:func:`nx_block`, :c:func:`nxtk_block`,
-     :c:func:`nx_synch`, or :c:func:`nxtk_synch`)
+     用户提供的参数（参见 :c:func:`nx_block`、:c:func:`nxtk_block`、
+     :c:func:`nx_synch` 或 :c:func:`nxtk_synch`）
 
 .. c:macro:: nx_run(fb)
 
   .. code-block:: c
 
-    #define nx_运行(fb) nx_运行instance(NX_DEFAULT_SERVER_MQNAME, dev)
+    #define nx_run(fb) nx_runinstance(NX_DEFAULT_SERVER_MQNAME, dev)
 
 .. c:function:: int nx_runinstance(FAR const char *mqname, FAR struct fb_vtable_s *fb)
 
-  这是 the server entry point. It does not 返回; the
-  calling th读取 is dedicated to 支持ing NX server.
+  这是服务器的入口点。该函数不会返回；调用线程将专用于支持 NX 服务器。
 
-  NOTE that multiple instances of the NX server may 运行 at the same time,
-  with different callback and message queue 名称s. ``nx_运行()`` is simply
-  a macro that 可用于 when only one server instance 需要. In
-  that case, a 默认 server 名称 用于.
+  注意：NX 服务器可以同时运行多个实例，每个实例使用不同的回调和消息队列
+  名称。``nx_run()`` 仅是一个宏，可在只需要一个服务器实例时使用。在这种
+  情况下，将使用默认的服务器名称。
 
-  :param mq名称: The 名称 for the server incoming message queue
-  :param dev: Frame缓冲区 or LCD 驱动 "object" to be used
+  :param mqname: 服务器接收消息队列的名称
+  :param dev: 要使用的帧缓冲或 LCD 驱动"对象"
 
-  :返回: This 函数 usually does not 返回. If it does
-    return, it will return ``ERROR`` and ``errno`` will be set
-    appropriately.
+  :return: 该函数通常不会返回。如果确实返回，将返回 ``ERROR``，并适当
+    设置 ``errno``。
 
 .. c:macro:: nx_connect(cb)
 
   .. code-block:: c
 
-    #define nx_连接(cb) nx_连接instance(NX_DEFAULT_SERVER_MQNAME)
+    #define nx_connect(cb) nx_connectinstance(NX_DEFAULT_SERVER_MQNAME)
 
 .. c:function:: NXHANDLE nx_connectinstance(FAR const char *svrmqname);
 
-  打开 a 连接ion from a client to the NX server. One
-  one client 连接ion is normally needed per th读取 as each 连接ion
-  can host multiple 窗口s.
+  打开从客户端到 NX 服务器的连接。通常每个线程只需要一个客户端连接，
+  因为每个连接可以承载多个窗口。
 
-  NOTES:
+  注意：
 
-  -  This 函数 返回 before the 连接ion is fully instantiated. it
-     is necessary to wait for the 连接ion event before using the
-     返回ed 句柄.
-  -  Multiple instances of the NX server may 运行 at the same time, each
-     with different message queue 名称s.
-  -  ``nx_连接()`` is simply a macro that 可用于 when only one
-     server instance 需要. In that case, a 默认 server 名称 is
-     used.
+  - 该函数在连接完全建立之前就会返回。在使用返回的句柄之前，必须等待
+    连接事件。
+  - NX 服务器可以同时运行多个实例，每个实例使用不同的消息队列名称。
+  - ``nx_connect()`` 仅是一个宏，可在只需要一个服务器实例时使用。在这种
+    情况下，将使用默认的服务器名称。
 
-  :param svrmq名称: The 名称 for the server incoming message queue
+  :param svrmqname: 服务器接收消息队列的名称
 
-  :返回: Success: A non-NULL 句柄 used with subsequent NX accesses
-    Failure: NULL is 返回ed and errno is 设置 appropriately.
+  :return: 成功：返回一个非 NULL 的句柄，用于后续的 NX 访问。
+    失败：返回 NULL，errno 被适当设置。
 
 .. c:function:: void nx_disconnect(NXHANDLE handle)
 
-  Dis连接 a client from the NX server and/or 释放
-  resources reserved by :c:func:`nx_连接`/c:func:`nx_连接instance`.
+  断开客户端与 NX 服务器的连接，并/或释放由
+  :c:func:`nx_connect`/:c:func:`nx_connectinstance` 保留的资源。
 
-  :param 句柄: The 句柄 返回ed by :c:func:`nx_连接instance`.
+  :param handle: 由 :c:func:`nx_connectinstance` 返回的句柄。
 
 .. c:function:: int nx_eventhandler(NXHANDLE handle);
 
-  The client code must call this 函数 periodically to
-  process incoming messages from the server. If ``CONFIG_NX_BLOCKING`` is
-  defined, then this 函数 not 返回 until a server message is
-  接收d.
+  客户端代码必须周期性地调用此函数来处理来自服务器的传入消息。如果定义了
+  ``CONFIG_NX_BLOCKING``，则此函数在收到服务器消息之前不会返回。
 
-  When ``CONFIG_NX_BLOCKING`` is not defined, the client must exercise
-  caution in the looping to assure that it does not eat up all of the CPU
-  band宽度 calling nx_event句柄r repeatedly.
-  ```nx_eventnotify()`` <#nxeventnotify>`__ may be called to 获取 a signal
-  event whenever a new incoming server event 可用.
+  当未定义 ``CONFIG_NX_BLOCKING`` 时，客户端在循环调用时必须谨慎，以确保
+  不会因反复调用 nx_eventhandler 而耗尽所有 CPU 带宽。可以调用
+  :c:func:`nx_eventnotify` 来注册信号事件，以便在有新的服务器事件到来时
+  获得通知。
 
-  :param 句柄: The 句柄 返回ed by ```nx_连接()`` <#nx连接instance>`__.
+  :param handle: 由 :c:func:`nx_connectinstance` 返回的句柄。
 
-  :返回:
-    -  ``OK``: No errors occurred. If ``CONFIG_NX_BLOCKING`` is defined,
-       then one or more server messages were processed.
-    -  ``ERROR``: An error occurred and ``errno`` has been set
-       appropriately. Of particular interest, it will 返回
-       ``errno == EHOSTDOWN`` when the server is dis连接ed. After that
-       event, the 句柄 can no longer be used.
+  :return:
+    - ``OK``：没有发生错误。如果定义了 ``CONFIG_NX_BLOCKING``，则表示
+      已处理了一个或多个服务器消息。
+    - ``ERROR``：发生了错误，``errno`` 已被适当设置。特别需要注意的是，
+      当服务器断开连接时，将返回 ``errno == EHOSTDOWN``。此后该句柄
+      将不再可用。
 
 .. c:function:: int nx_eventnotify(NXHANDLE handle, int signo);
 
-  Rather than calling :c:func:`nx_event句柄r` periodically, the client may
-  注册 to 接收 a signal when a server event 可用. The
-  client can then call :c:func:nx_event句柄r` only
-  when incoming events 可用.
+  客户端可以注册接收信号通知，而不是周期性地调用 :c:func:`nx_eventhandler`。
+  这样客户端只在有传入事件可用时才调用 :c:func:`nx_eventhandler`。
 
-  The underlying implementation used ``mq_notifiy()`` and, as a result,
-  the client must observe the rules for using ``mq_notifiy()``:
+  底层实现使用了 ``mq_notifiy()``，因此客户端必须遵守 ``mq_notifiy()`` 的
+  使用规则：
 
-  -  Only one event is signalled. Upon receipt of the signal, if the
-     client wishes further notifications, it must call
-     ``nx_eventnotify()`` again.
-  -  The signal will only be issued when the message queue transitions
-     from empty to not empty.
+  - 每次仅发送一个信号通知。收到信号后，如果客户端希望继续接收通知，
+    必须再次调用 ``nx_eventnotify()``。
+  - 信号仅在消息队列从空变为非空时才会发出。
 
-  :param 句柄: The 句柄 返回ed by ```nx_连接()`` <#nx连接instance>`__.
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :param handle: 由 :c:func:`nx_connectinstance` 返回的句柄。
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_block(NXWINDOW hwnd, FAR void *arg);
 
-  The response to this 函数 call is two things: (1)
-  any queued callback messages to the 窗口 are 'blocked' and then (2)
-  also subsequent 窗口 messaging is blocked.
+  调用此函数后会得到两个结果：（1）所有已排队的窗口回调消息被"阻塞"，
+  （2）后续的窗口消息也被阻塞。
 
-  The ``event`` callback with the ``NXEVENT_BLOCKED`` event is the
-  response from ``nx_block()``. This blocking 接口 用于 to assure
-  that no further messages are are directed to the 窗口. Receipt of the
-  ``NXEVENT_BLOCKED`` event signifies that (1) there are no further
-  pending callbacks and (2) that the 窗口 is now *defunct* and will
-  接收 no further callbacks.
+  带有 ``NXEVENT_BLOCKED`` 事件的 ``event`` 回调是 ``nx_block()`` 的响应。
+  此阻塞接口用于确保不再有消息被发送到该窗口。收到 ``NXEVENT_BLOCKED``
+  事件表示（1）没有更多的待处理回调，且（2）该窗口现已失效，不会再收到
+  任何回调。
 
-  This callback 支持s coordinated destruction of a 窗口. The client
-  窗口 logic must stay intact until all of the queued callbacks are
-  processed. Then the 窗口 may be safely 关闭d. Closing the 窗口
-  prior with pending callbacks can lead to bad behavior when the callback
-  is 执行d.
+  此回调支持窗口的协调销毁。客户端窗口逻辑必须保持完整，直到所有排队的
+  回调都被处理完毕。之后窗口才能被安全关闭。在有待处理回调的情况下关闭
+  窗口，可能会在回调执行时导致异常行为。
 
-  :param wnd: The 窗口 to be blocked
-  :param arg: An 参数 that will accompany the block messages (这是 ``arg2`` in
-    the event callback).
+  :param wnd: 要被阻塞的窗口
+  :param arg: 将伴随阻塞消息传递的参数（即事件回调中的 ``arg2``）
 
-  :返回: OK on 成功; ERROR on 失败 with errno 设置
-    appropriately.
+  :return: 成功返回 OK；失败返回 ERROR，errno 被适当设置。
 
 .. c:function:: int nx_synch(NXWINDOW hwnd, FAR void *arg);
 
-  This 接口 可用于 to synchronize the 窗口
-  client with the NX server. It really just implements an *echo*: A synch
-  message is sent from the 窗口 client to the server which then responds
-  immediately by 发送ing the ``NXEVENT_SYNCHED`` back to the 窗口s
-  client.
+  此接口可用于同步窗口客户端与 NX 服务器。它实际上实现了一个"回声"机制：
+  窗口客户端向服务器发送同步消息，服务器随即立即将 ``NXEVENT_SYNCHED``
+  事件发送回窗口客户端。
 
-  Due to the highly asynchronous nature of client-server communications,
-  ``nx_synch()`` is sometimes necessary to assure that the client and
-  server are fully synchronized in time.
+  由于客户端与服务器之间的通信具有高度异步性，``nx_synch()`` 有时是必要的，
+  以确保客户端和服务器在时间上完全同步。
 
-  Usage by the 窗口 client might be something like this:
+  窗口客户端的使用方式可能如下：
 
   .. code-block:: c
 
@@ -407,10 +347,10 @@ NX Server Callbacks
     extern sem_t g_synch_sem;
 
     g_synched = false;
-    ret = nx_synch(hwnd, 句柄);
+    ret = nx_synch(hwnd, handle);
     if (ret < 0)
       {
-         -- 句柄 the 错误 --
+         -- 处理错误 --
       }
 
     while (!g_synched)
@@ -418,255 +358,220 @@ NX Server Callbacks
         ret = sem_wait(&g_sync_sem);
         if (ret < 0)
           {
-             -- 句柄 the 错误 --
+             -- 处理错误 --
           }
       }
 
-  When the 窗口 listener th读取 接收s the ``NXEVENT_SYNCHED`` event,
-  it would set ``g_synched`` to ``true`` and post ``g_synch_sem``, waking
-  up the above loop.
+  当窗口监听器线程收到 ``NXEVENT_SYNCHED`` 事件时，会将 ``g_synched``
+  设置为 ``true`` 并发送 ``g_synch_sem`` 信号，从而唤醒上述循环。
 
-  :param wnd: The 窗口 to be synched
-  :param arg: An 参数 that will accompany the synch messages (这是 ``arg2`` in the event callback).
+  :param wnd: 要同步的窗口
+  :param arg: 将伴随同步消息传递的参数（即事件回调中的 ``arg2``）
 
-  :返回: OK on 成功; ERROR on 失败 with errno 设置
-    appropriately
+  :return: 成功返回 OK；失败返回 ERROR，errno 被适当设置
 
 .. c:function:: NXWINDOW nx_openwindow(NXHANDLE handle, uint8_t flags, \
                        FAR const struct nx_callback_s *cb, \
                        FAR void *arg);
 
-  创建 a new 窗口.
+  创建一个新窗口。
 
-  :param 句柄: The 句柄 返回ed by ```nx_连接()`` <#nx连接instance>`__.
-  :param flags: 选项al flags. These include:
-    - ``NXBE_WINDOW_RAMBACKED``: Creates a RAM backed window. This option is only valid if ``CONFIG_NX_RAMBACKED`` is enabled.
-    - ``NXBE_WINDOW_HIDDEN``: The window is create in the HIDDEN state and can be made visible later with ``nx_setvisibility()``.
+  :param handle: 由 :c:func:`nx_connectinstance` 返回的句柄。
+  :param flags: 可选标志。包括：
+    - ``NXBE_WINDOW_RAMBACKED``：创建一个 RAM 支持的窗口。此选项仅在启用 ``CONFIG_NX_RAMBACKED`` 时有效。
+    - ``NXBE_WINDOW_HIDDEN``：窗口创建时处于隐藏状态，之后可通过 ``nx_setvisibility()`` 使其可见。
 
-  :param cb: Callbacks used to process 窗口 events
-  :param arg: User provided 值 that will be 返回ed with NX callbacks.
+  :param cb: 用于处理窗口事件的回调函数
+  :param arg: 用户提供的值，将在 NX 回调中返回。
 
-  :返回: Success: A non-NULL 句柄 used with subsequent NX accesses
-    Failure: NULL is 返回ed and errno is 设置 appropriately.
+  :return: 成功：返回一个非 NULL 的句柄，用于后续的 NX 访问。
+    失败：返回 NULL，errno 被适当设置。
 
 .. c:function:: int nx_closewindow(NXWINDOW hwnd)
 
-  Destroy a 窗口 创建d by :c:func:`nx_打开窗口` 窗口.
+  销毁由 :c:func:`nx_openwindow` 创建的窗口。
 
-  :param hwnd: The 句柄 返回ed by ```nx_打开窗口()`` <#nx打开窗口>`__ that
-    identifies the 窗口 to be destroyed. This 句柄 must not have been
-    one 返回ed by ```nx_requestbkgd()`` <#nxrequestbkgd>`__.
+  :param hwnd: 由 :c:func:`nx_openwindow` 返回的句柄，用于标识要销毁的窗口。
+    此句柄不能是由 :c:func:`nx_requestbkgd` 返回的句柄。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_requestbkgd(NXHANDLE handle, \
                    FAR const struct nx_callback_s *cb, \
                    FAR void *arg);
 
-  NX normally controls a separate 窗口 called the
-  background 窗口. It repaints the 窗口 as necessary using only a
-  solid 颜色 fill. The background 窗口 always represents the entire
-  屏幕 and is always below other 窗口s. It is useful for an
-  application to control the background 窗口 in 以下
-  conditions:
+  NX 通常会控制一个名为背景窗口的独立窗口。NX 使用纯色填充来重绘该窗口。
+  背景窗口始终代表整个屏幕，且始终位于其他窗口之下。在以下情况下，应用程序
+  控制背景窗口会很有用：
 
-  -  If you want to implement a 窗口less solution. The single 屏幕 can
-     be used to 创建 a truly simple graphic environment.
-  -  When you want more on the background than a solid 颜色. 例如,
-     if you want an 图像 in the background, or animations in the
-     background, or live video, etc.
+  - 当您希望实现无窗口方案时。单一屏幕可用于创建一个真正简单的图形环境。
+  - 当您希望背景不仅仅是纯色时。例如，如果您想要背景图片、背景动画或
+    实时视频等。
 
-  This API only requests the 句柄 of the background 窗口. That 句柄
-  will be 返回ed asynchronously in a subsequent position and redraw
-  callbacks.
+  此 API 仅请求背景窗口的句柄。该句柄会在后续的 position 和 redraw 回调中
+  异步返回。
 
-  Cautions:
+  注意事项：
 
-  -  以下 should never be called using the background 窗口.
-     They are guaranteed to cause severe crashes: :c:func:`nx_设置position`,
-     :c:func:`nx_设置大小`, :c:func:`nx_raise`, or :c:func:`nx_lower`,
-     :c:func:`nx_modal`, :c:func:`nx_设置visibility`.
-  -  Neither :c:func:`nx_requestbkgd` nor :c:func:`nx_releasebkgd`
-     should be called more than once. Multiple instances of the
-     background 窗口 are not 支持ed.
+  - 绝对不能对背景窗口调用以下函数，否则会导致严重崩溃：
+    :c:func:`nx_setposition`、:c:func:`nx_setsize`、:c:func:`nx_raise`、
+    :c:func:`nx_lower`、:c:func:`nx_modal`、:c:func:`nx_setvisibility`。
+  - :c:func:`nx_requestbkgd` 和 :c:func:`nx_releasebkgd` 都不应被多次调用。
+    不支持多个背景窗口实例。
 
-  :param 句柄: The 句柄 返回ed by ```nx_连接()`` <#nx连接instance>`__.
-  :param cb: Callbacks to use for processing background 窗口 events
-  :param arg: User provided 参数 (see ```nx_打开窗口()`` <#nx打开窗口>`__)
+  :param handle: 由 :c:func:`nx_connectinstance` 返回的句柄。
+  :param cb: 用于处理背景窗口事件的回调函数
+  :param arg: 用户提供的参数（参见 :c:func:`nx_openwindow`）
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_releasebkgd(NXWINDOW hwnd)
 
-  Release the background 窗口 previously acquired using
-  :c:func:`nx_requestbkgd` and 返回 control of the background to NX.
+  释放之前通过 :c:func:`nx_requestbkgd` 获取的背景窗口，并将背景的控制权
+  交还给 NX。
 
-  :param 句柄: The 句柄 返回ed indirectly by :c:func:`nx_requestbkgd`.
-    This 句柄 must not have been one 创建d by :c:func:`nx_打开窗口`.
+  :param handle: 由 :c:func:`nx_requestbkgd` 间接返回的句柄。
+    此句柄不能是由 :c:func:`nx_openwindow` 创建的句柄。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with ``errno`` set appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_getposition(NXWINDOW hwnd)
 
-  Request the position and 大小 information for the
-  selected 窗口. The 值s will be 返回 asynchronously through the
-  client callback 函数 指针.
+  请求指定窗口的位置和大小信息。这些值将通过客户端回调函数指针异步返回。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口` or
-    :c:func:`nx_requestbkgd`.
+  :param hwnd: 由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd`
+    返回的句柄。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with ``errno`` set appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_setposition(NXWINDOW hwnd, FAR struct nxgl_point_s *pos)
 
-  设置 the position and 大小 for the selected 窗口.
+  设置指定窗口的位置和大小。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口`. This
-    句柄 must not have been 创建d by :c:func:`nx_requestbkgd`.
-  :param pos: The new position of the 窗口
+  :param hwnd: 由 :c:func:`nx_openwindow` 返回的句柄。此句柄不能是由
+    :c:func:`nx_requestbkgd` 创建的句柄。
+  :param pos: 窗口的新位置
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_setsize(NXWINDOW hwnd, FAR struct nxgl_size_s *size)
 
-  设置 the 大小 of the selected 窗口.
+  设置指定窗口的大小。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口`. This
-    句柄 must not have been 创建d by :c:func:`nx_requestbkgd`.
-  :param 大小: The new 大小 of the 窗口 (in 像素s).
+  :param hwnd: 由 :c:func:`nx_openwindow` 返回的句柄。此句柄不能是由
+    :c:func:`nx_requestbkgd` 创建的句柄。
+  :param size: 窗口的新大小（以像素为单位）。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_raise(NXWINDOW hwnd)
 
-  Bring the specified 窗口 to the top of the 显示.
+  将指定窗口提升到显示器的最顶层。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口`. This
-    句柄 must not have been 创建d by :c:func:`nx_requestbkgd`.
+  :param hwnd: 由 :c:func:`nx_openwindow` 返回的句柄。此句柄不能是由
+    :c:func:`nx_requestbkgd` 创建的句柄。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with ``errno`` set appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_lower(NXWINDOW hwnd);
 
-  Lower the specified 窗口 to the bottom of the 显示.
+  将指定窗口降低到显示器的最底层。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口`. This
-    句柄 must not have been 创建d by :c:func:`nx_requestbkgd`.
+  :param hwnd: 由 :c:func:`nx_openwindow` 返回的句柄。此句柄不能是由
+    :c:func:`nx_requestbkgd` 创建的句柄。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_modal(NXWINDOW hwnd, bool modal)
 
-  May be used to either (1) raise a 窗口 to the top of
-  the 显示 and select modal behavior, or (2) 禁用 modal behavior.
+  可用于（1）将窗口提升到显示器最顶层并选择模态行为，或（2）禁用模态行为。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口`. This
-    句柄 must not have been 创建d by :c:func:`nx_requestbkgd`.
-  :param modal: True: enter modal state; False: leave modal state
+  :param hwnd: 由 :c:func:`nx_openwindow` 返回的句柄。此句柄不能是由
+    :c:func:`nx_requestbkgd` 创建的句柄。
+  :param modal: True：进入模态状态；False：退出模态状态
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_setvisibility(NXWINDOW hwnd, bool hide);
 
-  Select if the 窗口 is visible or hidden. A hidden
-  窗口 is still present and will update normally, but will not be
-  visible on the 显示 until it is unhidden.
+  设置窗口是否可见。隐藏的窗口仍然存在并会正常更新，但在取消隐藏之前
+  不会在显示器上显示。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口`. This
-    句柄 must not have been 创建d by :c:func:`nx_requestbkgd`.
-  :param hide: True: 窗口 will be hidden; false: 窗口 will be visible
+  :param hwnd: 由 :c:func:`nx_openwindow` 返回的句柄。此句柄不能是由
+    :c:func:`nx_requestbkgd` 创建的句柄。
+  :param hide: True：窗口将被隐藏；false：窗口将可见
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: bool nx_ishidden(NXWINDOW hwnd);
 
-  返回 true if the 窗口 is hidden.
+  如果窗口处于隐藏状态则返回 true。
 
-  **NOTE**: There will be a delay between the time that the visibility of
-  the 窗口 is changed via :c:func:`nx_设置visibily`
-  before that new 设置 is reported by :c:func:`nx_ishidden`. ``nx_synch()``
-  may be used if temporal synchronization 需要.
+  **注意**：通过 :c:func:`nx_setvisibily` 更改窗口可见性后，到
+  :c:func:`nx_ishidden` 报告新设置之间会存在延迟。如果需要时间同步，
+  可以使用 ``nx_synch()``。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口` that
-    identifies the 窗口 to be queried.
+  :param hwnd: 由 :c:func:`nx_openwindow` 返回的句柄，用于标识要查询的窗口。
 
-  :返回: *True*: the 窗口 is hidden, *false*: the 窗口 is
-    visible
+  :return: *True*：窗口已隐藏，*false*：窗口可见
 
 .. c:function:: int nx_fill(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect, \
-                   nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                   nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Fill the specified rectangle in the 窗口 with the
-  specified 颜色.
+  使用指定颜色填充窗口中的指定矩形区域。
 
-  :param hwnd: The 句柄 返回ed by ```nx_打开窗口()`` <#nx打开窗口>`__ or
-    ```nx_requestbkgd()`` <#nxrequestbkgd>`__
-  :param rect: The location to be filled
-  :param 颜色: The 颜色 to use in the fill
+  :param hwnd: 由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd`
+    返回的句柄
+  :param rect: 要填充的位置
+  :param color: 填充使用的颜色
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: void nx_getrectangle(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect, \
                      unsigned int plane, FAR uint8_t *dest, \
                      unsigned int deststride);
 
-  获取 the raw contents of graphic 内存 within a
-  rectangular region. 注意： Since raw graphic 内存 is 返回ed, the
-  返回ed 内存 content may be the 内存 of 窗口s above this one and
-  may not necessarily belong to this 窗口 unless you assure that this is
-  the top 窗口.
+  获取矩形区域内图形内存的原始内容。注意：由于返回的是原始图形内存，
+  返回的内存内容可能是该窗口上方其他窗口的内存，不一定属于当前窗口，
+  除非确保当前窗口位于最顶层。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口` or
-    :c:func:`nx_requestbkgd`
-  :param rect: The location to be copied
-  :param plane: Specifies the 颜色 plane to 获取 from
-  :param dest: The location to copy the 内存 region
-  :param deststride: The 宽度, in 字节s, of the dest 内存
+  :param hwnd: 由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd`
+    返回的句柄
+  :param rect: 要复制的位置
+  :param plane: 指定要获取的颜色平面
+  :param dest: 复制内存区域的目标位置
+  :param deststride: 目标内存的宽度（以字节为单位）
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_filltrapezoid(NXWINDOW hwnd, FAR const struct nxgl_rect_s *clip, \
                             FAR const struct nxgl_trapezoid_s *trap, \
-                            nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                            nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Fill the specified trapezoidal region in the 窗口
-  with the specified 颜色.
+  使用指定颜色填充窗口中的指定梯形区域。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口` or
-    :c:func:`nx_requestbkgd`
-  :param clip: Clipping rectangle relative to 窗口 (may be null)
-  :param trap: The trapezoidal region to be filled
-  :param 颜色: The 颜色 to use in the fill
+  :param hwnd: 由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd`
+    返回的句柄
+  :param clip: 相对于窗口的裁剪矩形（可以为 null）
+  :param trap: 要填充的梯形区域
+  :param color: 填充使用的颜色
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_drawline(NXWINDOW hwnd, FAR struct nxgl_vector_s *vector, \
-               nxgl_coord_t 宽度, nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES], \
+               nxgl_coord_t width, nxgl_mxpixel_t color[CONFIG_NX_NPLANES], \
                uint8_t caps);
 
-  Fill the specified trapezoidal region in the 窗口
-  with the specified 颜色. Fill the specified line in the 窗口 with the
-  specified 颜色. 这是 simply a wrapper that uses :c:func:`nxgl_splitline`
-  to break the line into trapezoids and then calls :c:func:`nx_filltrapezoid`
-  to render the line.
+  使用指定颜色在窗口中绘制指定线条。这是一个包装函数，使用
+  :c:func:`nxgl_splitline` 将线条分解为梯形，然后调用
+  :c:func:`nx_filltrapezoid` 来渲染线条。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口` or
-    :c:func:`nx_requestbkgd`
-  :param vector: Describes the line to be drawn.
-  :param 宽度: The 宽度 of the line
-  :param 颜色: The 颜色 to use to fill the line
-  :param caps: Draw a circular cap on the ends of the line to 支持 better line
-    joins. One of::
+  :param hwnd: 由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd`
+    返回的句柄
+  :param vector: 描述要绘制的线条。
+  :param width: 线条宽度
+  :param color: 填充线条使用的颜色
+  :param caps: 在线条端点绘制圆形端帽以支持更好的线条连接。取值为::
 
       /* Line caps */
 
@@ -675,103 +580,90 @@ NX Server Callbacks
       #define NX_LINECAP_PT2   0x02  /* Line cap on pt2 on of the vector only */
       #define NX_LINECAP_BOTH  0x03  /* Line cap on both ends of the vector only */
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_drawcircle(NXWINDOW hwnd, FAR const struct nxgl_point_s *center, \
-                  nxgl_coord_t radius, nxgl_coord_t 宽度, \
-                  nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                  nxgl_coord_t radius, nxgl_coord_t width, \
+                  nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Draw a circular outline using the specified line
-  thickness and 颜色.
+  使用指定的线条宽度和颜色绘制圆形轮廓。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口` or
-    :c:func:`nx_requestbkgd`
-  :param center: A 指针 to the point that is the center of the circle.
-  :param radius: The radius of the circle in 像素s.
-  :param 宽度: The 宽度 of the line
-  :param 颜色: The 颜色 to use to fill the line
+  :param hwnd: 由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd`
+    返回的句柄
+  :param center: 指向圆心的指针。
+  :param radius: 圆的半径（以像素为单位）。
+  :param width: 线条宽度
+  :param color: 填充线条使用的颜色
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_fillcircle(NXWINDOW hwnd, FAR const struct nxgl_point_s *center, \
-                  nxgl_coord_t radius, nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                  nxgl_coord_t radius, nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-  Fill a circular region using the specified 颜色.
+  使用指定颜色填充圆形区域。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口` or
-    :c:func:`nx_requestbkgd`
-  :param center: A 指针 to the point that is the center of the circle.
-  :param radius: The 宽度 of the line
-  :param 颜色: The 颜色 to use to fill the circle
+  :param hwnd: 由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd`
+    返回的句柄
+  :param center: 指向圆心的指针。
+  :param radius: 圆的半径（以像素为单位）
+  :param color: 填充圆使用的颜色
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_setbgcolor(NXHANDLE handle, \
-                  nxgl_mx像素_t 颜色[CONFIG_NX_NPLANES]);
+                  nxgl_mxpixel_t color[CONFIG_NX_NPLANES]);
 
-设置 the 颜色 of the background.
+  设置背景颜色。
 
-:param 句柄: The 句柄 创建d by :c:func:`nx_打开窗口` or
-  :c:func:`nx_requestbkgd`
-:param 颜色: The 颜色 to use in the background
+  :param handle: 由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd`
+    创建的句柄
+  :param color: 背景使用的颜色
 
-:return: ``OK`` on success; ``ERROR`` on failure with
-  ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_move(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,  \
-                           FAR const struct nxgl_point_s *off设置);
+                           FAR const struct nxgl_point_s *offset);
 
-Move a rectangular region within the 窗口.
+  移动窗口内的一个矩形区域。
 
-:param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口` or
-  :c:func:`nx_requestbkgd` that specifies the 窗口 within which the move is to be done
-:param rect: Describes the (source) rectangular region to move
-:param off设置: The off设置 to move the region
+  :param hwnd: 由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd`
+    返回的句柄，指定要执行移动操作的窗口
+  :param rect: 描述要移动的（源）矩形区域
+  :param offset: 移动区域的偏移量
 
-:return: ``OK`` on success; ``ERROR`` on failure with ``errno`` set appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_bitmap(NXWINDOW hwnd, FAR const struct nxgl_rect_s *dest, \
                      FAR const void *src[CONFIG_NX_NPLANES], \
                      FAR const struct nxgl_point_s *origin, \
                      unsigned int stride);
 
-  Copy a rectangular region of a larger 图像 into the
-  rectangle in the specified 窗口.
+  将较大图像中的一个矩形区域复制到指定窗口中的矩形区域。
 
-  :param hwnd: The 句柄 返回ed by :c:func:`nx_打开窗口` or
-    :c:func:`nx_requestbkgd` that specifies the 窗口 that will 接收 the 位map 图像.
-  :param dest: Describes the rectangular on the 显示 that will 接收 the 位 map.
-  :param src: The 启动 of the source 图像. 这是 an array source 图像s of 大小 ``CONFIG_NX_NPLANES`` (probably 1).
-  :param origin: The origin of the upper, left-most corner of the full 位map. Both
-    dest and origin are in 窗口 coordinates, however, the origin may
-    lie outside of the 显示.
-  :param stride: The 宽度 of the full source 图像 in 字节s.
+  :param hwnd: 由 :c:func:`nx_openwindow` 或 :c:func:`nx_requestbkgd`
+    返回的句柄，指定接收位图图像的窗口。
+  :param dest: 描述显示器上接收位图的矩形区域。
+  :param src: 源图像的起始位置。这是一个大小为 ``CONFIG_NX_NPLANES``（通常为 1）
+    的源图像数组。
+  :param origin: 完整位图最左上角的原点。dest 和 origin 均使用窗口坐标，
+    但 origin 可能位于显示器范围之外。
+  :param stride: 完整源图像的宽度（以字节为单位）。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with ``errno`` set appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_kbdchin(NXHANDLE handle, uint8_t ch);
 .. c:function:: int nx_kbdin(NXHANDLE handle, uint8_t nch, FAR const uint8_t *ch);
 
-  Used by a th读取 or interrupt 句柄r that manages some
-  kind of keypad hardware to report 文本 information to the NX server.
-  That 文本 数据 will be routed by the NX server to the appropriate 窗口
-  client.
+  由管理某种键盘硬件的线程或中断处理程序使用，用于向 NX 服务器报告文本信息。
+  NX 服务器会将该文本数据路由到相应的窗口客户端。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. c:function:: int nx_mousein(NXHANDLE handle, nxgl_coord_t x, nxgl_coord_t y, uint8_t buttons)
 
-  Used by a th读取 or interrupt 句柄r that manages some
-  kind of pointing hardware to report new positional 数据 to the NX
-  server. That positional 数据 will be routed by the NX server to the
-  appropriate 窗口 client.
+  由管理某种指点设备硬件的线程或中断处理程序使用，用于向 NX 服务器报告新的
+  位置数据。NX 服务器会将该位置数据路由到相应的窗口客户端。
 
-  :return: ``OK`` on success; ``ERROR`` on failure with
-    ``errno`` 设置 appropriately
+  :return: 成功返回 ``OK``；失败返回 ``ERROR``，并适当设置 ``errno``
 
 .. _nx-tool-kit-nxtk-1:
-
