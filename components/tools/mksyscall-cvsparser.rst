@@ -4,23 +4,20 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-这是 a C 文件 that 用于 to 构建 mksyscall program.  The mksyscall
-program 用于 during the initial NuttX 构建 by the logic in the top-
-level syscall/ 目录.
+这是一个 C 文件，用于构建 mksyscall 程序。mksyscall
+程序在 NuttX 初始构建期间被顶层 syscall/ 目录中的逻辑使用。
 
-If you 构建 NuttX as a separately 编译d, monolithic kernel and separate
-applications, then there is a syscall layer that 用于 to 获取 from the
-user application space to the NuttX kernel space.  In the user application
-"proxies" for each of the kernel 函数s 提供.  The proxies have
-the same 函数 signature as the kernel 函数, but only 执行 a
-system call.
+如果你将 NuttX 构建为单独编译的单片内核和独立的应用程序，
+那么会有一个系统调用层用于从用户应用空间
+进入 NuttX 内核空间。在用户应用中，为每个内核函数提供
+"代理"。代理具有与内核函数相同的函数签名，但只执行
+系统调用。
 
-Within the kernel, there are "stubs" for each of the system calls.  The
-stubs 接收 the marshalled system call 数据, and perform the actually
-kernel 函数 call (in kernel-mode) on behalf of the proxy 函数.
+在内核内部，每个系统调用都有"存根"。存根接收
+编组的系统调用数据，并代表代理函数在内核模式下
+执行实际的内核函数调用。
 
-Information about the stubs and proxies is maintained in a comma separated
-值 (CSV) 文件 in the syscall/ 目录.  The mksyscall program will
-accept this CVS 文件 as 输入 and generate all of the required proxy or
-stub 文件s as 输出.  See :doc:`/components/syscall` for 添加itional information.
-
+有关存根和代理的信息保存在 syscall/ 目录中的逗号分隔值
+（CSV）文件中。mksyscall 程序将接受此 CSV 文件作为输入，
+并生成所有必需的代理或存根文件作为输出。
+请参阅 :doc:`/components/syscall` 获取更多信息。

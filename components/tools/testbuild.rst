@@ -4,9 +4,8 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-This script automates 构建ing of a 设置 of 配置s. The intent is
-simply to assure that the 设置 of 配置s 构建 correctly. The -h
-选项 shows the usage:
+此脚本自动构建一组配置。目的只是确保
+这组配置能正确构建。-h 选项显示用法：
 
 .. code:: console
 
@@ -42,45 +41,40 @@ simply to assure that the 设置 of 配置s 构建 correctly. The -h
    Your PATH variable must include the path to both the build tools and the
    kconfig-frontends tools
 
-This script needs two pieces of information:
+此脚本需要两条信息：
 
-1. A description of the platform that you are testing on.  This description
-   提供 by the 选项al -l, -m, -c, -g and -n 选项s.
+1. 你正在测试的平台的描述。此描述由可选的 -l、-m、-c、-g 和 -n 选项提供。
 
-2. A list of 配置s to 构建.  That list 提供 by a test
-   list 文件.  The final, non-选项al 参数, <testlist-文件>,
-   provides the 路径 to that 文件.
+2. 要构建的配置列表。该列表由测试列表文件提供。最后的非可选参数
+   <testlist-file> 提供了该文件的路径。
 
-The test list 文件 is a sequence of 构建 descriptions, one per line.  One
-构建 descriptions consists of two comma separated 值s. 例如::
+测试列表文件是一个构建描述序列，每行一个。一个构建描述
+由两个逗号分隔的值组成。例如::
 
     stm32f429i-disco:nsh
     arduino-due:nsh
     /arm
     /risc-v
 
-The first 值 is the usual 配置 description of the form
-``<board-name>:<configuration-name>`` or ``/<folder-name>`` and must correspond to a
-配置 or folder in the nuttx/boards 目录.
+第一个值是通常的 ``<board-name>:<configuration-name>`` 或 ``/<folder-name>`` 格式的
+配置描述，必须对应 nuttx/boards 目录中的一个配置或文件夹。
 
-The second 值 is valid 名称 for a toolchain 配置 to use
-when 构建ing the 配置.  The 设置 of valid toolchain
-配置 名称s depends on the underlying architecture of the
-configured board.
+第二个值是构建配置时使用的有效工具链配置名称。
+有效工具链配置名称的集合取决于
+所配置板的底层架构。
 
-The prefix ``-`` 可用于 to skip a 配置::
+前缀 ``-`` 可用于跳过某个配置::
 
   -stm32f429i-disco/nsh
 
-or skip a 配置 on a specific host(e.g. Darwin)::
+或在特定主机上（如 Darwin）跳过某个配置::
 
   -Darwin,sim:rpserver
 
-This script will re构建 each 配置, upon 失败, up to 3 times.
-Each re构建 will be attempted after a randomised delay with exponential
-backoff, initially 设置 to 60 seconds. The re构建s will mitigate the
-effects of intermittent download 失败s that occur in GitHub Actions.
+此脚本将在失败时重新构建每个配置，最多 3 次。每次重新构建
+将在随机的指数退避延迟后尝试，初始设置为 60 秒。重新构建将
+缓解 GitHub Actions 中发生的间歇性下载失败的影响。
 
-If the 构建 fails after 3 retries, subsequent 配置s will not
-be allowed to re构建 upon 失败.  这是 to prevent cascading 构建
-失败s from overloading GitHub Actions.
+如果 3 次重试后构建仍然失败，后续配置将不被允许
+在失败时重新构建。这是为了防止级联构建失败
+导致 GitHub Actions 过载。

@@ -3,27 +3,24 @@ lib_bsprintf
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-This 函数 is mainly used to 输出 the contents of the 输入
-结构. 支持s standard formats for printf and scanf. For detailed
-参数s, see: 1. https://en.cppreference.com/w/c/io/fprintf 2.
+此函数主要用于输出输入结构体的内容。支持 printf 和 scanf 的标准格式。
+详细参数说明请参阅：1. https://en.cppreference.com/w/c/io/fprintf 2.
 https://en.cppreference.com/w/c/io/fscanf
 
--  **special**:
+-  **特殊说明**：
 
-   1. Float use %hf, “%f” or “%lf” is double, “%Lf” is long double.
-   2. The char array 指定 with %.xs. 例如: “char t[30]”
-      指定 with “%.30s”, char a [20] - " %.20s "
-   3. “%u” is unsigned int.
-   4. “%d” is int.
-   5. When using %f to format a double 数据 类型, the double is
-      t运行cated to 6 decimal places by 默认.
-   6. It is recommended that the “char[]” array be placed at the end of
-      the 结构 to prevent 参数 配置 错误s such as
-      “%.20s” from causing problems in parsing the entire 缓冲区.
+   1. 浮点数使用 %hf，"%f" 或 "%lf" 表示 double，"%Lf" 表示 long double。
+   2. 字符数组使用 %.xs 指定长度。例如："char t[30]"
+      使用 "%.30s"，char a[20] 使用 "%.20s"
+   3. "%u" 表示 unsigned int。
+   4. "%d" 表示 int。
+   5. 使用 %f 格式化 double 数据类型时，默认截断为 6 位小数。
+   6. 建议将 "char[]" 数组放在结构体末尾，以防止 "%.20s" 等参数
+      配置错误导致整个缓冲区解析出现问题。
 
--  **demo**
+-  **示例**
 
-   1. **struct**:
+   1. **结构体**:
 
    ::
 
@@ -51,11 +48,11 @@ https://en.cppreference.com/w/c/io/fscanf
         unsigned long s;
         long long t;
         unsigned long long u;
-        大小_t v;
+        size_t v;
         long double w;
       }end_packed_struct;
 
-   1. **format string**:
+   1. **格式字符串**:
 
    ::
 
@@ -80,12 +77,12 @@ https://en.cppreference.com/w/c/io/fscanf
                        "     unsigned long:[%lu]\n" \
                        "         long long:[%lld]\n" \
                        "unsigned long long:[%llu]\n" \
-                       "            大小_t:[%uz]\n" \
+                       "            size_t:[%uz]\n" \
                        "       long double:[%Lf]\n";
 
-   1. **use**:
+   1. **用法**:
 
-   -  输出 to terminal:
+   -  输出到终端:
 
    ::
 
@@ -94,16 +91,16 @@ https://en.cppreference.com/w/c/io/fscanf
 
        lib_stdoutstream(&stdoutstream, stdout);
 
-       flock文件(stdout);
+       flockfile(stdout);
        lib_bsprintf(&stdoutstream.common, sv, &test_v);
        lib_bsprintf(&stdoutstream.common, sg, &test_g);
-       funlock文件(stdout);
+       funlockfile(stdout);
       #else
        struct lib_rawoutstream_s rawoutstream;
-       struct lib_缓冲区edoutstream_s outstream;
+       struct lib_bufferedoutstream_s outstream;
 
        lib_rawoutstream(&rawoutstream, STDOUT_FILENO);
-       lib_缓冲区edoutstream(&outstream, &rawoutstream.common);
+       lib_bufferedoutstream(&outstream, &rawoutstream.common);
 
        lib_bsprintf(&outstream.common, sv, &test_v);
        lib_bsprintf(&outstream.common, sg, &test_g);
@@ -114,32 +111,30 @@ https://en.cppreference.com/w/c/io/fscanf
 lib_bscanf
 ==========
 
-This 函数 添加s a formatted standard scanf string to the
-结构(lib_bscanf). 1. https://zh.cppreference.com/w/c/io/fscanf
+此函数将格式化的标准 scanf 字符串添加到结构体（lib_bscanf）中。
+1. https://zh.cppreference.com/w/c/io/fscanf
 
--  **special**:
+-  **特殊说明**：
 
-   1. Please use %lf for double precision, “%hf” or “%f” for float, long
-      double (“%Lf”) is not 支持ed.
-   2. Please use %hhd or %hhu for a single char or unsigned char.
-   3. Use %hd or %hu for short int or unsigned short int.
-   4. When using %s or %c, please specify the length of the char array,
-      such as %32s, %32c.
-   5. %s will check the string for spaces. When there are spaces in the
-      string, it will be t运行cated. If you want to use string with
-      spaces, please use %{length}c, but make sure that the length of
-      the string can fill the array, otherwise an 错误 will occur.
-   6. %[] collection and %n are not 支持ed.
+   1. 请使用 %lf 表示双精度浮点数，"%hf" 或 "%f" 表示单精度浮点数，
+      不支持 long double（"%Lf"）。
+   2. 请使用 %hhd 或 %hhu 表示单个 char 或 unsigned char。
+   3. 使用 %hd 或 %hu 表示 short int 或 unsigned short int。
+   4. 使用 %s 或 %c 时，请指定字符数组的长度，例如 %32s、%32c。
+   5. %s 会检查字符串中的空格。当字符串中存在空格时，会被截断。
+      如果需要使用包含空格的字符串，请使用 %{length}c，但请确保
+      字符串长度能够填满数组，否则将出错。
+   6. 不支持 %[] 集合和 %n。
 
--  **demo**
+-  **示例**
 
-   1. **struct**: Same as above
-   2. **format string**:
+   1. **结构体**：同上
+   2. **格式字符串**:
 
    ::
 
       #define TOSTR(str)   #str
-      #define TONNAME(名称) TOSTR(名称)
+      #define TONNAME(name) TOSTR(name)
 
       #define v_uint8_t    97
       #define v_uint16_t   19299
@@ -151,7 +146,7 @@ This 函数 添加s a formatted standard scanf string to the
 
       char bflag[] = "%hhu%hu%u%hhd%hd%d%f%lf%32s%llu%lld%hhd%hhu%hd%hu%d%u%ld%lu%lld%llu%zu%ld";
 
-      char b输入[] = TONNAME(v_uint8_t) \
+      char binput[] = TONNAME(v_uint8_t) \
                      " " TONNAME(v_uint16_t) \
                      " " TONNAME(v_uint32_t) \
                      " " TONNAME(v_int8_t) \
@@ -172,12 +167,12 @@ This 函数 添加s a formatted standard scanf string to the
                      " " TONNAME(v_u_long) \
                      " " TONNAME(v_l_l) \
                      " " TONNAME(v_u_l_l) \
-                     " " TONNAME(v_大小_t) \
+                     " " TONNAME(v_size_t) \
                      " " TONNAME(v_l_double);
 
-   3. **use**:
+   3. **用法**:
 
    ::
 
       struct test vg;
-      ret = lib_bscanf(b输入, bflag, &vg);
+      ret = lib_bscanf(binput, bflag, &vg);

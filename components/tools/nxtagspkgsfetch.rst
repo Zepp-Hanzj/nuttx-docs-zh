@@ -4,21 +4,19 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-This script downloads all NuttX RTOS and Application snapshot packages
-from the upstream git repository based on the provided git tags list.
-These are NOT official release packages as checksum will differ.
-When launched from the local NuttX git repository clone the script will
-obtain all available tags to be downloaded, otherwise list of tags needs
-to be provided manually (or when just selected tag 需要).
-This script uses ``w获取`` underneath, make sure this tool is installed.
-Fetch log 文件 is 创建d with a timestamp in 名称 next to the packages.
+此脚本根据提供的 git 标签列表从上游 git 仓库下载所有
+NuttX RTOS 和应用程序快照包。这些不是官方发布包，
+因为校验和会有所不同。当从本地 NuttX git 仓库克隆启动时，
+脚本将获取所有可用标签以供下载，否则需要手动提供标签列表
+（或仅需要特定标签时）。此脚本底层使用 ``wget``，
+请确保该工具已安装。下载日志文件以时间戳命名，
+创建在包旁边。
 
-Having all tags packaged is important for changes comparison
-between specific versions, testing a specific version, compatibility
-checks, searching for a 特性 introduction timeline, etc.
+拥有所有标签的打包版本对于在特定版本之间进行更改比较、
+测试特定版本、兼容性检查、搜索特性引入时间线等非常重要。
 
-Usage: ``./nxtagspkgsfetch.sh [download_路径] [tags_list_space_separated]``
+Usage: ``./nxtagspkgsfetch.sh [download_path] [tags_list_space_separated]``
 
-You can provide 选项al download 路径 (默认 ``../../nuttx-packages``)
-and tags list to 获取 packages for (默认 all tags from local git clone).
-When providing tags you also need to provide download 路径.
+你可以提供可选的下载路径（默认 ``../../nuttx-packages``）
+和要获取包的标签列表（默认为本地 git 克隆的所有标签）。
+提供标签时还需要提供下载路径。

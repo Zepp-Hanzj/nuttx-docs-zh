@@ -4,28 +4,24 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-``configure.sh`` is a bash script that 用于 to configure NuttX for a given
-tar获取 board in a environment that 支持s POSIX 路径s (Linux, Cygwin, macOS,
-or similar).  See :doc:`/components/boards` or
-Documentation/NuttXPortingGuide.html for a description of how to configure NuttX
-with this script.
+``configure.sh`` 是一个 bash 脚本，用于在支持 POSIX 路径的环境（Linux、Cygwin、macOS
+或类似环境）中为给定目标板配置 NuttX。有关如何使用此脚本配置 NuttX 的说明，
+请参阅 :doc:`/components/boards` 或 Documentation/NuttXPortingGuide.html。
 
-configure.c, cfgparser.c, and cfgparser.h 可用于 to 构建 a work-alike
-program as a replacement for configure.sh.  This work-alike program would be
-used in environments that do not 支持 Bash scripting (such as the 窗口s
-native environment).
+configure.c、cfgparser.c 和 cfgparser.h 可用于构建一个功能相同的程序
+作为 configure.sh 的替代品。此替代程序可用于
+不支持 Bash 脚本的环境（如 Windows 原生环境）。
 
-configure.bat is a small 窗口s batch 文件 that 可用于 as a replacement
-for configure.sh in a 窗口s native environment.  configure.bat is actually
-just a thin layer that 执行s configure.exe if it 可用. If
-configure.exe is not available, then configure.bat will attempt to 构建 it
-first.
+configure.bat 是一个小型 Windows 批处理文件，可在 Windows 原生环境中
+用作 configure.sh 的替代品。configure.bat 实际上
+只是一个薄层，如果 configure.exe 可用则执行它。如果
+configure.exe 不可用，configure.bat 将尝试先构建它。
 
-In order to 构建 configure.exe from configure.c in the 窗口s native
-environment, two assumptions are made:
+为了在 Windows 原生环境中从 configure.c 构建 configure.exe，
+需要满足两个假设：
 
-1) You have installed the MinGW GCC toolchain.  This toolchain can be
-   downloaded from http://www.mingw.org/.  It is recommended that you not
-   install the 选项al MSYS components as there may be conflicts.
-2) That 路径 to the bin/ 目录 containing mingw-gcc.exe must be
-   included in the PATH 变量.
+1) 你已安装 MinGW GCC 工具链。该工具链可从
+   http://www.mingw.org/ 下载。建议不要安装可选的 MSYS 组件，
+   因为可能会有冲突。
+2) 包含 mingw-gcc.exe 的 bin/ 目录路径必须
+   包含在 PATH 变量中。

@@ -4,67 +4,59 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-This script 可用于 to indent .c and .h 文件s in a manner similar
-to the NuttX coding style.  It doesn't do a really good job, however
-(see below and the comments at the top of the indent.sh 文件).
+此脚本可用于以类似 NuttX 编码风格的方式缩进 .c 和 .h 文件。
+但是它做得并不够好（见下方和 indent.sh 文件顶部的注释）。
 
 USAGE::
 
-    tools/indent.sh [-d] [-p] -o <out-文件> <in-文件>
-    tools/indent.sh [-d] [-p] <in-文件-list>
+    tools/indent.sh [-d] [-p] -o <out-file> <in-file>
+    tools/indent.sh [-d] [-p] <in-file-list>
     tools/indent.sh [-d] -h
 
 Where::
 
-    -<in-文件>
-      A single, unformatted 输入 文件
-    -<in-文件-list>
-      A list of unformatted 输入 文件s that will be reformatted in place.
-    -o <out-文件>
-      写入 the single, reformatted <in-文件> to <out-文件>.  <in-文件>
-      will not be modified.
+    -<in-file>
+      单个未格式化的输入文件
+    -<in-file-list>
+      将就地重新格式化的未格式化输入文件列表。
+    -o <out-file>
+      将单个重新格式化的 <in-file> 写入 <out-file>。<in-file>
+      将不会被修改。
     -d
-      启用 script debug
+      启用脚本调试
     -p
-      Comments are pre-formatted.  Do not reformat.
+      注释已预格式化。不重新格式化。
     -h
-      Show this help message and exit
+      显示此帮助消息并退出
 
-The conversions make by the indent.sh script differs from the NuttX coding
-style in that:
+indent.sh 脚本进行的转换与 NuttX 编码风格的不同之处在于：
 
-1. The coding standard requires that the trailing ``*/`` of a multi-line
-   comment be on a separate line.  By 默认, indent.sh will put the
-   final ``*/`` on the same line as the last comment 文本.  If your C 文件
-   al读取y has properly formatted comments then using the ``-p`` 选项 will
-   eliminate that bad behavior
+1. 编码标准要求多行注释的尾部 ``*/`` 在单独一行上。默认情况下，
+   indent.sh 会将最后的 ``*/`` 放在与最后注释文本相同的行上。
+   如果你的 C 文件已经有正确格式化的注释，使用 ``-p`` 选项将
+   消除这种不良行为
 
-2. If your source 文件 has highly formatted comments containing things
-   such as tables or lists, then use the -p 选项 to preserve those
-   pre-formatted comments.
+2. 如果你的源文件包含高度格式化的注释，如表格或列表，
+   则使用 -p 选项来保留这些预格式化的注释。
 
-3. I usually align things vertically (like '=' in assignments),
+3. 我通常垂直对齐（如赋值中的 '='），
 
-4. indent.sh puts a bogus blank line at the top of the 文件,
+4. indent.sh 在文件顶部插入一个虚假的空行，
 
-5. I don't like the way it 句柄s nested conditional compilation
-   intermixed with code.  I prefer the preprocessor conditional tests
-   be all right justified in that case.
+5. 我不喜欢它处理嵌套条件编译与代码混合的方式。
+   在这种情况下，我更喜欢预处理器条件测试全部右对齐。
 
-6. I also indent brackets differently on 结构s than does this script.
+6. 我对结构体的大括号缩进方式也与此脚本不同。
 
-7. I normally use no spaces in casts.  indent.sh 添加s spaces in casts like
-   ``(FAR void *)&foo`` becomes ``(FAR void *) & foo``.
+7. 我通常在类型转换中不使用空格。indent.sh 在类型转换中添加空格，
+   如 ``(FAR void *)&foo`` 变为 ``(FAR void *) & foo``。
 
-8. When used with header 文件s, the initial idempotence conditional test
-   causes all preprocessor directives to be indented in the 文件.  So for
-   header 文件s, you will need to substitute "^#  " with "#" in the
-   converted header 文件.
+8. 与头文件一起使用时，初始幂等条件测试会导致
+   文件中所有预处理器指令被缩进。因此对于头文件，
+   你需要在转换后的头文件中将 "^#  " 替换为 "#"。
 
-You will manually need to check for the issues listed above after
-performing the conversions.  nxstyle.c provides a good test that will
-catch most of the indent.sh screw-ups.  To获取her, they do a pretty good
-job of formatting.
+在执行转换后，你需要手动检查上述列出的问题。
+nxstyle.c 提供了一个很好的测试，可以捕获大多数 indent.sh 的问题。
+它们一起在格式化方面做得很好。
 
-See also nxstyle.c and uncrustify.cfg
-
+另请参阅 nxstyle.c 和 uncrustify.cfg

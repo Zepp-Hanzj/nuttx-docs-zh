@@ -1,37 +1,34 @@
 .. _mkdeps:
 
 ===================================================================
-.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
-
 ``mkdeps.c``, ``cnvwindeps.c``, ``mkwindeps.sh``, ``mknulldeps.sh``
 ===================================================================
 
-NuttX uses the GCC 编译r's capabilities to 创建 Make文件 dependencies.
-The program mkdeps 用于 to 运行 GCC in order to 创建 the dependencies.
-If a NuttX 配置 uses the GCC toolchain, its Make.defs 文件 (see
-:doc:`/components/boards`) will include a line like::
+.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+
+NuttX 使用 GCC 编译器的功能来创建 Makefile 依赖关系。
+mkdeps 程序用于运行 GCC 以创建依赖关系。如果 NuttX 配置使用
+GCC 工具链，其 Make.defs 文件（参见 :doc:`/components/boards`）
+将包含如下行::
 
     MKDEP = $(TOPDIR)/tools/mkdeps[.exe] (See NOTE below)
 
-If the NuttX 配置 does not use a GCC compatible toolchain, then
-it cannot use the dependencies and instead it uses mknulldeps.sh::
+如果 NuttX 配置不使用 GCC 兼容工具链，则无法使用依赖关系，
+而是使用 mknulldeps.sh::
 
     MKDEP = $(TOPDIR)/tools/mknulldeps.sh
 
-The mknulldeps.sh is a stub script that does essentially nothing.
+mknulldeps.sh 是一个本质上什么都不做的存根脚本。
 
-mkwindeps.sh is a version that 创建s dependencies using the 窗口s
-native toolchain.  That generates 窗口s native 路径s in the dependency
-文件.  But the mkwindeps.sh uses cnvwindeps.c to convert the 窗口s
-路径s to POSIX 路径s.  This 添加s some time to the 窗口s dependency
-generation but is generally the best 选项 available for that mixed
-environment of Cygwin with a native 窗口s GCC toolchain.
+mkwindeps.sh 是使用 Windows 原生工具链创建依赖关系的版本。
+它在依赖文件中生成 Windows 原生路径。但 mkwindeps.sh 使用
+cnvwindeps.c 将 Windows 路径转换为 POSIX 路径。这为 Windows
+依赖生成增加了一些时间，但对于 Cygwin 配合原生 Windows GCC
+工具链的混合环境来说，通常是最佳选择。
 
-mkdeps.c generates mkdeps (on Linux) or mkdeps.exe (on 窗口s).
-However, this version is still under-development.  It works well in
-the all POSIX environment or in the all 窗口s environment but also
-does not work well in mixed POSIX environment with a 窗口s toolchain.
-In that case, there are still issues with the conversion of things like
-'c:\Program 文件s' to 'c:program 文件s' by bash.  Those issues may,
-eventually be solvable but for now continue to use mkwindeps.sh in
-that mixed environment.
+mkdeps.c 生成 mkdeps（在 Linux 上）或 mkdeps.exe（在 Windows 上）。
+但是，此版本仍在开发中。它在全 POSIX 环境或全 Windows 环境中
+工作良好，但在混合 POSIX 环境与 Windows 工具链的情况下
+不能很好地工作。在这种情况下，bash 将 'c:\\Program Files' 转换为
+'c:program files' 等问题仍然存在。这些问题最终可能是可解决的，
+但目前在该混合环境中继续使用 mkwindeps.sh。

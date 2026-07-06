@@ -4,9 +4,8 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-这是 a C 文件 that 用于 to 构建 symbol tables from comma separated
-值 (CSV) 文件s.  This tool is not used during the NuttX 构建, but
-可用于 as needed to generate 文件s.
+这是一个 C 文件，用于从逗号分隔值（CSV）文件构建符号表。
+此工具不在 NuttX 构建期间使用，但可根据需要用于生成文件。
 
 Usage:
 
@@ -16,13 +15,13 @@ Usage:
 
 Where::
 
-    <cvs-文件>      : The 路径 to the 输入 CSV 文件 (required)
-    <symtab-文件>   : The 路径 to the 输出 symbol table 文件 (required)
-    <symtab-名称>   : 选项al 名称 for the symbol table 变量
+    <cvs-file>      : 输入 CSV 文件的路径（必需）
+    <symtab-file>   : 输出符号表文件的路径（必需）
+    <symtab-name>   : 符号表变量的可选名称
                       默认: "g_symtab"
-    <nsymbols-名称> : 选项al 名称 for the symbol table 变量
+    <nsymbols-name> : 符号表变量的可选名称
                       默认: "g_nsymbols"
-    -d              : 启用 debug 输出
+    -d              : 启用调试输出
 
 Example:
 

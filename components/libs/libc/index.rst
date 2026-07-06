@@ -4,35 +4,30 @@ libc
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-This 目录 contains numerous, small 函数s typically associated with
-what you would expect to find in a standard C library.  The sub-directories
-in this 目录 contain standard 接口 that can be 执行d by user-
-mode programs.
+本目录包含大量通常与标准 C 库相关的小型函数。该目录下的子目录包含了
+可供用户模式程序调用的标准接口。
 
-Normally, NuttX is built with no protection and all th读取s 运行ning in kernel-
-mode.  In that mode, there is no real architectural distinction between
-what is a kernel-mode program and what is a user-mode program; the system is
-more like an multi-th读取ed program that all 运行s in kernel-mode.
+通常情况下，NuttX 构建时不启用保护机制，所有线程均以内核模式运行。
+在这种模式下，内核模式程序和用户模式程序之间没有真正的架构区分；
+整个系统更像是一个全部以内核模式运行的多线程程序。
 
-But if the ``CONFIG_BUILD_PROTECTED`` 选项 is selected, NuttX will be built
-into distinct user-mode and kernel-mode sections.  In that case, most of the
-code in the ``nuttx/`` 目录 will 运行 in kernel-mode with exceptions
-of (1) the user-mode "proxies" found in syscall/proxies, and (2) the
-standard C library 函数s found in this 目录.  In this 构建 mode,
-it is critical to separate the user-mode OS 接口s in this way.
+但如果选择了 ``CONFIG_BUILD_PROTECTED`` 选项，NuttX 将被构建为独立的
+用户模式和内核模式部分。在这种情况下，``nuttx/`` 目录中的大部分代码
+将在内核模式下运行，但有两个例外：(1) syscall/proxies 中的用户模式
+"代理"，以及(2) 本目录中的标准 C 库函数。在此构建模式下，以这种
+方式隔离用户模式 OS 接口至关重要。
 
-If ``CONFIG_BUILD_KERNEL`` is selected, then only a NuttX kernel will be built
-with no applications.
+如果选择了 ``CONFIG_BUILD_KERNEL``，则仅构建 NuttX 内核，不会包含
+应用程序。
 
 子目录
 ===============
 
-The 文件s in the ``libs/libc/`` 目录 are organized (mostly) according
-which 文件 in the ``include/`` 目录 provides the proto类型 for library
-函数s.  So we have::
+``libs/libc/`` 目录中的文件（大部分）按照 ``include/`` 目录中提供函数
+原型的头文件进行组织，如下所示::
 
-  audio     - This part of the audio system: nuttx/audio/audio.h
-  builtin   - 支持 for builtin applications.  Used by nuttx/binfmt and NSH.
+  audio     - 音频系统的一部分：nuttx/audio/audio.h
+  builtin   - 内置应用程序支持，由 nuttx/binfmt 和 NSH 使用。
   dlfcn     - dlfcn.h
   endian    - endian.h
   errno     - errno.h
@@ -42,115 +37,106 @@ which 文件 in the ``include/`` 目录 provides the proto类型 for library
   lzf       - lzf.h
   fixedmath - fixedmath.h
   grp       - grp.h
-  int类型s  - int类型s.h
-  machine   - Various architecture-specific implementations.
+  inttypes  - inttypes.h
+  machine   - 各种特定于架构的实现。
   math      - math.h
-  elf    - Part of module and shared library logic: nuttx/lib/elf.h
-  net       - Various network-related header 文件s: netinet/ether.h, arpa/inet.h
-  pth读取   - pth读取.h
+  elf    - 模块和共享库逻辑的一部分：nuttx/lib/elf.h
+  net       - 各种网络相关的头文件：netinet/ether.h、arpa/inet.h
+  pthread   - pthread.h
   pwd       - pwd.h
   queue     - queue.h
   sched     - sched.h
   search    - search.h
   semaphore - semaphore.h
-  std位    - std位.h (选项al C23)
+  stdbit    - stdbit.h（可选 C23）
   stdio     - stdio.h
   stdlib    - stdlib.h
-  string    - string.h (and legacy strings.h and non-standard nuttx/b2c.h)
+  string    - string.h（以及旧版 strings.h 和非标准的 nuttx/b2c.h）
   time      - time.h
   uio       - sys/uio.h
   unistd    - unistd.h
   wchar     - wchar.h
-  wc类型    - wc类型.h
+  wctype    - wctype.h
 
-Most of these are "standard" header 文件s; some are not: ``hex2bin.h`` and
-``fixemath.h`` are non-standard.
+其中大部分是"标准"头文件，但也有非标准的：``hex2bin.h`` 和
+``fixedmath.h`` 就是非标准的。
 
-There is also a ``misc/`` sub目录 that contains various internal 函数s
-and 接口s from header 文件s that are too few to warrant their own sub-
-目录::
+此外还有一个 ``misc/`` 子目录，其中包含各种内部函数和头文件中
+数量不足以单独建立子目录的接口::
 
-  misc      - Nonstandard "glue" logic, nuttx/debug.h, crc32.h, dirent.h
+  misc      - 非标准的"胶水"逻辑，nuttx/debug.h、crc32.h、dirent.h
 
-Library Database
+库数据库
 ================
 
-Information about 函数s available in the NuttX C library information is
-maintained in a 数据base.  That "数据base" is implemented as a simple comma-
-separated-值 文件, libc.csv.  Most sp读取sheets programs will accept this
-format and 可用于 to maintain the library 数据base.
+NuttX C 库中可用函数的信息维护在一个数据库中。该"数据库"以简单的
+逗号分隔值文件 libc.csv 实现。大多数电子表格程序都支持此格式，
+可用于维护该库数据库。
 
-This library 数据base will (eventually) be used to generate symbol library
-symbol table information that can be exported to external applications.
+该库数据库（最终）将用于生成符号库符号表信息，以便导出到外部应用程序。
 
-The format of the CSV 文件 for each line is::
+CSV 文件每行的格式如下::
 
-  Field 1: 函数 名称
-  Field 2: The header 文件 that contains the 函数 proto类型
-  Field 3: Condition for compilation
-  Field 4: The 类型 of 函数 返回 值.
-  Field 5 - N+5: The 类型 of each of the N formal 参数s of the 函数
+  字段 1：函数名称
+  字段 2：包含该函数原型的头文件
+  字段 3：编译条件
+  字段 4：函数返回值的类型
+  字段 5 - N+5：函数各形式参数的类型
 
-Each 类型 field has a format as follows::
+每个类型字段的格式如下::
 
-  类型 名称:
-        For all simpler 类型s
-  formal 类型 | actual 类型:
-        For array 类型s where the form of the formal (eg. int param[2])
-        differs from the 类型 of actual passed 参数 (eg. int*).  This
-        is necessary because you cannot do simple casts to array 类型s.
-  formal 类型 | union member actual 类型 | union member field名称:
-        A similar situation exists for unions.  例如, the formal
-        参数 类型 union sigval -- You cannot cast a uintptr_t to
-        a union sigval, but you can cast to the 类型 of one of the union
-        member 类型s when passing the actual 参数.  Similarly, we
-        cannot cast a union sigval to a uinptr_t either.  Rather, we need
-        to cast a specific union member field名称 to uintptr_t.
+  类型名称：
+        适用于所有简单类型
+  形式类型 | 实际类型：
+        适用于数组类型，其中形式参数的形式（例如 int param[2]）
+        与实际传递参数的类型（例如 int*）不同。这是必要的，
+        因为无法对数组类型进行简单的类型转换。
+  形式类型 | 联合体成员实际类型 | 联合体成员字段名：
+        联合体也存在类似的情况。例如，形式参数类型 union sigval
+        ——无法将 uintptr_t 转换为 union sigval，但可以在传递
+        实际参数时转换为联合体成员类型之一。同样，我们也无法
+        将 union sigval 转换为 uintptr_t，而是需要将特定的联合体
+        成员字段名转换为 uintptr_t。
 
-注意： The tool mksymtab 可用于 to generate a symbol table from this CSV
-文件.  See ``Documentation/components/tools`` for further details about the use of mksymtab.
+注意：可以使用工具 mksymtab 从该 CSV 文件生成符号表。
+详见 ``Documentation/components/tools`` 了解 mksymtab 的使用方法。
 
 symtab
 ======
 
-Symbol Tables and Build Modes
------------------------------
+符号表与构建模式
+-----------------
 
-This 目录 provide 支持 for a symbol table which provides all/most of
-system and C library services/函数s to the application and NSH.
+本目录提供符号表支持，该符号表为应用程序和 NSH 提供全部/大部分
+系统和 C 库服务/函数。
 
-Symbol tables have differing usefulness in different NuttX 构建 modes:
+符号表在不同的 NuttX 构建模式下有不同的用途：
 
-#. In the FLAT 构建 (``CONFIG_BUILD_FLAT``), symbol tables 用于 to bind
-   地址es in loaded ELF or NxFLAT modules to base code that usually
-   resides in FLASH 内存.  Both OS 接口s and user/application
-   libraries are made available to the loaded module via symbol tables.
+#. 在 FLAT 构建（``CONFIG_BUILD_FLAT``）中，符号表用于将已加载的
+   ELF 或 NxFLAT 模块中的地址绑定到通常驻留在 FLASH 存储器中的
+   基础代码。OS 接口和用户/应用程序库均通过符号表提供给已加载的
+   模块。
 
-#. Symbol tables may be of 值 in a protected 构建
-   (``CONFIG_BUILD_PROTECTED``) where the newly 启动ed user task must
-   share resources with other user code (but should use system calls to
-   interact with the OS).
+#. 在保护构建（``CONFIG_BUILD_PROTECTED``）中，符号表可能具有价值，
+   因为新启动的用户任务需要与其他用户代码共享资源（但应使用
+   系统调用与 OS 交互）。
 
-#. But in the kernel 构建 mode (``CONFIG_MODULES``), only fully 链接ed
-   executables loadable via ``execl()``, ``execv()``, or ``posix_spawan()``
-   可用于.
-   There is no use for a symbol table with the kernel 构建 since all
-   内存 resources are separate; nothing is share-able with the newly
-   启动ed process.
+#. 但在内核构建模式（``CONFIG_MODULES``）中，只能使用通过
+   ``execl()``、``execv()`` 或 ``posix_spawan()`` 加载的完全链接的
+   可执行文件。由于所有内存资源都是隔离的，符号表在内核构建中
+   没有用处；新启动的进程无法共享任何资源。
 
-Code/Text Size Implications
+代码/文本大小影响
 ---------------------------
 
-The 选项 can have substantial effect on system 图像 大小, mainly
-code/文本.  That is because the instructions to generate symtab.inc
-above will cause EVERY 接口 in the NuttX RTOS and the C library to be
-included into 构建.  添加 to that the 大小 of a huge symbol table.
+该选项可能对系统镜像大小产生重大影响，主要是代码/文本部分。
+这是因为生成上述 symtab.inc 的指令会导致 NuttX RTOS 和 C 库中
+的每个接口都被包含在构建中，再加上庞大的符号表本身所占的空间。
 
-In order to reduce the code/文本 大小, you may want to manually p运行e the
-auto-generated symtab.inc 文件 to 移除 all 接口s that you do
-not wish to include into the base FLASH 图像.
+为了减小代码/文本大小，您可能需要手动裁剪自动生成的 symtab.inc 文件，
+移除不希望包含在基础 FLASH 镜像中的接口。
 
-Implementation Details
+实现细节
 ======================
 
 .. toctree::
@@ -158,6 +144,6 @@ Implementation Details
    :caption: Contents:
    
    search.rst
-   std位.rst
+   stdbit.rst
    stream.rst
    zoneinfo.rst

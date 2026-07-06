@@ -4,14 +4,12 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-这是 C 文件 that 用于 to 构建 mkversion program.  The mkversion
-program 用于 during the initial NuttX 构建.
+这是一个 C 文件，用于构建 mkversion 程序。mkversion
+程序在 NuttX 初始构建期间使用。
 
-When you 构建 NuttX there should be a version 文件 called .version in
-the top level NuttX 目录 (See Documentation/NuttXPortingGuide.html).
-The first time you make NuttX, the top-level make文件 will 构建 the
-mkversion executable from mkversion.c (using Make文件.host).  The top-level
-Make文件 will then 执行 the mkversion program to convert the
-.version 文件 in the top level 目录 into include/nuttx/version.h.
-version.h provides version information that can be included by C 文件s.
-
+当你构建 NuttX 时，NuttX 顶层目录中应该有一个名为 .version 的版本文件
+（参见 Documentation/NuttXPortingGuide.html）。第一次构建 NuttX 时，
+顶层 Makefile 将从 mkversion.c（使用 Makefile.host）构建 mkversion
+可执行文件。然后顶层 Makefile 将执行 mkversion 程序，将
+顶层目录中的 .version 文件转换为 include/nuttx/version.h。
+version.h 提供了可被 C 文件包含的版本信息。

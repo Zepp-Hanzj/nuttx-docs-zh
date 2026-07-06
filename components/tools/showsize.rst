@@ -4,8 +4,7 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-Show the top 10 biggest 内存 hogs in code and 数据 spaces. This must be
-执行d from the top-level NuttX 目录 like:
+显示代码和数据空间中前 10 个最大的内存占用。必须从 NuttX 顶层目录执行：
 
 .. code:: console
 

@@ -4,33 +4,30 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-``abi_check.py`` is a Python tool for checking binary compatibility based on
-DWARF debug information.
+``abi_check.py`` 是一个基于 DWARF 调试信息检查二进制兼容性的 Python 工具。
 
-It 支持s three related workflows:
+它支持三种相关工作流：
 
-1. Given one or more static libraries (``.a``) and an ELF 文件, collect the
-   undefined (external) symbols referenced by the libraries, locate those
-   函数s in the ELF 文件, and 写入 their 函数 signatures to a JSON
-   文件.
-2. Generate two JSON 文件s from two different ELF 文件s (例如, an old
-   构建 and a new 构建), and compare the signatures of 函数s with the
-   same 名称 (返回 类型, 参数s, and for structs also 大小, member
-   off设置s, member 类型s, etc.).
-3. Given a single ELF 文件, detect structs with the same 名称 but different
-   members.
+1. 给定一个或多个静态库（``.a``）和一个 ELF 文件，收集
+   库引用的未定义（外部）符号，在 ELF 文件中定位
+   这些函数，并将其函数签名写入 JSON 文件。
+2. 从两个不同的 ELF 文件（例如一个旧构建和一个新构建）
+   生成两个 JSON 文件，并比较同名函数的签名
+   （返回类型、参数，对于结构体还包括大小、成员偏移量、
+   成员类型等）。
+3. 给定单个 ELF 文件，检测同名但成员不同的结构体。
 
-Prerequisites:
+前置条件：
 
 - Python 3
-- ``pyelftools`` (used to read ELF/DWARF)
-- ``ar`` (used to extract object files from ``.a`` archives)
-- ``pahole`` (only for ``--struct_check``)
+- ``pyelftools``（用于读取 ELF/DWARF）
+- ``ar``（用于从 ``.a`` 归档中提取目标文件）
+- ``pahole``（仅用于 ``--struct_check``）
 
 .. note::
 
-   Although the help 文本 mentions ``.so``, the current implementation uses
-   ``ar x`` on each ``--lib`` input, so it expects ``.a`` archives.
+   尽管帮助文本提到了 ``.so``，但当前实现对每个 ``--lib`` 输入
+   使用 ``ar x``，因此它期望 ``.a`` 归档。
 
 Help message::
 
@@ -38,40 +35,40 @@ Help message::
   usage: abi_check.py [-h] [-a LIB [LIB ...]] [-e ELF] [-c] [-d] [-j JSON] [-s]
                       [-i INPUT_JSON INPUT_JSON]
 
-  This tool 用于 to check the binary compatibility of static libraries and has 以下 特性s:
-      1. The 输入 consists of multiple static libraries and an ELF 文件. The tool searches
-         for external APIs used by the static libraries, then locates these API 函数 signatures
-         in the ELF 文件, and 输出s the results as a JSON 文件.
-      2. Using the first 特性, with the static libraries unchanged,
-         the tool can take a new ELF 文件 and an old ELF 文件 as 输入, 输出 two JSON 文件s,
-         and compare the 函数 signatures of 函数s with the same 名称 in the two JSON 文件s.
-         The comparison includes 返回 值s, 参数s, and if they are 结构s,
-         it also compares the 结构 大小, member off设置s, member 类型s, etc.
-      3.When the 输入 is a single ELF 文件, the tool can check if 结构s with the same 名称 have different members.
+  This tool is used to check the binary compatibility of static libraries and has the following features:
+      1. The input consists of multiple static libraries and an ELF file. The tool searches
+         for external APIs used by the static libraries, then locates these API function signatures
+         in the ELF file, and outputs the results as a JSON file.
+      2. Using the first feature, with the static libraries unchanged,
+         the tool can take a new ELF file and an old ELF file as input, output two JSON files,
+         and compare the function signatures of functions with the same name in the two JSON files.
+         The comparison includes return values, parameters, and if they are structures,
+         it also compares the structure size, member offsets, member types, etc.
+      3.When the input is a single ELF file, the tool can check if structures with the same name have different members.
 
-  选项s:
+  options:
     -h, --help            show this help message and exit
     -a LIB [LIB ...], --lib LIB [LIB ...]
-                          路径 to liba.so or lib.a
-    -e ELF, --elf ELF     路径 to elf 文件
+                          Path to liba.so or lib.a
+    -e ELF, --elf ELF     Path to elf file
     -c, --check           If the static library contains debug information,
-                          try to find the 函数 in the static library,
-                          and 输出 the result to lib_<json> 文件
+                          try to find the function in the static library,
+                          and output the result to lib_<json> file
     -d, --dump            Dump result
-    -j JSON, --json JSON  Save result to json 文件
+    -j JSON, --json JSON  Save result to json file
     -s, --struct_check    Dump struct different
-    -i INPUT_JSON INPUT_JSON, --输入_json INPUT_JSON INPUT_JSON
-                          Diff two json 文件s
+    -i INPUT_JSON INPUT_JSON, --input_json INPUT_JSON INPUT_JSON
+                          Diff two json files
 
 Examples::
 
-  # 1) Extract signatures for external APIs referenced by one or more archives
+  # 1) 提取一个或多个归档引用的外部 API 签名
   $ python3 tools/abi_check.py -a libfoo.a libbar.a -e nuttx -j out.json
 
-  # 2) Compare signatures across two ELF 文件s
+  # 2) 比较两个 ELF 文件的签名
   $ python3 tools/abi_check.py -a libfoo.a libbar.a -e nuttx_old -j old.json
   $ python3 tools/abi_check.py -a libfoo.a libbar.a -e nuttx_new -j new.json
   $ python3 tools/abi_check.py -i old.json new.json
 
-  # 3) Find struct definition mismatches within a single ELF
+  # 3) 在单个 ELF 中查找结构体定义不匹配
   $ python3 tools/abi_check.py -e nuttx -s

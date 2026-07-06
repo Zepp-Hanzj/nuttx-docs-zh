@@ -4,8 +4,8 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-这是 a C program that 用于 to generate CROMFS 文件 system 图像s.
-Usage is simple:
+这是一个用于生成 CROMFS 文件系统镜像的 C 程序。
+用法很简单：
 
 .. code:: console
 
@@ -13,8 +13,7 @@ Usage is simple:
 
 Where:
 
-* ``<dir-path>`` is the path to the directory will be at the root of the new
-  CROMFS 文件 system 图像.
+* ``<dir-path>`` 是将成为新 CROMFS 文件系统镜像根目录的目录路径。
 
-* ``<out-file>`` the name of the generated, output C file. This file must be
-  编译d in order to generate the binary CROMFS 文件 system 图像.
+* ``<out-file>`` 是生成的输出 C 文件名。此文件必须经过编译
+  才能生成二进制 CROMFS 文件系统镜像。

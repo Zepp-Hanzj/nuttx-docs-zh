@@ -4,42 +4,41 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-``checkkconfig.py`` is a Python script that simulates the effects of modifying a CONFIG item.
-It 可用于 to check whether my config changes are what I expected.
+``checkkconfig.py`` 是一个 Python 脚本，用于模拟修改 CONFIG 项的效果。
+它可用于检查我的配置更改是否符合预期。
 
 Help message::
 
   $ tools/checkkconfig.py -h
   usage: checkkconfig.py [-h] -f FILE (-s CONFIG VALUE | -d DIFF)
 
-  选项al 参数s:
+  optional arguments:
     -h, --help            show this help message and exit
-    -f FILE, --文件 FILE  路径 to the 输入 defconfig 文件
+    -f FILE, --file FILE  Path to the input defconfig file
     -s CONFIG_XXX VALUE, --single CONFIG VALUE
                           Analyze single change: CONFIG_NAME y/m/n
-    -d DIFF, --diff DIFF  Analyze changes from diff 文件
+    -d DIFF, --diff DIFF  Analyze changes from diff file
 
   example: ./tools/checkkconfig.py -f defconfig -s ELF n
 
-  输出s:
+  outputs:
   Change report for ELF=n
   Config Option                            Old                  New
   ----------------------------------------------------------------------
   BINFMT_LOADABLE                          y                    n
   ELF                                      y                    n
-  ELF_STACKSIZE                            8192                 <un设置>
+  ELF_STACKSIZE                            8192                 <unset>
   LIBC_ARCH_ELF                            y                    n
   LIBC_MODLIB                              y                    n
-  MODLIB_ALIGN_LOG2                        2                    <un设置>
-  MODLIB_BUFFERINCR                        32                   <un设置>
-  MODLIB_BUFFERSIZE                        32                   <un设置>
-  MODLIB_MAXDEPEND                         2                    <un设置>
-  MODLIB_RELOCATION_BUFFERCOUNT            256                  <un设置>
-  MODLIB_SYMBOL_CACHECOUNT                 256                  <un设置>
+  MODLIB_ALIGN_LOG2                        2                    <unset>
+  MODLIB_BUFFERINCR                        32                   <unset>
+  MODLIB_BUFFERSIZE                        32                   <unset>
+  MODLIB_MAXDEPEND                         2                    <unset>
+  MODLIB_RELOCATION_BUFFERCOUNT            256                  <unset>
+  MODLIB_SYMBOL_CACHECOUNT                 256                  <unset>
 
-As we can see, we can clearly know that
-if I turn off ELF in defconfig at this time,
-it will bring about 以下 配置 链接age changes
+如我们所见，可以清楚地知道
+如果此时在 defconfig 中关闭 ELF，
+会带来以下配置联动变化。
 
-It can also parse diff 文件s, which 可用于 to check the changes of multiple
-configs.
+它还可以解析 diff 文件，用于检查多个配置的更改。

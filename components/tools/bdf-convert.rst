@@ -4,33 +4,32 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-This C 文件 用于 to 构建 the bdf-converter program.  The bdf-converter
-program 可用于 to convert fonts in 位map Distribution Format (BDF)
-into fonts that 可用于 in the NX graphics system.
+此 C 文件用于构建 bdf-converter 程序。bdf-converter
+程序可用于将位图分发格式（BDF）中的字体
+转换为可在 NX 图形系统中使用的字体。
 
-Below are general instructions for creating and installing a new font
-in the NX graphic system:
+以下是在 NX 图形系统中创建和安装新字体的一般说明：
 
-1. Locate a font in BDF format,
-2. Use the bdf-converter program to convert the BDF font to the NuttX
-   font format.  This will result in a C header 文件 containing
-   definitions.  That header 文件 should be installed at, 例如,
-   libnx/nxfonts/nxfonts_myfont.h.
+1. 找到一个 BDF 格式的字体，
+2. 使用 bdf-converter 程序将 BDF 字体转换为 NuttX
+   字体格式。这将生成一个包含
+   定义的 C 头文件。该头文件应安装在例如
+   libnx/nxfonts/nxfonts_myfont.h 的位置。
 
-创建 a new NuttX 配置 变量.  例如, suppose
-you define 以下 变量:  CONFIG_NXFONT_MYFONT.  Then
-you would need to:
+创建一个新的 NuttX 配置变量。例如，假设
+你定义了以下变量：CONFIG_NXFONT_MYFONT。那么
+你需要：
 
-3. Define CONFIG_NXFONT_MYFONT=y in your NuttX 配置 文件.
+3. 在你的 NuttX 配置文件中定义 CONFIG_NXFONT_MYFONT=y。
 
-A font ID 数量 has to be assigned for each new font.  The font ID
-定义 in the 文件 include/nuttx/nx/nxfonts.h.  Those definitions
-have to be extended to 支持 your new font.  Look at how the font ID
-启用d by CONFIG_NXFONT_SANS23X27 定义 and 添加 an ID for your
-new font in a similar fashion:
+每个新字体都需要分配一个字体 ID 编号。字体 ID
+定义在文件 include/nuttx/nx/nxfonts.h 中。这些定义
+需要扩展以支持你的新字体。查看 CONFIG_NXFONT_SANS23X27
+启用的字体 ID 如何定义，并以类似的方式
+为你的新字体添加一个 ID：
 
-4. include/nuttx/nx/nxfonts.h. 添加 your new font as a possible system
-   默认 font::
+4. include/nuttx/nx/nxfonts.h。将你的新字体添加为可能的系统
+   默认字体::
 
          #if defined(CONFIG_NXFONT_SANS23X27)
          # define NXFONT_DEFAULT FONTID_SANS23X27
@@ -38,12 +37,12 @@ new font in a similar fashion:
          # define NXFONT_DEFAULT FONTID_MYFONT
          #endif
 
-Then define the actual font ID.  Make sure that the font ID 值
-is unique::
+然后定义实际的字体 ID。确保字体 ID 值
+是唯一的::
 
          enum nx_fontid_e
           {
-           FONTID_DEFAULT     = 0      /* The 默认 font */
+           FONTID_DEFAULT     = 0      /* The default font */
            #ifdef CONFIG_NXFONT_SANS23X27
            , FONTID_SANS23X27 = 1      /* The 23x27 sans serif font */
            #endif
@@ -52,72 +51,72 @@ is unique::
            #endif
            ...
 
-Now 添加 the font to the NX 构建 system.  There are several 文件s that
-you have to modify to do this.  Look how the 构建 system uses the
-font CONFIG_NXFONT_SANS23X27 例如s:
+现在将字体添加到 NX 构建系统中。你需要修改
+几个文件来完成此操作。查看构建系统如何使用
+字体 CONFIG_NXFONT_SANS23X27 的示例：
 
-5. nuttx/graphics/Make文件.  This 文件 needs logic to auto-generate
-   a C source 文件 from the header 文件 that you generated with the
-   the bdf-converter program.  Notice NXFONTS_FONTID=2; this must be
-   设置 to the same font ID 值 that you defined in the
-   include/nuttx/nx/nxfonts.h 文件::
+5. nuttx/graphics/Makefile。此文件需要自动从
+   bdf-converter 程序生成的头文件生成 C 源文件的
+   逻辑。注意 NXFONTS_FONTID=2；这必须
+   设置为你在 include/nuttx/nx/nxfonts.h 文件中
+   定义的相同字体 ID 值::
 
        genfontsources:
          ifeq ($(CONFIG_NXFONT_SANS23X27),y)
-          @$(MAKE) -C nxfonts -f Make文件.sources NXFONTS_FONTID=1 EXTRAFLAGS=$(EXTRAFLAGS)
+          @$(MAKE) -C nxfonts -f Makefile.sources NXFONTS_FONTID=1 EXTRAFLAGS=$(EXTRAFLAGS)
         endif
          ifeq ($(CONFIG_NXFONT_MYFONT),y)
-          @$(MAKE) -C nxfonts -f Make文件.sources NXFONTS_FONTID=2 EXTRAFLAGS=$(EXTRAFLAGS)
+          @$(MAKE) -C nxfonts -f Makefile.sources NXFONTS_FONTID=2 EXTRAFLAGS=$(EXTRAFLAGS)
         endif
 
-6. nuttx/libnx/nxfonts/Make.defs.  设置 the make 变量 NXFSET_CSRCS.
-   NXFSET_CSRCS determines the 名称 of the font C 文件 to 构建 when
-   NXFONTS_FONTID=2::
+6. nuttx/libnx/nxfonts/Make.defs。设置 make 变量 NXFSET_CSRCS。
+   NXFSET_CSRCS 决定了 NXFONTS_FONTID=2 时要构建的
+   字体 C 文件的名称::
 
          ifeq ($(CONFIG_NXFONT_SANS23X27),y)
-         NXFSET_CSRCS    += nxfonts_位maps_sans23x27.c
+         NXFSET_CSRCS    += nxfonts_bitmaps_sans23x27.c
          endif
          ifeq ($(CONFIG_NXFONT_MYFONT),y)
-         NXFSET_CSRCS    += nxfonts_位maps_myfont.c
+         NXFSET_CSRCS    += nxfonts_bitmaps_myfont.c
          endif
 
-7. nuttx/libnx/nxfonts/Make文件.sources.  这是 the Make文件 used
-   in step 5 that will actually generate the font C 文件.  So, given
-   your NXFONTS_FONTID=2, it needs to determine a prefix to use for
-   auto-generated 变量 and 函数 名称s and (again) the 名称 of
-   the auto-generated 文件 to 创建 (this must be the same 名称 that
-   was used in nuttx/libnx/nxfonts/Make.defs)::
+7. nuttx/libnx/nxfonts/Makefile.sources。这是步骤 5 中使用的
+   Makefile，它将实际生成字体 C 文件。因此，给定
+   你的 NXFONTS_FONTID=2，它需要确定用于自动生成的
+   变量和函数名称的前缀，以及（再次）要创建的
+   自动生成文件的名称（这必须与 nuttx/libnx/nxfonts/Make.defs
+   中使用的名称相同）::
 
          ifeq ($(NXFONTS_FONTID),1)
          NXFONTS_PREFIX    := g_sans23x27_
-         GEN_CSRC    = nxfonts_位maps_sans23x27.c
+         GEN_CSRC    = nxfonts_bitmaps_sans23x27.c
          endif
          ifeq ($(NXFONTS_FONTID),2)
          NXFONTS_PREFIX    := g_myfont_
-         GEN_CSRC    = nxfonts_位maps_myfont.c
+         GEN_CSRC    = nxfonts_bitmaps_myfont.c
          endif
 
-8. graphics/libnx/nxfonts_位maps.c.  这是 the 文件 that contains
-   the generic font 结构s.  It 用于 as a "template" 文件 by
-   nuttx/libnx/nxfonts/Make文件.sources to 创建 your customized
-   font 数据 设置::
+8. graphics/libnx/nxfonts_bitmaps.c。这是包含
+   通用字体结构的文件。它被 nuttx/libnx/nxfonts/Makefile.sources
+   用作"模板"文件来创建你的自定义
+   字体数据集::
 
          #if NXFONTS_FONTID == 1
          #  include "nxfonts_sans23x27.h"
          #elif NXFONTS_FONTID == 2
          #  include "nxfonts_myfont.h"
          #else
-         #  错误 "No font ID specified"
+         #  error "No font ID specified"
          #endif
 
-   Where nxfonts_myfont.h is the NuttX font 文件 that we generated in
-   step 2 using the bdf-converter tool.
+   其中 nxfonts_myfont.h 是我们在步骤 2 中使用 bdf-converter 工具
+   生成的 NuttX 字体文件。
 
-9. libnx/nxfonts/nxfonts_获取font.c.  Finally, we need to extend the
-   logic that does the 运行-time font lookups so that can find our new
-   font.  The lookup 函数 is NXHANDLE nxf_获取font句柄(enum nx_fontid_e fontid).
-   The new font information needs to be 添加ed to 数据 结构s used by
-   that 函数::
+9. libnx/nxfonts/nxfonts_getfont.c。最后，我们需要扩展
+   运行时字体查找的逻辑，以便能够找到我们的新
+   字体。查找函数是 NXHANDLE nxf_getfonthandle(enum nx_fontid_e fontid)。
+   新的字体信息需要添加到该函数使用的
+   数据结构中::
 
         #ifdef CONFIG_NXFONT_SANS23X27
          extern const struct nx_fontpackage_s g_sans23x27_package;
@@ -136,4 +135,3 @@ font CONFIG_NXFONT_SANS23X27 例如s:
          #endif
          NULL
          };
-

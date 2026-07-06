@@ -4,8 +4,7 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-这是 a C 文件 that 可用于 to 创建 an initial 配置. This
-permits creating a new 配置 from scratch, without relying on any
-existing board 配置 in place. This utility will 创建 a barebones
-``.config`` 文件 sufficient only for instantiating the symbolic 链接s necessary
-to do a real 配置.
+这是一个 C 文件，可用于创建初始配置。这允许从头开始
+创建新配置，而不依赖于任何现有的板配置。
+此实用工具将创建一个最小的 ``.config`` 文件，仅足以实例化
+执行真实配置所需的符号链接。

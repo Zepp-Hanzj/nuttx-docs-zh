@@ -4,10 +4,10 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-The HTML documentation expects to have a copy of the auto-generated
-配置 变量 documentation Documentation/NuttXConfig变量s.html.
-The script mkconfigvars.sh is a simple script that 可用于 to
-re-generated that 文件 as needed.
+HTML 文档期望有一份自动生成的配置变量文档
+Documentation/NuttXConfigVariables.html 的副本。
+脚本 mkconfigvars.sh 是一个简单的脚本，可用于根据需要
+重新生成该文件。
 
 Help:
 
@@ -21,9 +21,8 @@ Help:
 Where::
 
     -v <major.minor.patch>
-       The NuttX version 数量 expressed as a major, minor and patch 数量 separated
-       by a period
+       NuttX 版本号，表示为以句点分隔的主版本号、次版本号和补丁号
     -d
-       启用 script debug
+       启用脚本调试
     -h
-       show this help message and exit
+       显示此帮助消息并退出

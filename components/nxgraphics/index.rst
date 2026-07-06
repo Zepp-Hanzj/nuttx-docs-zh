@@ -6,164 +6,133 @@
 NX 图形子系统
 =====================
 
-本文档描述 the tiny graphics 支持 included in NuttX. It
-includes an overview description of that graphics 支持, detailed
-descriptions of the NuttX graphics APIs, and discussion of code
-organization, and OS 配置 选项s.
+本文档描述 NuttX 中包含的小型图形支持。内容包括图形支持的概述、
+NuttX 图形 API 的详细说明、代码组织结构以及操作系统配置选项的讨论。
 
 .. figure:: NuttXScreenShot.jpg
   :align: center
 
-  **Figure 1**. This 屏幕shot shows the final frame for the NuttX example
-  at ``apps/examples/nx`` 运行ning on the simulated, Linux x86 platform with
-  simulated frame缓冲区 输出 to an X 窗口. This picture shows to framed 窗口
-  with (blank) toolbars. Each 窗口 has 显示ed 文本 as 接收d from the
-  NX keyboard 接口 The second 窗口 has just been raised to the top of the 显示.
+  **图 1**。此截图展示了 NuttX 示例程序 ``apps/examples/nx`` 在
+  Linux x86 模拟平台上运行的最终效果，使用模拟帧缓冲区输出到 X 窗口。
+  图中显示了两个带框架的窗口，带有（空白的）工具栏。每个窗口显示了
+  从 NX 键盘接口接收到的文本。第二个窗口刚刚被提升到显示的最顶层。
 
 目标
 ==========
 
-The objective of this development was to provide a tiny 窗口ing system
-in the spirit of X, but greatly scaled down and appropriate for most
-resource-limited embedded environments. The current NX implementation
-支持s the general following, high-level 特性s:
+本项目开发的目标是提供一个小型窗口系统，其设计思想源自 X 窗口系统，
+但做了大幅精简，适合大多数资源受限的嵌入式环境。当前的 NX 实现
+支持以下高级特性：
 
--  **Virtual Vertical Graphics Space**. 窗口s that reside in a
-   virtual, *vertical* space so that it makes sense to talk about one
-   窗口 being on top of another and obscuring the 窗口 below it.
--  **Client/Server Model**. A standard client server/model was adopted.
-   NX may be considered a server and other logic that presents the
-   窗口s are NX clients.
--  **Multi-User 支持**. NX includes *front-end* logic to 支持 a
-   separate NX server th读取 that can serve multiple NX client th读取s.
-   The NX is a server th读取/daemon the serializes graphics 操作s
-   from multiple clients.
--  **Minimal Graphics Tool设置**. The actual implementation of the
-   graphics 操作s is performed by common, *back-end* logic. This
-   back-end 支持s only a primitive 设置 of graphic and rendering
-   操作s.
--  **设备 接口**. NX 支持s any graphics 设备 either of two
-   设备 接口s:
+-  **虚拟垂直图形空间**。窗口位于一个虚拟的*垂直*空间中，因此可以
+   讨论一个窗口位于另一个窗口之上并遮挡下方窗口的情况。
+-  **客户端/服务器模型**。采用了标准的客户端/服务器模型。NX 可以
+   视为服务器，其他呈现窗口的逻辑则为 NX 客户端。
+-  **多用户支持**。NX 包含*前端*逻辑，支持独立的 NX 服务器线程，
+   可以为多个 NX 客户端线程提供服务。NX 作为服务器线程/守护进程，
+   将来自多个客户端的图形操作序列化。
+-  **最小图形工具集**。图形操作的实际执行由通用的*后端*逻辑完成。
+   该后端仅支持一组基本的图形和渲染操作。
+-  **设备接口**。NX 通过两种设备接口支持任意图形设备：
 
-   -  Any 设备 with random access video 内存 using the NuttX
-      frame缓冲区 驱动 接口 (see ``include/nuttx/video/fb.h``).
-   -  Any LCD-like 设备 than can accept raster line *运行s* through a
-      parallel or serial 接口 (see ``include/nuttx/lcd/lcd.h``). By
-      默认, NX is configured to use the frame 缓冲区 驱动 unless
-      ``CONFIG_NX_LCDDRIVER`` 定义 =y in your NuttX 配置
-      文件.
+   -  任何具有随机访问视频内存的设备，使用 NuttX 帧缓冲区驱动接口
+      （参见 ``include/nuttx/video/fb.h``）。
+   -  任何类 LCD 设备，可通过并行或串行接口接受光栅行*数据*
+      （参见 ``include/nuttx/lcd/lcd.h``）。默认情况下，NX 配置为
+      使用帧缓冲区驱动，除非在 NuttX 配置文件中定义了
+      ``CONFIG_NX_LCDDRIVER`` =y。
 
--  **Transparent to NX Client**. The 窗口 client on "sees" the
-   sub-窗口 that is operates in and does not need to be concerned with
-   the virtual, vertical space (other that to respond to *redraw*
-   requests from NX when needed).
--  **Framed 窗口s and Toolbars**. NX also 添加s the capability to
-   支持 窗口s with frames and toolbars on top of the basic
-   窗口ing 支持. These are 窗口s such as those shown in the
-   `屏幕shot <#屏幕shot>`__ above. These framed 窗口s sub-divide
-   one one 窗口 into three relatively independent sub窗口s: A frame,
-   the contained 窗口 and an (选项al) toolbar 窗口.
--  **Mouse 支持**. NX provides 支持 for a mouse or other X/Y
-   pointing 设备s. APIs 提供 to allow external 设备s to give
-   X/Y position information and mouse button presses to NX. NX will then
-   provide the mouse 输入 to the relevant 窗口 clients via callbacks.
-   Client 窗口s only 接收 the mouse 输入 callback if the mouse is
-   positioned over a visible portion of the client 窗口; X/Y position
-   提供 to the client in the relative coordinate system of the
-   client 窗口.
--  **Keyboard 输入**. NX also 支持s keyboard/keypad 设备s. APIs
-   提供 to allow external 设备s to give keypad information to
-   NX. NX will then provide the mouse 输入 to the top 窗口 on the
-   显示 (the 窗口 that has the *focus*) via a callback 函数.
+-  **对 NX 客户端透明**。窗口客户端只能"看到"它所操作的子窗口，
+   无需关心虚拟垂直空间（仅需在必要时响应 NX 的*重绘*请求）。
+-  **带框架的窗口和工具栏**。NX 在基本窗口支持的基础上，还提供了
+   带框架和工具栏的窗口功能。这些窗口如上方的 `截图 <#screenshot>`__
+   所示。带框架的窗口将一个窗口细分为三个相对独立的子窗口：
+   框架、包含的窗口以及（可选的）工具栏窗口。
+-  **鼠标支持**。NX 支持鼠标或其他 X/Y 指点设备。提供了 API，
+   允许外部设备向 NX 提供 X/Y 位置信息和鼠标按键事件。NX 随后
+   通过回调函数将鼠标输入传递给相关的窗口客户端。客户端窗口仅在
+   鼠标位于其可见区域上方时才会收到鼠标输入回调；X/Y 位置以客户端
+   窗口的相对坐标系提供给客户端。
+-  **键盘输入**。NX 还支持键盘/数字键盘设备。提供了 API，允许
+   外部设备向 NX 提供键盘信息。NX 随后通过回调函数将键盘输入
+   传递给显示最顶层的窗口（即拥有*焦点*的窗口）。
 
 组织结构
 ============
 
-NX is organized into 6 (and perhaps someday 7 or 8) logical modules.
-These logical modules also correspond to the 目录 organization.
-That NuttX 目录 organization is discussed in `Appendix
-B <#grapicsdirs>`__ of this document. The logic modules are discussed in
-以下 sub-paragraphs.
+NX 由 6 个（未来可能 7 或 8 个）逻辑模块组成。这些逻辑模块也
+对应于目录组织结构。NuttX 目录组织结构在本文档的 `附录 B <#grapicsdirs>`__
+中讨论。逻辑模块将在以下各小节中讨论。
 
 .. figure:: NXOrganization.png
   :align: center
 
-NX Graphics Library (``NXGL``)
+NX 图形库 (``NXGL``)
 ------------------------------
 
-NXGLIB is a standalone library that contains low-level graphics
-utilities and direct frame缓冲区 or LCD rendering logic. NX is built on
-top NXGLIB.
+NXGLIB 是一个独立的库，包含底层图形工具和直接帧缓冲区或 LCD 渲染逻辑。
+NX 建立在 NXGLIB 之上。
 
 NX (``NXSU`` and ``NXMU``)
 --------------------------
 
-NX is the tiny NuttX 窗口ing system for raw 窗口s (i.e., simple
-regions of graphics 内存). NX includes a small-footprint, multi-user
-implementation (NXMU as described below). NX 可用于 without
-NxWid获取s and without NXTOOLKIT for raw 窗口 显示s.
+NX 是 NuttX 的小型窗口系统，用于原始窗口（即图形内存的简单区域）。
+NX 包含一个小型的多用户实现（NXMU，如下所述）。NX 可以在不依赖
+NxWidgets 和 NXTOOLKIT 的情况下用于原始窗口显示。
 
-:sup:`1`\ NXMU and NXSU are interchangeable other than (1) certain
-启动-up and initialization APIs (as described below), and (2) timing.
-With NXSU, NX APIs 执行 immediately; with NXMU, NX APIs defer and
-serialize the 操作s and, hence, introduce different timing and
-potential race conditions that you would not experience with NXSU.
+:sup:`1`\\ NXMU 和 NXSU 可以互换使用，但有以下区别：(1) 某些
+启动和初始化 API（如下所述），(2) 时序差异。使用 NXSU 时，NX API
+立即执行；使用 NXMU 时，NX API 会延迟并序列化操作，因此会引入
+不同的时序和潜在的竞争条件，这些在 NXSU 中不会出现。
 
-**NXNULL?** At one time, I also envisioned a *NULL* front-end that did
-not 支持 窗口ing at all but, rather, simply provided the entire
-frame缓冲区 or LCD 内存 as one dumb 窗口. This has the advantage
-that the same NX APIs 可用于 on the one dumb 窗口 as for the
-other NX 窗口s. This would be in the NuttX spirit of scalability.
+**NXNULL？** 我曾设想一个 *NULL* 前端，它不支持窗口功能，而是简单地
+将整个帧缓冲区或 LCD 内存作为一个简单窗口提供。这样做的好处是可以
+在该简单窗口上使用与其他 NX 窗口相同的 NX API。这符合 NuttX 的
+可扩展性理念。
 
-However, the same end result can be obtained by using the
-```nx_requestbkgd()`` <#nxrequestbkgd>`__ API. It still may be possible
-to reduce the footprint in this usage case by developing and even
-thinner NXNULL front-end. That is a possible future development.
+但是，使用 ``nx_requestbkgd()`` <#nxrequestbkgd>`__ API 可以获得
+相同的效果。通过开发更精简的 NXNULL 前端，仍有可能在这种用例中
+减少占用空间。这是未来可能的开发方向。
 
-NX Tool Kit (``NXTK``)
-----------------------
+NX 工具包 (``NXTK``)
+------------------------  
 
-NXTK is a s 设置 of C graphics tools that provide higher-level 窗口
-drawing 操作s. 这是 the module where the framed 窗口s and
-toolbar logic is implemented. NXTK is built on top of NX and does not
-depend on NxWid获取s.
+NXTK 是一组 C 图形工具，提供更高级别的窗口绘制操作。带框架的窗口
+和工具栏逻辑就在该模块中实现。NXTK 建立在 NX 之上，不依赖于 NxWidgets。
 
-NX Fonts Support (``NXFONTS``)
+NX 字体支持 (``NXFONTS``)
 ------------------------------
 
-A 设置 of C graphics tools for present (位map) font 图像s. The font
-implementation is at a very low level or graphics 操作, comparable
-to the logic in NXGLIB. NXFONTS does not depend on any NX module other
-than some utilities and 类型s from NXGLIB.
+一组用于呈现（位图）字体图像的 C 图形工具。字体实现处于非常底层的
+图形操作级别，与 NXGLIB 中的逻辑相当。NXFONTS 不依赖于任何 NX 模块，
+仅使用 NXGLIB 中的一些工具和类型。
 
-NX Widgets (``NxWidgets``)
+NX 控件 (``NxWidgets``)
 --------------------------
 
-:ref:`NxWid获取s <nxwid获取s>` is a higher level, C++, object-oriented
-library for object-oriented access to graphical "wid获取s." NxWid获取s is
-provided as a separate library in the ``apps/`` repository NxWid获取s is
-built on top of the core NuttX graphics subsystem, but is part of the
-application space rather than part of the core OS graphics subsystems.
+:ref:`NxWidgets <nxwidgets>` 是一个更高级别的、面向对象的 C++ 库，
+用于以面向对象的方式访问图形"控件"。NxWidgets 作为独立库在 ``apps/``
+仓库中提供。NxWidgets 建立在 NuttX 核心图形子系统之上，但属于应用层
+而非核心操作系统图形子系统的一部分。
 
-Terminal Driver (``NxTerm``)
+终端驱动 (``NxTerm``)
 ----------------------------
 
-NxTerm is a 写入-only character 设备 (not shown) that is built on top
-of an NX 窗口. This character 设备 可用于 to provide ``stdout``
-and ``stderr`` and, hence, can provide the 输出 side of NuttX console.
-).
+NxTerm 是一个只写的字符设备（图中未显示），构建在 NX 窗口之上。
+该字符设备可用于提供 ``stdout`` 和 ``stderr``，因此可以提供
+NuttX 控制台的输出端。
 
 NX 头文件
 ===============
 
 ``include/nuttx/nx/nxglib.h``
-   Describes the NXGLIB C 接口s
+   描述 NXGLIB C 接口
 ``include/nuttx/nx/nx.h``
-   Describes the NX C 接口s
+   描述 NX C 接口
 ``include/nutt/nxtk.h``
-   Describe the NXTOOLKIT C 接口s
+   描述 NXTOOLKIT C 接口
 ``include/nutt/nxfont.h``
-   Describe sthe NXFONT C 接口s
+   描述 NXFONT C 接口
 
 .. toctree::
   :Caption: User APIs
@@ -173,8 +142,8 @@ NX 头文件
   nxtk.rst
   nxfonts.rst
   nxcursor.rst
-  nxwm_th读取ing.rst
-  frame缓冲区_char_驱动.rst
+  nxwm_threading.rst
+  framebuffer_char_driver.rst
   sample.rst
   appendix.rst
 
