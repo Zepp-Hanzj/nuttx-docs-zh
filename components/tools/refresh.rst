@@ -6,23 +6,20 @@
 
 .. note::
 
-   This script with ``--silent`` is really obsolete. The silent 选项 really
-   添加s 默认 值s. However, as of 217-07-09, defconfig 文件s are retained
-   in a compressed format, i.e., with 默认 值s 移除d.  So the
-   ``--silent`` option will accomplish nothing. Without ``--silent``, you will
-   have the opportunity over override the 默认 值 from the command line
-   and, in that case, the script may still have some minimal 值.
+   使用 ``--silent`` 的此脚本实际上已经过时。silent 选项实际上只是添加默认值。
+   然而，自 217-07-09 以来，defconfig 文件以压缩格式保留，即默认值已被移除。
+   因此 ``--silent`` 选项不会产生任何效果。不使用 ``--silent`` 时，你将有机会
+   从命令行覆盖默认值，在这种情况下，该脚本可能仍有一些最低限度的作用。
 
-这是 a bash script that automates refreshing of board 默认 配置
-(defconfig) 文件s. It does not do anything special that you cannot do manually,
-but is useful for updating dozens of 配置 文件s. It is also used in the
-NuttX CI process.
+这是一个用于自动刷新开发板默认配置 (defconfig) 文件的 bash 脚本。
+它不会执行任何你无法手动完成的特殊操作，但对于更新数十个配置文件非常有用。
+它也用于 NuttX 的 CI 流程中。
 
-配置 文件s have to be updated because over time, the 配置
-设置s change; new 配置s are 添加ed and new dependencies are 添加ed.
-So an old 配置 文件 may not be usable anymore until it is refreshed.
+配置文件需要定期更新，因为随着时间的推移，配置设置会发生变化；
+新的配置选项被添加，新的依赖关系被引入。因此，旧的配置文件可能不再可用，
+直到被刷新。
 
-Help is also available:
+也可以获取帮助：
 
 .. code:: console
 
@@ -60,64 +57,59 @@ Help is also available:
      Note3: all configurations of chip XYZ are refreshed if "chip:<chipname>" is passed
      Note4: all configurations of board XYZ are refreshed if "board:<boardname>" is passed
 
-The steps to refresh the 文件 taken by ``refresh.sh`` are:
+``refresh.sh`` 刷新文件的步骤如下：
 
-1. Make ``tools/cmpconfig`` if it is not al读取y built.
+1. 如果 ``tools/cmpconfig`` 尚未构建，则先构建它。
 
-2. Copy the defconfig 文件 to the top-level NuttX 目录 as ``.config``
-   (being careful to save any previous ``.config`` 文件 that you might want to
-   keep!).
+2. 将 defconfig 文件复制到 NuttX 顶层目录并重命名为 ``.config``
+   （请注意保存你可能想要保留的任何先前的 ``.config`` 文件！）。
 
-3. Execute ``make` oldconfig` to update the configuration. ``make oldconfig``
-   will prompt you for each change in the 配置 that requires that you
-   make some decision. With the ``--silent`` option, the script will use ``make
-   oldefconfig`` instead and you won't have to answer any questions; the refresh
-   will simply accept the 默认 值 for any new 配置 设置s.
+3. 执行 ``make oldconfig`` 以更新配置。``make oldconfig`` 将针对每一项需要
+   你做出决策的配置变更进行提示。使用 ``--silent`` 选项时，脚本将改为使用
+   ``make oldefconfig``，你无需回答任何问题；刷新过程将直接接受所有新配置
+   设置的默认值。
 
-4. Then it 运行s ``tools/cmpconfig`` to show the real differences between the
-   配置 文件s.  配置 文件s are complex and things can move
-   around so a simple 'diff' between two 配置 文件s is often not
-   useful.  But tools/cmpconfig will show only the meaningful differences
-   between the two 配置 文件s.
+4. 然后运行 ``tools/cmpconfig`` 来显示配置文件之间的实际差异。
+   配置文件很复杂，内容可能会发生位置变化，因此两个配置文件之间的简单
+   'diff' 通常没有太大用处。而 tools/cmpconfig 将仅显示两个配置文件之间
+   有意义的差异。
 
-5. It will edit the .config 文件 to comment out the 设置 of the
-   ``CONFIG_APPS_DIR=`` 设置. This 设置 should not be in checked-in
-   defconfig 文件s because the actually must be determined at the next time that
-   the 配置 is installed.
+5. 它将编辑 .config 文件以注释掉 ``CONFIG_APPS_DIR=`` 的设置。
+   此设置不应出现在已提交的 defconfig 文件中，因为它实际上必须在
+   下次安装配置时确定。
 
-6. Finally, the refreshed defconfig 文件 is copied back in place where it can be
-   committed with the next 设置 of difference to the command line. If you select
-   the ``--silent`` 选项, this 文件 copy will occur automatically. Otherwise,
-   refresh.sh will prompt you first to avoid overwriting the defconfig 文件 with
-   changes that you may not want.
+6. 最后，刷新后的 defconfig 文件被复制回原位，以便下次提交时将差异
+   保存到命令行。如果你选择了 ``--silent`` 选项，此文件复制将自动进行。
+   否则，refresh.sh 将先提示你确认，以避免用你可能不想要的更改
+   覆盖 defconfig 文件。
 
-Usage examples:
+使用示例：
 
-Update all boards without verbose 输出:
+更新所有开发板（不显示详细输出）：
 
 .. code:: console
 
    $ ./tools/refresh.sh --silent --defaults all
 
-Update all boards and configs from `arm` architecture:
+更新 ``arm`` 架构的所有开发板和配置：
 
 .. code:: console
 
    $ ./tools/refresh.sh --silent arch:arm
 
-Update all boards from ``stm32f7`` chip family:
+更新 ``stm32f7`` 芯片系列的所有开发板：
 
 .. code:: console
 
    $ ./tools/refresh.sh --silent chip:stm32f7
 
-Update all configs from ``stm32f103-minimum`` board:
+更新 ``stm32f103-minimum`` 开发板的所有配置：
 
 .. code:: console
 
    $ ./tools/refresh.sh --silent board:stm32f103-minimum
 
-Update only the `.nsh.` config from stm32f103-minimum board:
+仅更新 stm32f103-minimum 开发板的 `.nsh.` 配置：
 
 .. code:: console
 

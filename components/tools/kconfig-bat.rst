@@ -4,29 +4,24 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-Recent versions of NuttX 支持 构建ing NuttX from a native 窗口s
-CMD.exe shell.  But kconfig-frontends is a Linux tool and is not yet
-available in the pure CMD.exe environment.  At this point, there are
-only a few 选项s for the 窗口s user (see the top-level README.txt
-文件).
+最新版本的 NuttX 支持从原生 Windows CMD.exe shell 构建 NuttX。
+但 kconfig-frontends 是一个 Linux 工具，在纯 CMD.exe 环境中尚不可用。
+目前，Windows 用户只有少数几个选项（参见顶层 README.txt 文件）。
 
-You can, with some effort, 运行 the Cygwin kconfig-mconf tool directly
-in the CMD.exe shell.  In this case, you do not have to modify the
-.config 文件, but there are other complexities:  You need to
-temporarily 设置 the Cygwin directories in the PATH 变量 and
-then 运行 kconfig-mconf outside of the Make system.
+你可以通过一些努力，直接在 CMD.exe shell 中运行 Cygwin kconfig-mconf 工具。
+在这种情况下，你不必修改 .config 文件，但还有其他复杂性：
+你需要临时在 PATH 变量中设置 Cygwin 目录，
+然后在 Make 系统之外运行 kconfig-mconf。
 
-kconfig.bat is a 窗口s batch 文件 at tools/kconfig.bat that automates
-these steps.  It 用于 from the top-level NuttX 目录 like::
+kconfig.bat 是位于 tools/kconfig.bat 的 Windows 批处理文件，
+用于自动执行这些步骤。它从顶层 NuttX 目录使用，如下::
 
     tools/kconfig menuconfig
 
-注意： There is currently an issue with accessing DOS environment
-变量s from the Cygwin kconfig-mconf 运行ning in the CMD.exe shell.
-以下 change to the top-level Kconfig 文件 seems to work around
-these problems::
+注意：目前存在从 CMD.exe shell 中运行的 Cygwin kconfig-mconf 访问
+DOS 环境变量的问题。对顶层 Kconfig 文件的以下更改似乎可以解决这些问题::
 
      config APPSDIR
           string
-     -   选项 env="APPSDIR"
-     +   默认 "../apps"
+     -   option env="APPSDIR"
+     +   default "../apps"

@@ -6,39 +6,34 @@
 ``link.[sh|bat]``, ``copydir.[sh|bat]``, ``unlink.[sh|bat]``
 ============================================================
 
-Different 文件 systems have different capabilities for symbolic 链接s.
-Some 窗口s 文件 systems have no native 支持 for symbolic 链接s.
-Cygwin 运行ning under 窗口s has special 链接s built in that work with
-all cygwin tools.  However, they do not work when 窗口s native tools
-用于 with cygwin.  In that case something different must be done.
+不同的文件系统对符号链接的支持能力各不相同。某些 Windows 文件系统不原生支持
+符号链接。在 Windows 下运行的 Cygwin 内置了适用于所有 Cygwin 工具的特殊链接
+机制。然而，当 Windows 原生工具与 Cygwin 一起使用时，这些链接将无法工作。
+在这种情况下，必须采取不同的方法。
 
-If you are 构建ing under Linux or under cygwin with a cygwin tool
-chain, then your Make.defs 文件 may have definitions like the
-following::
+如果你在 Linux 下或在使用 Cygwin 工具链的 Cygwin 下进行构建，那么你的
+Make.defs 文件中可能会有如下定义::
 
-    DIRLINK = $(TOPDIR)/tools/链接.sh
-    DIRUNLINK = (TOPDIR)/tools/un链接.sh
+    DIRLINK = $(TOPDIR)/tools/link.sh
+    DIRUNLINK = (TOPDIR)/tools/unlink.sh
 
-The first definition is not always present because 链接.sh is the
-默认.  链接.sh is a bash script that performs a normal, Linux-style
-symbolic 链接;  un链接.sh is a do-it-all un链接ing script.
+第一个定义并不总是存在，因为 link.sh 是默认值。link.sh 是一个执行常规
+Linux 风格符号链接的 bash 脚本；unlink.sh 是一个处理所有取消链接操作的脚本。
 
-But if you are 构建ing under cygwin using a 窗口s native toolchain
-within a POSIX framework (such as Cygwin), then you will need something
-like 以下 in you Make.defs 文件::
+但如果你在 Cygwin 下使用 Windows 原生工具链，并在 POSIX 框架（如 Cygwin）
+内进行构建，那么你需要在 Make.defs 文件中添加如下内容::
 
     DIRLINK = $(TOPDIR)/tools/copydir.sh
-    DIRUNLINK = (TOPDIR)/tools/un链接.sh
+    DIRUNLINK = (TOPDIR)/tools/unlink.sh
 
-copydir.sh will copy the whole 目录 instead of 链接ing it.
+copydir.sh 将复制整个目录，而不是创建链接。
 
-Finally, if you are 运行ning in a pure native 窗口s environment with
-a CMD.exe shell, then you will need something like this::
+最后，如果你在纯 Windows 原生环境中使用 CMD.exe shell 运行，
+那么你需要如下配置::
 
     DIRLINK = $(TOPDIR)/tools/copydir.bat
-    DIRUNLINK = (TOPDIR)/tools/un链接.bat
+    DIRUNLINK = (TOPDIR)/tools/unlink.bat
 
-Note that this will copy directories.  链接.bat might also be used in
-this case.  链接.bat will attempt to 创建 a symbolic 链接 using the
-NTFS mk链接.exe command instead of copying 文件s.  That logic, however,
-has not been verified as of this writing.
+请注意，这将会复制目录。在这种情况下也可以使用 link.bat。
+link.bat 将尝试使用 NTFS mklink.exe 命令创建符号链接，而不是复制文件。
+但截至本文编写时，该逻辑尚未经过验证。

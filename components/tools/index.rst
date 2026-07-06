@@ -4,8 +4,8 @@
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
-本页讨论 the ``tools/`` 目录 containing miscellaneous scripts
-and host C programs that are important parts of the NuttX 构建 system:
+本页讨论 ``tools/`` 目录，其中包含各种脚本和主机 C 程序，
+它们是 NuttX 构建系统的重要组成部分：
 
 .. toctree::
    :caption: Tool documentation pages
@@ -16,43 +16,38 @@ and host C programs that are important parts of the NuttX 构建 system:
 
 .. _mkpasswd_autogen:
 
-mkpasswd — Build-time ``/etc/passwd`` Generation
+mkpasswd — 构建时 ``/etc/passwd`` 生成
 -------------------------------------------------
 
-``tools/mkpasswd`` is a C host tool (compiled from ``tools/mkpasswd.c``) that
-generates a single ``/etc/passwd`` entry at 构建 time.  It is invoked
-automatically by the ROMFS 构建 step when
-``CONFIG_BOARD_ETC_ROMFS_PASSWD_ENABLE=y`` is 设置.
+``tools/mkpasswd`` 是一个 C 主机工具（从 ``tools/mkpasswd.c`` 编译），
+在构建时生成单个 ``/etc/passwd`` 条目。当设置了
+``CONFIG_BOARD_ETC_ROMFS_PASSWD_ENABLE=y`` 时，它会由 ROMFS 构建步骤
+自动调用。
 
 为什么要在构建时生成？
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Shipping a hard-coded 默认 password in firmware is a well-known security
-weakness (CWE-798).  By generating the ``/etc/passwd`` entry from a
-user-supplied plain文本 password at 构建 time, each firmware 图像 carries
-unique credentials.  The 构建 will fail if the password is left empty,
-preventing accidental deployments with no credentials.
+在固件中硬编码默认密码是一个众所周知的安全弱点（CWE-798）。
+通过在构建时从用户提供的明文密码生成 ``/etc/passwd`` 条目，
+每个固件镜像都携带唯一的凭据。如果密码留空，构建将失败，
+防止无凭据的意外部署。
 
-For improved baseline security, the configured password must be at least
-8 characters long.
+为了提高基本安全性，配置的密码长度必须至少为 8 个字符。
 
 工作原理
 ~~~~~~~~~~~~
 
-1. The host tool 读取s the plain文本 password from
-   ``CONFIG_BOARD_ETC_ROMFS_PASSWD_PASSWORD``.
-2. The password is hashed using the Tiny Encryption Algorithm (TEA) — the
-   same implementation used at 运行time in
-   ``libs/libc/misc/lib_tea_encrypt.c`` — with custom base64 encoding
-   matching ``apps/fsutils/passwd/passwd_encrypt.c``.
-3. The resulting hashed entry is written to
-   ``etctmp/<mountpoint>/passwd`` and then embedded into the ROMFS 图像.
-4. The **plain文本 password is never stored in the firmware 图像**.
+1. 主机工具从 ``CONFIG_BOARD_ETC_ROMFS_PASSWD_PASSWORD`` 读取明文密码。
+2. 密码使用 Tiny Encryption Algorithm (TEA) 进行哈希处理——与运行时在
+   ``libs/libc/misc/lib_tea_encrypt.c`` 中使用的实现相同——并使用与
+   ``apps/fsutils/passwd/passwd_encrypt.c`` 匹配的自定义 base64 编码。
+3. 生成的哈希条目写入 ``etctmp/<mountpoint>/passwd``，然后嵌入到 ROMFS 镜像中。
+4. **明文密码永远不会存储在固件镜像中**。
 
 Kconfig 选项
 ~~~~~~~~~~~~~~~
 
-启用 the 特性 and configure credentials via ``make menuconfig``:
+通过 ``make menuconfig`` 启用该特性并配置凭据：
 
 .. code:: kconfig
 
@@ -64,8 +59,7 @@ Kconfig 选项
    CONFIG_BOARD_ETC_ROMFS_PASSWD_GID=0
    CONFIG_BOARD_ETC_ROMFS_PASSWD_HOME="/"
 
-The TEA encryption keys can be changed from their 默认s via
-``CONFIG_FSUTILS_PASSWD_KEY1..4``.
+TEA 加密密钥可以通过 ``CONFIG_FSUTILS_PASSWD_KEY1..4`` 从默认值更改。
 
 ``/etc/passwd`` 文件格式
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,35 +68,35 @@ The TEA encryption keys can be changed from their 默认s via
 
    user:x:uid:gid:home
 
-Where:
+其中：
 
-* ``user`` — user name
-* ``x`` — TEA-hashed, base64-encoded password
-* ``uid`` — numeric user ID
-* ``gid`` — numeric group ID
-* ``home`` — login directory
+* ``user`` — 用户名
+* ``x`` — 经 TEA 哈希、base64 编码的密码
+* ``uid`` — 数字用户 ID
+* ``gid`` — 数字组 ID
+* ``home`` — 登录目录
 
 验证生成的条目
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-After enabling ``CONFIG_BOARD_ETC_ROMFS_PASSWD_ENABLE`` and 设置 a
-password, re构建 and verify:
+启用 ``CONFIG_BOARD_ETC_ROMFS_PASSWD_ENABLE`` 并设置密码后，
+重新构建并验证：
 
-1. **Configure and 构建**:
+1. **配置并构建**:
 
    .. code:: console
 
-      $ make menuconfig   # 启用 BOARD_ETC_ROMFS_PASSWD_ENABLE and 设置 password
+      $ make menuconfig   # 启用 BOARD_ETC_ROMFS_PASSWD_ENABLE 并设置密码
       $ make
 
-2. **Inspect the generated passwd line** (written to the board 构建 tree):
+2. **检查生成的 passwd 行**（写入开发板构建目录）:
 
    .. code:: console
 
       $ cat boards/<arch>/<chip>/<board>/src/etctmp/etc/passwd
       root:8Tv+Hbmr3pLVb5HHZgd26D:0:0:/
 
-3. **Verify the plain文本 is absent from firmware**:
+3. **验证固件中不存在明文**:
 
    .. code:: console
 
@@ -112,8 +106,8 @@ password, re构建 and verify:
 关于 ``savedefconfig`` 的注意事项
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To avoid leaking credentials into board defconfigs, ``make savedefconfig``
-does not save 以下 选项s in the generated defconfig:
+为避免将凭据泄露到开发板 defconfig 中，``make savedefconfig`` 不会在
+生成的 defconfig 中保存以下选项：
 
 * ``CONFIG_BOARD_ETC_ROMFS_PASSWD_PASSWORD``
 * ``CONFIG_FSUTILS_PASSWD_KEY1``
@@ -121,5 +115,5 @@ does not save 以下 选项s in the generated defconfig:
 * ``CONFIG_FSUTILS_PASSWD_KEY3``
 * ``CONFIG_FSUTILS_PASSWD_KEY4``
 
-If you need these 值s for local development, 添加 them manually to your
-local defconfig after 运行ning ``make savedefconfig``.
+如果你需要这些值用于本地开发，请在运行 ``make savedefconfig`` 后
+手动将其添加到本地 defconfig 中。

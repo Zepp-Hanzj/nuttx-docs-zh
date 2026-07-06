@@ -6,11 +6,10 @@
 ``checkpatch.sh``
 =================
 
-``checkpatch.sh`` is a bash script that makes use of ``nxstyle`` and
-``codespell`` tools to format patches and ensure that 文件s conform to NuttX
-coding standard. It 用于 in NuttX's GitHub CI.
+``checkpatch.sh`` 是一个 bash 脚本，利用 ``nxstyle`` 和 ``codespell`` 工具
+来格式化补丁并确保文件符合 NuttX 编码标准。它用于 NuttX 的 GitHub CI 中。
 
-Help message:
+帮助信息：
 
 .. code:: console
 
