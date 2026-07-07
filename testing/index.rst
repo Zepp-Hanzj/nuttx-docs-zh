@@ -11,7 +11,7 @@
 
 .. toctree::
 
-   nuttx-ci.rst
-   citests.rst
-   ntfc.rst
-   nxdart.rst
+   nuttx-ci
+   citests
+   ntfc
+   nxdart

@@ -7,5 +7,4 @@ Tags: chip:stm32wl
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32wl5/boards/nucleo-wl55jc/index.rst
     ../platforms/arm/stm32wl5/boards/nucleo-wl55jc/index.rst

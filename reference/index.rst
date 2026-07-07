@@ -5,5 +5,5 @@
 .. toctree::
    :maxdepth: 2
 
-   os/index.rst
-   user/index.rst
+   os/index
+   user/index

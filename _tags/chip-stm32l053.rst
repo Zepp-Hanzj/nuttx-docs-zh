@@ -7,5 +7,4 @@ Tags: chip:stm32l053
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32l0/boards/stm32l0538-disco/index.rst
     ../platforms/arm/stm32l0/boards/stm32l0538-disco/index.rst

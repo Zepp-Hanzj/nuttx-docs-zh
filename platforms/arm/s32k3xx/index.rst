@@ -92,7 +92,7 @@ GPIO
 Pins can be configured using :c:func:`s32k3xx_pinconfig` function. Writing to pins is done by :c:func:`s32k3xx_gpiowrite` function and reading is done by :c:func:`s32k3xx_gpioread`.
 
 LPCMP
----
+-----
 
 Analog Comparator. No driver support (yet).
 

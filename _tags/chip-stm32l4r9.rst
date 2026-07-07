@@ -7,5 +7,4 @@ Tags: chip:stm32l4r9
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32l4/boards/stm32l4r9ai-disco/index.rst
     ../platforms/arm/stm32l4/boards/stm32l4r9ai-disco/index.rst

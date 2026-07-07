@@ -7,7 +7,5 @@ Tags: chip:virt
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm64/fvp-v8r/boards/fvp-armv8r/index.rst
-    ../_upstream/platforms/arm64/qemu/boards/qemu-armv8a/index.rst
     ../platforms/arm64/fvp-v8r/boards/fvp-armv8r/index.rst
     ../platforms/arm64/qemu/boards/qemu-armv8a/index.rst

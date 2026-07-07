@@ -22,3 +22,5 @@ NuttX 中文文档
    testing/index
    faq/index
    glossary
+   logos/index
+   security

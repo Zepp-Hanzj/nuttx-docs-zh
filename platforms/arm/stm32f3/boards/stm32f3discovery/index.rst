@@ -167,7 +167,7 @@ can be selected as follow:
 Where <subdir> is one of the following:
 
 nsh:
----
+----
 Configures the NuttShell (nsh) located at apps/examples/nsh.  The
 Configuration enables the serial interfaces on USART2.  Support for
 builtin applications is enabled, but in the base configuration no

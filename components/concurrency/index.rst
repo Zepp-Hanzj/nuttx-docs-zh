@@ -15,4 +15,4 @@ Concurrency
    :maxdepth: 2
    :caption: 目录:
 
-   seqcount/index.rst
+   seqcount/index

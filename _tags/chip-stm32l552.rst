@@ -7,5 +7,4 @@ Tags: chip:stm32l552
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32l5/boards/nucleo-l552ze/index.rst
     ../platforms/arm/stm32l5/boards/nucleo-l552ze/index.rst

@@ -7,5 +7,4 @@ Tags: chip:ESP32-C3
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/risc-v/esp32c3/boards/esp32-c3-zero/index.rst
     ../platforms/risc-v/esp32c3/boards/esp32-c3-zero/index.rst

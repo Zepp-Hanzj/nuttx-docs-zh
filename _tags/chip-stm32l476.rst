@@ -7,10 +7,6 @@ Tags: chip:stm32l476
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32l4/boards/nucleo-l476rg/index.rst
-    ../_upstream/platforms/arm/stm32l4/boards/steval-stlcs01v1/index.rst
-    ../_upstream/platforms/arm/stm32l4/boards/stm32l476-mdk/index.rst
-    ../_upstream/platforms/arm/stm32l4/boards/stm32l476vg-disco/index.rst
     ../platforms/arm/stm32l4/boards/nucleo-l476rg/index.rst
     ../platforms/arm/stm32l4/boards/steval-stlcs01v1/index.rst
     ../platforms/arm/stm32l4/boards/stm32l476-mdk/index.rst

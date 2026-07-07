@@ -7,5 +7,4 @@ Tags: chip:stm32c092
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32c0/boards/nucleo-c092rc/index.rst
     ../platforms/arm/stm32c0/boards/nucleo-c092rc/index.rst

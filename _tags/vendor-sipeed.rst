@@ -7,5 +7,4 @@ Tags: vendor:sipeed
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/risc-v/k210/boards/maix-bit/index.rst
     ../platforms/risc-v/k210/boards/maix-bit/index.rst

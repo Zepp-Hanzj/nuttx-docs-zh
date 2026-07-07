@@ -7,5 +7,4 @@ Tags: chip:stm32f427
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32f4/boards/axoloti/index.rst
     ../platforms/arm/stm32f4/boards/axoloti/index.rst

@@ -9,9 +9,9 @@
    :maxdepth: 2
 
    贡献指南 <guide.rst>
-   workflow.rst
-   making-changes.rst
-   coding_style.rst
-   documentation.rst
-   releases.rst
+   workflow
+   making-changes
+   coding_style
+   documentation
+   releases
 

@@ -7,5 +7,4 @@ Tags: chip:stm32c071
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32c0/boards/nucleo-c071rb/index.rst
     ../platforms/arm/stm32c0/boards/nucleo-c071rb/index.rst

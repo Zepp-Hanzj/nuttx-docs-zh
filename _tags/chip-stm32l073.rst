@@ -7,5 +7,4 @@ Tags: chip:stm32l073
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32l0/boards/nucleo-l073rz/index.rst
     ../platforms/arm/stm32l0/boards/nucleo-l073rz/index.rst

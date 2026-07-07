@@ -8,12 +8,12 @@
    :maxdepth: 2
    :caption: 目录:
    
-   make_build_system.rst
-   drivers_design.rst
-   device_drivers.rst
-   processes_vs_tasks.rst
-   critical_sections.rst
-   interrupt_controls.rst
-   preemption_latency.rst
-   bottomhalf_interrupt.rst
-   simulation.rst
+   make_build_system
+   drivers_design
+   device_drivers
+   processes_vs_tasks
+   critical_sections
+   interrupt_controls
+   preemption_latency
+   bottomhalf_interrupt
+   simulation

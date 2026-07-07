@@ -30,8 +30,8 @@ NuttX 中的库非常特殊，具有以下特性：
    :maxdepth: 1
    :caption: 目录：
 
-   libc/index.rst
-   libdsp.rst
-   libm.rst
-   libxx.rst
-   libnx/index.rst
+   libc/index
+   libdsp
+   libm
+   libxx
+   libnx/index

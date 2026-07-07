@@ -7,5 +7,4 @@ Tags: vendor:broadcom
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm64/bcm2711/index.rst
     ../platforms/arm64/bcm2711/index.rst

@@ -143,7 +143,7 @@ symtab
    :maxdepth: 1
    :caption: Contents:
    
-   search.rst
-   stdbit.rst
-   stream.rst
-   zoneinfo.rst
+   search
+   stdbit
+   stream
+   zoneinfo

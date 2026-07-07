@@ -1,6 +1,6 @@
-===============
+==================
 使用 Python 的 GDB
-===============
+==================
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
@@ -45,4 +45,4 @@
    :caption: GDB 插件命令
    :maxdepth: 1
 
-   gdb/irqinfo.rst
+   gdb/irqinfo

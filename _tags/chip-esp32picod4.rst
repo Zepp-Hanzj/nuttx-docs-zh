@@ -7,5 +7,4 @@ Tags: chip:esp32picod4
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/xtensa/esp32/boards/esp32-pico-kit/index.rst
     ../platforms/xtensa/esp32/boards/esp32-pico-kit/index.rst

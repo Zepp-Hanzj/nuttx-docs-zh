@@ -12,4 +12,5 @@
   licensing.rst
   trademarks.rst
   resources.rst
+  inviolables.rst
 

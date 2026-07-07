@@ -7,5 +7,4 @@ Tags: chip:a527
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm64/a527/boards/avaota-a1/index.rst
     ../platforms/arm64/a527/boards/avaota-a1/index.rst

@@ -7,5 +7,4 @@ Tags: wifi
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/rp2040/boards/raspberrypi-pico-w/index.rst
     ../platforms/arm/rp2040/boards/raspberrypi-pico-w/index.rst

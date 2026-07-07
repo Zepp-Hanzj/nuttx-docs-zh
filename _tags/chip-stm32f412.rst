@@ -7,5 +7,4 @@ Tags: chip:stm32f412
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32f4/boards/nucleo-f412zg/index.rst
     ../platforms/arm/stm32f4/boards/nucleo-f412zg/index.rst

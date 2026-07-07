@@ -7,5 +7,4 @@ Tags: vendor:vega
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/risc-v/rv32m1/boards/rv32m1-vega/index.rst
     ../platforms/risc-v/rv32m1/boards/rv32m1-vega/index.rst

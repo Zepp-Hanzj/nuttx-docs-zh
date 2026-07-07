@@ -9,10 +9,10 @@
 .. toctree::
     :maxdepth: 1
 
-    sensors/sensors_uorb.rst
-    sensors/sensors_legacy.rst
-    sensors/sensors_cluster.rst
-    sensors/sensor_monitor.rst
+    sensors/sensors_uorb
+    sensors/sensors_legacy
+    sensors/sensors_cluster
+    sensors/sensor_monitor
 
 实现新传感器的首选方式是 :ref:`新传感器框架 <new_sensor_framework>`，它提供了最通用的接口。
 
@@ -23,19 +23,19 @@
 .. toctree::
     :hidden:
 
-    sensors/adt7320.rst
-    sensors/adxl345.rst
-    sensors/adxl362.rst
-    sensors/adxl372.rst
-    sensors/aht10.rst
-    sensors/ak09912.rst
-    sensors/lsm330.rst
-    sensors/mcp9600.rst
-    sensors/mpl115a.rst
-    sensors/nau7802.rst
-    sensors/qmi8658.rst
-    sensors/sht4x.rst
-    sensors/lsm6dso32.rst
-    sensors/lis2mdl.rst
-    sensors/l86xxx.rst
-    sensors/gnss_lowerhalf.rst
+    sensors/adt7320
+    sensors/adxl345
+    sensors/adxl362
+    sensors/adxl372
+    sensors/aht10
+    sensors/ak09912
+    sensors/lsm330
+    sensors/mcp9600
+    sensors/mpl115a
+    sensors/nau7802
+    sensors/qmi8658
+    sensors/sht4x
+    sensors/lsm6dso32
+    sensors/lis2mdl
+    sensors/l86xxx
+    sensors/gnss_lowerhalf

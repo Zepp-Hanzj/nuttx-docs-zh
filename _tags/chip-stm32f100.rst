@@ -7,5 +7,4 @@ Tags: chip:stm32f100
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32f1/boards/stm32vldiscovery/index.rst
     ../platforms/arm/stm32f1/boards/stm32vldiscovery/index.rst

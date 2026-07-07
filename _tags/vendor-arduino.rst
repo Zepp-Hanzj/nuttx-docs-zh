@@ -7,5 +7,4 @@ Tags: vendor:arduino
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/avr/atmega/atmega2560/boards/arduino-mega2560/index.rst
     ../platforms/avr/atmega/atmega2560/boards/arduino-mega2560/index.rst

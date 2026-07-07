@@ -407,7 +407,7 @@ To test it, just execute the ``pwm`` application::
     pwm_main: stopping output
 
 qencoder
----
+--------
 
 This configuration demonstrates the use of Quadrature Encoder connected to pins
 GPIO10 and GPIO11. You can start measurement of pulses using the following

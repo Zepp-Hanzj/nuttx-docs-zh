@@ -7,5 +7,4 @@ Tags: chip:stm32l496
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32l4/boards/nucleo-l496zg/index.rst
     ../platforms/arm/stm32l4/boards/nucleo-l496zg/index.rst

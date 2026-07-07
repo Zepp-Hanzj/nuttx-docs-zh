@@ -7,5 +7,4 @@ Tags: chip:atmega128
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/avr/atmega/atmega128/boards/amber/index.rst
     ../platforms/avr/atmega/atmega128/boards/amber/index.rst

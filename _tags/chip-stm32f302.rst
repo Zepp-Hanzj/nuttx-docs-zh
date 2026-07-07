@@ -7,5 +7,4 @@ Tags: chip:stm32f302
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32f3/boards/nucleo-f302r8/index.rst
     ../platforms/arm/stm32f3/boards/nucleo-f302r8/index.rst

@@ -23,6 +23,6 @@ Supported Chips
 .. toctree::
    :maxdepth: 1
 
-   atmega128/index.rst
-   atmega1284p/index.rst
-   atmega2560/index.rst
+   atmega128/index
+   atmega1284p/index
+   atmega2560/index

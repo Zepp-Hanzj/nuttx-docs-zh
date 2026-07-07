@@ -9,7 +9,7 @@ Memory Management
 .. toctree::
    :maxdepth: 1
 
-   shm.rst
+   shm
 
 标准内存管理函数
 ------------------------------------

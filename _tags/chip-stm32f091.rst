@@ -7,5 +7,4 @@ Tags: chip:stm32f091
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32f0/boards/nucleo-f091rc/index.rst
     ../platforms/arm/stm32f0/boards/nucleo-f091rc/index.rst

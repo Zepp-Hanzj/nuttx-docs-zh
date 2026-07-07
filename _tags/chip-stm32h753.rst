@@ -7,5 +7,4 @@ Tags: chip:stm32h753
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32h7/boards/linum-stm32h753bi/index.rst
     ../platforms/arm/stm32h7/boards/linum-stm32h753bi/index.rst

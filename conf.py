@@ -88,10 +88,14 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [
     "_build",
+    "_upstream",
+    ".venv",
     "Thumbs.db",
     ".DS_Store",
     "legacy_README.md",
     "venv",
+    "CONTRIBUTING.md",
+    "README.md",
 ]
 
 # list of documentation versions to offer (besides latest). this will be

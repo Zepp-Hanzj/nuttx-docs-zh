@@ -17,4 +17,4 @@ RTOS 内部函数包含在 ``graphics/`` 目录中。
    :maxdepth: 1
    :caption: Contents:
    
-   nxfonts.rst
+   nxfonts

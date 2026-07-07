@@ -19,7 +19,7 @@
    :titlesonly:
    :caption: 目录
 
-   cnxconsole.rst
+   cnxconsole
 
 Doxygen
 -------

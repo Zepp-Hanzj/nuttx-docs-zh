@@ -7,7 +7,5 @@ Tags: chip:bcm2711
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm64/bcm2711/boards/raspberrypi-4b/index.rst
-    ../_upstream/platforms/arm64/bcm2711/index.rst
     ../platforms/arm64/bcm2711/boards/raspberrypi-4b/index.rst
     ../platforms/arm64/bcm2711/index.rst

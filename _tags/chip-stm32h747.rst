@@ -7,5 +7,4 @@ Tags: chip:stm32h747
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32h7/boards/stm32h747i-disco/index.rst
     ../platforms/arm/stm32h7/boards/stm32h747i-disco/index.rst

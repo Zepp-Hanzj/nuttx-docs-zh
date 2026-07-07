@@ -7,5 +7,4 @@ Tags: chip:stm32g070
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32g0/boards/nucleo-g070rb/index.rst
     ../platforms/arm/stm32g0/boards/nucleo-g070rb/index.rst

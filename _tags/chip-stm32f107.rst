@@ -7,10 +7,6 @@ Tags: chip:stm32f107
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32f1/boards/cloudctrl/index.rst
-    ../_upstream/platforms/arm/stm32f1/boards/shenzhou/index.rst
-    ../_upstream/platforms/arm/stm32f1/boards/stm32butterfly2/index.rst
-    ../_upstream/platforms/arm/stm32f1/boards/viewtool-stm32f107/index.rst
     ../platforms/arm/stm32f1/boards/cloudctrl/index.rst
     ../platforms/arm/stm32f1/boards/shenzhou/index.rst
     ../platforms/arm/stm32f1/boards/stm32butterfly2/index.rst

@@ -202,7 +202,7 @@ Configurations
 ==============
 
 trace
----
+-----
 
 Configures the trace located at apps/system/trace for the
 Nucleo-F429ZI board.  The Configuration enables the serial interfaces

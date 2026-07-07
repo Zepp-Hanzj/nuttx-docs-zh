@@ -7,5 +7,4 @@ Tags: chip:stm32h723
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32h7/boards/nucleo-h723zg/index.rst
     ../platforms/arm/stm32h7/boards/nucleo-h723zg/index.rst

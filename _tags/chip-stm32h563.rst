@@ -7,5 +7,4 @@ Tags: chip:stm32h563
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32h5/boards/nucleo-h563zi/index.rst
     ../platforms/arm/stm32h5/boards/nucleo-h563zi/index.rst

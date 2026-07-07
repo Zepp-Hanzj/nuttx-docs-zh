@@ -14,18 +14,16 @@
   gdbserver.rst
   debugging_elf_loadable_modules.rst
   tasktrace.rst
+  tasktraceinternal.rst
+  tasktraceuser.rst
   kasan.rst
   coredump.rst
-  nxtrace.rst
-  nxtrace_usb.rst
-  nxtrace_sdcard.rst
-  gdb_serial.rst
-  jlink.rst
-  openocd.rst
-  eclipse_jtag.rst
-  flash_symbol.rst
-  attach_kit.rst
-  crashdump.rst
-  gdbstub.rst
-  perf.rst
-  deadlock.rst
+  coresight.rst
+  cortexmhardfaults.rst
+  debuggingflash_nuttxonarm.rst
+  disabling_stackdumpdebug.rst
+  gprof.rst
+  mte.rst
+  stackcheck.rst
+  stackrecord.rst
+  stackusage.rst

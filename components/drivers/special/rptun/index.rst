@@ -17,10 +17,10 @@ RPTUN 框架由两个核心组件组成：
 .. toctree::
    :maxdepth: 2
 
-   architecture.rst
-   resource_table.rst
-   driver_porting.rst
-   api_reference.rst
+   architecture
+   resource_table
+   driver_porting
+   api_reference
 
 目标受众
 ===============

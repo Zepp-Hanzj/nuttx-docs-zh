@@ -229,4 +229,4 @@ Supported Boards
    :maxdepth: 1
 
    boards/*/*
-   ieee802154.rst
+   ieee802154

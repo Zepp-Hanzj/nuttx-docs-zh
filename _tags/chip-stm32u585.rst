@@ -7,5 +7,4 @@ Tags: chip:stm32u585
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32u5/boards/b-u585i-iot02a/index.rst
     ../platforms/arm/stm32u5/boards/b-u585i-iot02a/index.rst

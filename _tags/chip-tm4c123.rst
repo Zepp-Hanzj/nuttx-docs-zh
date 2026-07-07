@@ -7,5 +7,4 @@ Tags: chip:tm4c123
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/tiva/boards/tm4c123g-launchpad/index.rst
     ../platforms/arm/tiva/boards/tm4c123g-launchpad/index.rst

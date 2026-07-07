@@ -7,5 +7,4 @@ Tags: chip:a64
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm64/a64/boards/pinephone/index.rst
     ../platforms/arm64/a64/boards/pinephone/index.rst

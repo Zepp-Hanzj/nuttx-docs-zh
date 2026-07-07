@@ -7,5 +7,4 @@ Tags: vendor:holtek
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/ht32f491x3/boards/esk32/index.rst
     ../platforms/arm/ht32f491x3/boards/esk32/index.rst

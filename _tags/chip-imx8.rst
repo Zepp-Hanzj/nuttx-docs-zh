@@ -7,5 +7,4 @@ Tags: chip:imx8
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm64/imx8/boards/imx8qm-mek/index.rst
     ../platforms/arm64/imx8/boards/imx8qm-mek/index.rst

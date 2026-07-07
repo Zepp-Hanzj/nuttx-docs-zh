@@ -7,5 +7,4 @@ Tags: arch:sim
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/sim/sim/boards/sim/index.rst
     ../platforms/sim/sim/boards/sim/index.rst

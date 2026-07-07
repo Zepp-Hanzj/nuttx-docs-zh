@@ -9,7 +9,7 @@ GOLDFISH
 .. toctree::
    :maxdepth: 1
 
-   goldfish_timer.rst
+   goldfish_timer
 
 Supported Boards
 ================

@@ -7,5 +7,4 @@ Tags: chip:stm32u5a5
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32u5/boards/nucleo-u5a5zj-q/index.rst
     ../platforms/arm/stm32u5/boards/nucleo-u5a5zj-q/index.rst

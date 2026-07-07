@@ -7,9 +7,6 @@ Tags: chip:stm32l0
     :maxdepth: 1
     :caption: Pages with this tag
 
-    ../_upstream/platforms/arm/stm32l0/boards/b-l072z-lrwan1/index.rst
-    ../_upstream/platforms/arm/stm32l0/boards/nucleo-l073rz/index.rst
-    ../_upstream/platforms/arm/stm32l0/boards/stm32l0538-disco/index.rst
     ../platforms/arm/stm32l0/boards/b-l072z-lrwan1/index.rst
     ../platforms/arm/stm32l0/boards/nucleo-l073rz/index.rst
     ../platforms/arm/stm32l0/boards/stm32l0538-disco/index.rst

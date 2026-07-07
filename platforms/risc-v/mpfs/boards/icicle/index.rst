@@ -73,7 +73,7 @@ nsh
 Basic configuration to run the NuttShell (nsh).
 
 hwtest
----
+------
 
 Configuration to run the NuttShell (nsh) and enabling the peripherals.
 
