@@ -1,99 +1,60 @@
 =========================================
-Application OS vs. Internal OS Interfaces
+应用 OS 接口与内部 OS 接口
 =========================================
 
 .. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
 
+NuttX 为应用程序提供了一套标准的、可移植的 OS 接口。这套标准接口遵循
+`OpenGroup.org <http://opengroup.org>`__ 的规范。一般来说，这些应用接口
+不应被 OS 内部逻辑直接使用，原因是标准应用接口具有以下特性，使其不适合
+在 OS 内部使用：
 
-NuttX provides a standard, portable OS interface for use by
-applications. This standard interface is controlled by the
-specifications proved at `OpenGroup.org <http://opengroup.org>`__.
-These application interfaces, in general, should not be used
-directly by logic executing within the OS. The reason for this is
-that there are certain properties of the standard application
-interfaces that make them unsuitable for use within the OS These
-properties include:
+#. **使用线程级** ``errno`` **变量**：涉及返回值的处理，尤其是错误返回的
+   情况。大多数传统 POSIX OS 接口通过*线程级* ``errno`` 返回错误信息。
+   从应用程序的角度来看，``errno`` 值必须保持稳定，不能被篡改。因此作为
+   通用规则，OS 内部逻辑绝不能修改 ``errno``，尤其不能在 OS 内部不当使用
+   应用 OS 接口而导致 ``errno`` 被修改。
 
-#. **Use of the per-thread** ``errno`` **variable**: Handling of
-   return values, particularly, in the case of returned error
-   indications. Most legacy POSIX OS interface return information
-   via a *per-thread* ``errno``. There must be no alteration of
-   the ``errno`` value that must be stable from the point of view
-   of the application. So, as a general rule, internal OS logic
-   must never modify the ``errno`` and particularly not by the
-   inappropriate use of application OS interfaces within OS
-   itself.
+   在 OS 内部，函数不通过 ``errno`` 变量返回错误信息。相反，大多数内部
+   OS 函数以整数值返回错误信息：返回值大于等于零表示成功；返回值小于零
+   表示失败。失败通过返回 ``include/errno.h`` 中取反的 ``errno`` 值来报告。
 
-   Within the OS, functions do not return error information via
-   the ``errno`` variable. Instead, the majority of internal OS
-   function return error information as an integer value: Returned
-   values greater than or equal to zero are success values;
-   returned values less than zero indicate failures. Failures are
-   reported by returning a negated ``errno`` value from
-   ``include/errno.h``,
+#. **取消点**：许多应用 OS 接口都是\ *取消点*\ 。即当任务处于\ *延迟取消*\
+   状态时，在它调用作为取消点的应用 OS 接口之前，不能被删除或取消。
 
-#. **Cancellation Points**: Many of the application OS interfaces
-   are *cancellation points*, i.e., when the task is operating in
-   *deferred cancellation* state, it cannot be deleted or
-   cancelled until it calls an application OS interface that is a
-   cancellation point.
+   POSIX 规范对此有严格的规定——既明确指出了哪些应用 OS 接口是取消点，
+   也明确规定禁止规范中未列出的任何 OS 操作产生取消点。如果 OS 内部逻辑
+   直接复用应用 OS 接口，就很容易违反这一 POSIX 要求，错误地在不恰当的
+   OS 操作中产生取消点，从而导致难以分析的应用故障。
 
-   The POSIX specification is very specific about this, specific
-   both in identifying which application OS interfaces are
-   cancellation points and specific in the fact that it is
-   prohibited for any OS operation other than those listed in the
-   specification to generate cancellation points. If internal OS
-   logic were to reuse application OS interfaces directly then it
-   could very easily violate this POSIX requirement by incorrectly
-   generating cancellation points on inappropriate OS operations
-   and could result in very difficult to analyze application
-   failures.
+#. **使用任务级资源**：许多资源仅在任务所处的任务组上下文中有效。上面
+   提到了一个例子：``errno`` 仅对当前执行的线程有效。例如，调用时的
+   ``errno`` 与在 work queue 任务中运行时的 ``errno`` 是完全不同的变量。
 
-#. **Use of per-task Resources**: Many resources are only valid in
-   the task group context in which a thread operates. Above we
-   mentioned one: ``errno`` is only valid for the thread that is
-   currently executing. So, for example, the ``errno`` at the time
-   of a call is a completely different variable than, say, the
-   ``errno`` while running in a work queue task.
+   文件描述符是更好的例子：任务 A 上文件描述符 5 打开的文件\ *不是*\
+   任务 B 上文件描述符 5 使用的同一个打开文件。
 
-   File descriptors are an even better example: An open file on
-   file descriptor 5 on task A is *not* the same open file as
-   might be used on file descriptor 5 on task B.
+   因此，OS 内部逻辑不能使用涉及文件描述符或其他\ *任务级*\ 资源的应用
+   OS 接口。
 
-   As a result, internal OS logic may not use application OS
-   interfaces that use file descriptors or any other *per-task*
-   resource.
+在 NuttX 中，通过提供等效的内部 OS 接口来解决上述问题，这些内部接口不会
+违反上述规则。这些内部接口\ *仅*\ 供 OS 内部使用，不应被应用逻辑调用。
+一些示例包括：
 
-Within NuttX, this is handled by supporting equivalent internal OS
-interfaces that do not break the above rules. These internal
-interfaces are intended for use *only* within the OS and should
-not be used by application logic. Some examples include:
+-  ``nxsem_wait()``：功能上等同于标准应用接口 ``sem_wait()``，但
+   ``nxsem_wait()`` 不会修改 errno 值，也不会产生取消点（其他信号量
+   内部 OS 接口参见 ``include/nuttx/semaphore.h``）。
 
--  ``nxsem_wait()``: functionally
-   equivalent to the standard application interface
-   ``sem_wait()``. However, ``nxsem_wait()`` will not modify the
-   errno value and will not cause a cancellation point. (see
-   ``include/nuttx/semaphore.h`` for other internal OS interfaces
-   for semaphores).
+-  ``nxmq_send()``：功能上等同于标准应用接口 ``mq_send()``，但
+   ``nxmq_send()`` 不会修改 errno 值，也不会产生取消点（其他 POSIX
+   消息队列内部 OS 接口参见 ``include/nuttx/mqueue.h``）。
 
--  ``nxmq_send()``: functionally equivalent
-   to the standard application interface ``mq_send()``. However,
-   ``nxmq_send()`` will not modify the errno value and will not
-   cause a cancellation point (see ``include/nuttx/mqueue.h`` for
-   other internal OS interfaces for POSIX message queues).
+-  ``file_read()``：功能上等同于标准应用接口 ``read()``，但
+   ``file_read()`` 不会修改 errno 值，不会产生取消点，并且使用特殊的
+   内部数据结构替代文件描述符（其他 VFS 内部 OS 接口参见
+   ``include/nuttx/fs/fs.h``）。
 
--  ``file_read()``: functionally equivalent
-   to the standard application interface ``read()``. However,
-   ``file_read()`` will not modify the errno value, will not cause
-   a cancellation point, and uses a special internal data
-   structure in place of the file descriptor (see
-   ``include/nuttx/fs/fs.h`` for other internal OS interfaces for
-   VFS functions).
-
--  ``psock_recvfrom()``: functionally
-   equivalent to the standard application interface
-   ``recvfrom()``. However, ``psock_recvfrom()`` will not modify
-   the errno value, will not cause a cancellation point, and uses
-   a special internal data structure in place of the socket
-   descriptor (see ``include/nuttx/net/net.h`` for other internal
-   OS interfaces for sockets).
+-  ``psock_recvfrom()``：功能上等同于标准应用接口 ``recvfrom()``，但
+   ``psock_recvfrom()`` 不会修改 errno 值，不会产生取消点，并且使用
+   特殊的内部数据结构替代 socket 描述符（其他 socket 内部 OS 接口参见
+   ``include/nuttx/net/net.h``）。
