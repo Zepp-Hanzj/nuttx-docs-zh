@@ -8,3 +8,4 @@ Tags: chip:atmega128
     :caption: Pages with this tag
 
     ../_upstream/platforms/avr/atmega/atmega128/boards/amber/index.rst
+    ../platforms/avr/atmega/atmega128/boards/amber/index.rst

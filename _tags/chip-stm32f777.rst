@@ -8,3 +8,4 @@ Tags: chip:stm32f777
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32f7/boards/stm32f777zit6-meadow/index.rst
+    ../platforms/arm/stm32f7/boards/stm32f777zit6-meadow/index.rst

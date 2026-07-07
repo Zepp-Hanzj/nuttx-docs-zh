@@ -8,3 +8,4 @@ Tags: chip:stm32f769
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32f7/boards/stm32f769i-disco/index.rst
+    ../platforms/arm/stm32f7/boards/stm32f769i-disco/index.rst

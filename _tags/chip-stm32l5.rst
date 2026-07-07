@@ -9,3 +9,5 @@ Tags: chip:stm32l5
 
     ../_upstream/platforms/arm/stm32l5/boards/nucleo-l552ze/index.rst
     ../_upstream/platforms/arm/stm32l5/boards/stm32l562e-dk/index.rst
+    ../platforms/arm/stm32l5/boards/nucleo-l552ze/index.rst
+    ../platforms/arm/stm32l5/boards/stm32l562e-dk/index.rst

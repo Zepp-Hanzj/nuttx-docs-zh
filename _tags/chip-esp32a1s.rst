@@ -8,3 +8,4 @@ Tags: chip:esp32a1s
     :caption: Pages with this tag
 
     ../_upstream/platforms/xtensa/esp32/boards/esp32-audio-kit/index.rst
+    ../platforms/xtensa/esp32/boards/esp32-audio-kit/index.rst

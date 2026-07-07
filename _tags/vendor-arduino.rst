@@ -8,3 +8,4 @@ Tags: vendor:arduino
     :caption: Pages with this tag
 
     ../_upstream/platforms/avr/atmega/atmega2560/boards/arduino-mega2560/index.rst
+    ../platforms/avr/atmega/atmega2560/boards/arduino-mega2560/index.rst

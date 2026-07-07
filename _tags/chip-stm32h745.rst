@@ -9,3 +9,5 @@ Tags: chip:stm32h745
 
     ../_upstream/platforms/arm/stm32h7/boards/nucleo-h745zi/index.rst
     ../_upstream/platforms/arm/stm32h7/boards/stm32h745i-disco/index.rst
+    ../platforms/arm/stm32h7/boards/nucleo-h745zi/index.rst
+    ../platforms/arm/stm32h7/boards/stm32h745i-disco/index.rst

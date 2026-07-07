@@ -8,3 +8,4 @@ Tags: chip:stm32n6
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32n6/boards/nucleo-n657x0-q/index.rst
+    ../platforms/arm/stm32n6/boards/nucleo-n657x0-q/index.rst

@@ -9,3 +9,5 @@ Tags: chip:stm32f429
 
     ../_upstream/platforms/arm/stm32f4/boards/nucleo-f429zi/index.rst
     ../_upstream/platforms/arm/stm32f4/boards/stm32f429i-disco/index.rst
+    ../platforms/arm/stm32f4/boards/nucleo-f429zi/index.rst
+    ../platforms/arm/stm32f4/boards/stm32f429i-disco/index.rst

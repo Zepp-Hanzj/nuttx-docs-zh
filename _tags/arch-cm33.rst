@@ -8,3 +8,4 @@ Tags: arch:cm33
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/imx9/boards/imx93-qsb/index.rst
+    ../platforms/arm/imx9/boards/imx93-qsb/index.rst

@@ -8,3 +8,4 @@ Tags: chip:stm32h750
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32h7/boards/weact-stm32h750/index.rst
+    ../platforms/arm/stm32h7/boards/weact-stm32h750/index.rst

@@ -8,3 +8,4 @@ Tags: chip:stm32l072
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32l0/boards/b-l072z-lrwan1/index.rst
+    ../platforms/arm/stm32l0/boards/b-l072z-lrwan1/index.rst

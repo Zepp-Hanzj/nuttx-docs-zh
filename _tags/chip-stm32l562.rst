@@ -8,3 +8,4 @@ Tags: chip:stm32l562
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32l5/boards/stm32l562e-dk/index.rst
+    ../platforms/arm/stm32l5/boards/stm32l562e-dk/index.rst

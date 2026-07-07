@@ -8,3 +8,4 @@ Tags: vendor:mikroelektronika
     :caption: Pages with this tag
 
     ../_upstream/platforms/mips/pic32mz/boards/flipnclick-pic32mz/index.rst
+    ../platforms/mips/pic32mz/boards/flipnclick-pic32mz/index.rst

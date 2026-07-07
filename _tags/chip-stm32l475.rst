@@ -8,3 +8,4 @@ Tags: chip:stm32l475
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32l4/boards/b-l475e-iot01a/index.rst
+    ../platforms/arm/stm32l4/boards/b-l475e-iot01a/index.rst

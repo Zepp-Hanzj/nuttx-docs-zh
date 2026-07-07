@@ -9,3 +9,5 @@ Tags: chip:stm32f767
 
     ../_upstream/platforms/arm/stm32f7/boards/nucleo-f767zi/index.rst
     ../_upstream/platforms/arm/stm32f7/boards/steval-eth001v1/index.rst
+    ../platforms/arm/stm32f7/boards/nucleo-f767zi/index.rst
+    ../platforms/arm/stm32f7/boards/steval-eth001v1/index.rst

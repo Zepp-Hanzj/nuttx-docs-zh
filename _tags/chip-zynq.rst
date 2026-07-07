@@ -8,3 +8,4 @@ Tags: chip:zynq
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm64/zynq-mpsoc/boards/zcu111/index.rst
+    ../platforms/arm64/zynq-mpsoc/boards/zcu111/index.rst

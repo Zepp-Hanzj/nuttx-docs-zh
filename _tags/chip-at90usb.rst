@@ -9,3 +9,5 @@ Tags: chip:at90usb
 
     ../_upstream/platforms/avr/at90usb/boards/micropendous3/index.rst
     ../_upstream/platforms/avr/at90usb/boards/teensy-2.0/index.rst
+    ../platforms/avr/at90usb/boards/micropendous3/index.rst
+    ../platforms/avr/at90usb/boards/teensy-2.0/index.rst

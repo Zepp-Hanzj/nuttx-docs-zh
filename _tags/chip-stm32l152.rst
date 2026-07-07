@@ -9,3 +9,5 @@ Tags: chip:stm32l152
 
     ../_upstream/platforms/arm/stm32l1/boards/nucleo-l152re/index.rst
     ../_upstream/platforms/arm/stm32l1/boards/stm32ldiscovery/index.rst
+    ../platforms/arm/stm32l1/boards/nucleo-l152re/index.rst
+    ../platforms/arm/stm32l1/boards/stm32ldiscovery/index.rst

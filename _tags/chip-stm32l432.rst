@@ -8,3 +8,4 @@ Tags: chip:stm32l432
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32l4/boards/nucleo-l432kc/index.rst
+    ../platforms/arm/stm32l4/boards/nucleo-l432kc/index.rst

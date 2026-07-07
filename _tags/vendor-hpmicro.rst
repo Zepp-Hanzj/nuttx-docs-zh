@@ -8,3 +8,4 @@ Tags: vendor:hpmicro
     :caption: Pages with this tag
 
     ../_upstream/platforms/risc-v/hpm6750/boards/hpm6750evk2/index.rst
+    ../platforms/risc-v/hpm6750/boards/hpm6750evk2/index.rst

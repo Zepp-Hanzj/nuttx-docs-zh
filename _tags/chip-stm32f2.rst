@@ -12,3 +12,8 @@ Tags: chip:stm32f2
     ../_upstream/platforms/arm/stm32f2/boards/olimex-stm32-p207/index.rst
     ../_upstream/platforms/arm/stm32f2/boards/photon/index.rst
     ../_upstream/platforms/arm/stm32f2/boards/stm3220g-eval/index.rst
+    ../platforms/arm/stm32f2/boards/emw3162/index.rst
+    ../platforms/arm/stm32f2/boards/nucleo-f207zg/index.rst
+    ../platforms/arm/stm32f2/boards/olimex-stm32-p207/index.rst
+    ../platforms/arm/stm32f2/boards/photon/index.rst
+    ../platforms/arm/stm32f2/boards/stm3220g-eval/index.rst

@@ -8,3 +8,4 @@ Tags: chip:stm32f051
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32f0/boards/stm32f051-discovery/index.rst
+    ../platforms/arm/stm32f0/boards/stm32f051-discovery/index.rst

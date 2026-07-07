@@ -15,3 +15,11 @@ Tags: arch:avr
     ../_upstream/platforms/avr/atmega/atmega2560/boards/arduino-mega2560/index.rst
     ../_upstream/platforms/avr/atmega/atmega2560/boards/elegoo-mega2560r3/index.rst
     ../_upstream/platforms/avr/atmega/index.rst
+    ../platforms/avr/at32uc3/boards/avr32dev1/index.rst
+    ../platforms/avr/at90usb/boards/micropendous3/index.rst
+    ../platforms/avr/at90usb/boards/teensy-2.0/index.rst
+    ../platforms/avr/atmega/atmega128/boards/amber/index.rst
+    ../platforms/avr/atmega/atmega1284p/boards/moteino-mega/index.rst
+    ../platforms/avr/atmega/atmega2560/boards/arduino-mega2560/index.rst
+    ../platforms/avr/atmega/atmega2560/boards/elegoo-mega2560r3/index.rst
+    ../platforms/avr/atmega/index.rst

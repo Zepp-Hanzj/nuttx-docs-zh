@@ -8,3 +8,4 @@ Tags: vendor:broadcom
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm64/bcm2711/index.rst
+    ../platforms/arm64/bcm2711/index.rst

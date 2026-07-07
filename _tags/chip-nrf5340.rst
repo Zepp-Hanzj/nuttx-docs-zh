@@ -10,3 +10,6 @@ Tags: chip:nrf5340
     ../_upstream/platforms/arm/nrf53/boards/nrf5340-audio-dk/index.rst
     ../_upstream/platforms/arm/nrf53/boards/nrf5340-dk/index.rst
     ../_upstream/platforms/arm/nrf53/boards/thingy53/index.rst
+    ../platforms/arm/nrf53/boards/nrf5340-audio-dk/index.rst
+    ../platforms/arm/nrf53/boards/nrf5340-dk/index.rst
+    ../platforms/arm/nrf53/boards/thingy53/index.rst

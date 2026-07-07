@@ -9,3 +9,5 @@ Tags: chip:stm32u5
 
     ../_upstream/platforms/arm/stm32u5/boards/b-u585i-iot02a/index.rst
     ../_upstream/platforms/arm/stm32u5/boards/nucleo-u5a5zj-q/index.rst
+    ../platforms/arm/stm32u5/boards/b-u585i-iot02a/index.rst
+    ../platforms/arm/stm32u5/boards/nucleo-u5a5zj-q/index.rst

@@ -8,3 +8,4 @@ Tags: chip:atmega1284p
     :caption: Pages with this tag
 
     ../_upstream/platforms/avr/atmega/atmega1284p/boards/moteino-mega/index.rst
+    ../platforms/avr/atmega/atmega1284p/boards/moteino-mega/index.rst

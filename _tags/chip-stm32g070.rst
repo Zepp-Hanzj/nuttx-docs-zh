@@ -8,3 +8,4 @@ Tags: chip:stm32g070
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32g0/boards/nucleo-g070rb/index.rst
+    ../platforms/arm/stm32g0/boards/nucleo-g070rb/index.rst

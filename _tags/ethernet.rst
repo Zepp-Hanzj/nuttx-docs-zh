@@ -10,3 +10,6 @@ Tags: ethernet
     ../_upstream/platforms/arm/rp2040/boards/w5500-evb-pico/index.rst
     ../_upstream/platforms/arm/stm32f2/boards/stm3220g-eval/index.rst
     ../_upstream/platforms/arm/stm32f4/boards/stm3240g-eval/index.rst
+    ../platforms/arm/rp2040/boards/w5500-evb-pico/index.rst
+    ../platforms/arm/stm32f2/boards/stm3220g-eval/index.rst
+    ../platforms/arm/stm32f4/boards/stm3240g-eval/index.rst

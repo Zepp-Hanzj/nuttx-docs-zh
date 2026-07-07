@@ -10,3 +10,6 @@ Tags: chip:stm32f411
     ../_upstream/platforms/arm/stm32f4/boards/nucleo-f411re/index.rst
     ../_upstream/platforms/arm/stm32f4/boards/stm32f411-minimum/index.rst
     ../_upstream/platforms/arm/stm32f4/boards/stm32f411e-disco/index.rst
+    ../platforms/arm/stm32f4/boards/nucleo-f411re/index.rst
+    ../platforms/arm/stm32f4/boards/stm32f411-minimum/index.rst
+    ../platforms/arm/stm32f4/boards/stm32f411e-disco/index.rst

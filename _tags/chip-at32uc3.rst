@@ -8,3 +8,4 @@ Tags: chip:at32uc3
     :caption: Pages with this tag
 
     ../_upstream/platforms/avr/at32uc3/boards/avr32dev1/index.rst
+    ../platforms/avr/at32uc3/boards/avr32dev1/index.rst

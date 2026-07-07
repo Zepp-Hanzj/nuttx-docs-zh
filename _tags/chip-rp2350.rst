@@ -12,3 +12,8 @@ Tags: chip:rp2350
     ../_upstream/platforms/arm/rp23xx/index.rst
     ../_upstream/platforms/risc-v/rp23xx-rv/boards/raspberrypi-pico-2-rv/index.rst
     ../_upstream/platforms/risc-v/rp23xx-rv/index.rst
+    ../platforms/arm/rp23xx/boards/raspberrypi-pico-2/index.rst
+    ../platforms/arm/rp23xx/boards/xiao-rp2350/index.rst
+    ../platforms/arm/rp23xx/index.rst
+    ../platforms/risc-v/rp23xx-rv/boards/raspberrypi-pico-2-rv/index.rst
+    ../platforms/risc-v/rp23xx-rv/index.rst

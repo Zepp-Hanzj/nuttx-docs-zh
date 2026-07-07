@@ -12,3 +12,8 @@ Tags: chip:esp32wrover32
     ../_upstream/platforms/xtensa/esp32/boards/esp32-lyrat/index.rst
     ../_upstream/platforms/xtensa/esp32/boards/esp32-wrover-kit/index.rst
     ../_upstream/platforms/xtensa/esp32/boards/heltec_wifi_lora32/index.rst
+    ../platforms/xtensa/esp32/boards/esp32-2432S028/index.rst
+    ../platforms/xtensa/esp32/boards/esp32-ethernet-kit/index.rst
+    ../platforms/xtensa/esp32/boards/esp32-lyrat/index.rst
+    ../platforms/xtensa/esp32/boards/esp32-wrover-kit/index.rst
+    ../platforms/xtensa/esp32/boards/heltec_wifi_lora32/index.rst

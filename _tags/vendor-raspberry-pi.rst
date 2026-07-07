@@ -8,3 +8,4 @@ Tags: vendor:raspberry-pi
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm64/bcm2711/boards/raspberrypi-4b/index.rst
+    ../platforms/arm64/bcm2711/boards/raspberrypi-4b/index.rst

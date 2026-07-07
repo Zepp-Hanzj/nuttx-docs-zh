@@ -9,3 +9,5 @@ Tags: chip:stm32g474
 
     ../_upstream/platforms/arm/stm32g4/boards/b-g474e-dpow1/index.rst
     ../_upstream/platforms/arm/stm32g4/boards/nucleo-g474re/index.rst
+    ../platforms/arm/stm32g4/boards/b-g474e-dpow1/index.rst
+    ../platforms/arm/stm32g4/boards/nucleo-g474re/index.rst

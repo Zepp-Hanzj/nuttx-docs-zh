@@ -8,3 +8,4 @@ Tags: chip:esp32picod4
     :caption: Pages with this tag
 
     ../_upstream/platforms/xtensa/esp32/boards/esp32-pico-kit/index.rst
+    ../platforms/xtensa/esp32/boards/esp32-pico-kit/index.rst

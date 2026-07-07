@@ -8,3 +8,4 @@ Tags: chip:stm32l452
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32l4/boards/nucleo-l452re/index.rst
+    ../platforms/arm/stm32l4/boards/nucleo-l452re/index.rst

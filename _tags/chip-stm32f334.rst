@@ -9,3 +9,5 @@ Tags: chip:stm32f334
 
     ../_upstream/platforms/arm/stm32f3/boards/nucleo-f334r8/index.rst
     ../_upstream/platforms/arm/stm32f3/boards/stm32f334-disco/index.rst
+    ../platforms/arm/stm32f3/boards/nucleo-f334r8/index.rst
+    ../platforms/arm/stm32f3/boards/stm32f334-disco/index.rst

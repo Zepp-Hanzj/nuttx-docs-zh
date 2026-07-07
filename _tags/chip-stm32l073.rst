@@ -8,3 +8,4 @@ Tags: chip:stm32l073
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32l0/boards/nucleo-l073rz/index.rst
+    ../platforms/arm/stm32l0/boards/nucleo-l073rz/index.rst

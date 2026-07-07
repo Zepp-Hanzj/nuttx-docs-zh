@@ -11,3 +11,7 @@ Tags: chip:stm32f0
     ../_upstream/platforms/arm/stm32f0/boards/nucleo-f091rc/index.rst
     ../_upstream/platforms/arm/stm32f0/boards/stm32f051-discovery/index.rst
     ../_upstream/platforms/arm/stm32f0/boards/stm32f072-discovery/index.rst
+    ../platforms/arm/stm32f0/boards/nucleo-f072rb/index.rst
+    ../platforms/arm/stm32f0/boards/nucleo-f091rc/index.rst
+    ../platforms/arm/stm32f0/boards/stm32f051-discovery/index.rst
+    ../platforms/arm/stm32f0/boards/stm32f072-discovery/index.rst

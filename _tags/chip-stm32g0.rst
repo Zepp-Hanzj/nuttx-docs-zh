@@ -10,3 +10,6 @@ Tags: chip:stm32g0
     ../_upstream/platforms/arm/stm32g0/boards/nucleo-g070rb/index.rst
     ../_upstream/platforms/arm/stm32g0/boards/nucleo-g071rb/index.rst
     ../_upstream/platforms/arm/stm32g0/boards/stm32g071b-disco/index.rst
+    ../platforms/arm/stm32g0/boards/nucleo-g070rb/index.rst
+    ../platforms/arm/stm32g0/boards/nucleo-g071rb/index.rst
+    ../platforms/arm/stm32g0/boards/stm32g071b-disco/index.rst

@@ -10,3 +10,6 @@ Tags: chip:atmega
     ../_upstream/platforms/avr/atmega/atmega2560/boards/arduino-mega2560/index.rst
     ../_upstream/platforms/avr/atmega/atmega2560/boards/elegoo-mega2560r3/index.rst
     ../_upstream/platforms/avr/atmega/index.rst
+    ../platforms/avr/atmega/atmega2560/boards/arduino-mega2560/index.rst
+    ../platforms/avr/atmega/atmega2560/boards/elegoo-mega2560r3/index.rst
+    ../platforms/avr/atmega/index.rst

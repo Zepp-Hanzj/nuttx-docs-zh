@@ -9,3 +9,5 @@ Tags: chip:esp32s2
 
     ../_upstream/platforms/xtensa/esp32s2/boards/esp32s2-kaluga-1/index.rst
     ../_upstream/platforms/xtensa/esp32s2/boards/esp32s2-saola-1/index.rst
+    ../platforms/xtensa/esp32s2/boards/esp32s2-kaluga-1/index.rst
+    ../platforms/xtensa/esp32s2/boards/esp32s2-saola-1/index.rst

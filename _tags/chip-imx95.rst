@@ -9,3 +9,5 @@ Tags: chip:imx95
 
     ../_upstream/platforms/arm/imx9/boards/mr-navq95b/index.rst
     ../_upstream/platforms/arm64/imx9/boards/imx95-a55-evk/index.rst
+    ../platforms/arm/imx9/boards/mr-navq95b/index.rst
+    ../platforms/arm64/imx9/boards/imx95-a55-evk/index.rst

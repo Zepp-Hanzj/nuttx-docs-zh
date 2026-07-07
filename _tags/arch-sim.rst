@@ -8,3 +8,4 @@ Tags: arch:sim
     :caption: Pages with this tag
 
     ../_upstream/platforms/sim/sim/boards/sim/index.rst
+    ../platforms/sim/sim/boards/sim/index.rst

@@ -9,3 +9,5 @@ Tags: chip:stm32c0
 
     ../_upstream/platforms/arm/stm32c0/boards/nucleo-c071rb/index.rst
     ../_upstream/platforms/arm/stm32c0/boards/nucleo-c092rc/index.rst
+    ../platforms/arm/stm32c0/boards/nucleo-c071rb/index.rst
+    ../platforms/arm/stm32c0/boards/nucleo-c092rc/index.rst

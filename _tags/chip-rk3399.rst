@@ -9,3 +9,5 @@ Tags: chip:rk3399
 
     ../_upstream/platforms/arm64/rk3399/boards/nanopi_m4/index.rst
     ../_upstream/platforms/arm64/rk3399/boards/pinephonepro/index.rst
+    ../platforms/arm64/rk3399/boards/nanopi_m4/index.rst
+    ../platforms/arm64/rk3399/boards/pinephonepro/index.rst

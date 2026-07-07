@@ -8,3 +8,4 @@ Tags: chip:stm32f722
     :caption: Pages with this tag
 
     ../_upstream/platforms/arm/stm32f7/boards/nucleo-f722ze/index.rst
+    ../platforms/arm/stm32f7/boards/nucleo-f722ze/index.rst
