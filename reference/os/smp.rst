@@ -1,102 +1,68 @@
 ===========================================
-Symmetric Multiprocessing (SMP) Application
+对称多处理 (SMP) 应用
 ===========================================
 
-.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+根据维基百科："对称多处理 (SMP) 涉及一种对称多处理器系统的硬件和软件架构，其中两个或多个相同的处理器连接到单一的共享主存，可以完全访问所有 I/O 设备，并由单一的操作系统实例控制，该实例对所有处理器一视同仁，不为特殊目的保留任何处理器。当今大多数多处理器系统使用 SMP 架构。对于多核处理器，SMP 架构适用于各核心，将它们视为独立的处理器。"
 
+"SMP 系统是紧密耦合的多处理器系统，具有一组独立运行的同构处理器，每个处理器执行不同的程序、处理不同的数据，并具有共享公共资源（内存、I/O 设备、中断系统等）的能力，通过系统总线或交叉开关互连。"
 
-According to Wikipedia: "Symmetric multiprocessing (SMP) involves
-a symmetric multiprocessor system hardware and software
-architecture where two or more identical processors connect to a
-single, shared main memory, have full access to all I/O devices,
-and are controlled by a single operating system instance that
-treats all processors equally, reserving none for special
-purposes. Most multiprocessor systems today use an SMP
-architecture. In the case of multi-core processors, the SMP
-architecture applies to the cores, treating them as separate
-processors.
-
-"SMP systems are tightly coupled multiprocessor systems with a
-pool of homogeneous processors running independently, each
-processor executing different programs and working on different
-data and with capability of sharing common resources (memory, I/O
-device, interrupt system and so on) and connected using a system
-bus or a crossbar."
-
-For a technical description of the NuttX implementation of SMP,
-see the NuttX `SMP Wiki
-Page <https://cwiki.apache.org/confluence/display/NUTTX/SMP>`__.
+有关 NuttX SMP 实现的技术说明，请参阅 NuttX `SMP Wiki
+页面 <https://cwiki.apache.org/confluence/display/NUTTX/SMP>`__。
 
 .. c:function:: spinlock_t up_testset(volatile FAR spinlock_t *lock)
 
-  Perform and atomic test and set operation on the provided spinlock.
+  对提供的自旋锁执行原子测试并设置操作。
 
-  :param lock: The address of spinlock object.
+  :param lock: 自旋锁对象的地址。
 
-  :return: The spinlock is always locked upon return. The value
-    of previous value of the spinlock variable is returned,
-    either SP_LOCKED if the spinlock was previously locked
-    (meaning that the test-and-set operation failed to obtain the lock)
-    or SP_UNLOCKED if the spinlock was previously unlocked
-    (meaning that we successfully obtained the lock)
+  :return: 返回时自旋锁始终处于锁定状态。返回自旋锁变量的先前值，
+    如果自旋锁之前已锁定则返回 SP_LOCKED（表示测试并设置操作未能获取锁），
+    如果自旋锁之前未锁定则返回 SP_UNLOCKED（表示我们成功获取了锁）。
 
 .. c:function:: int up_cpu_index(void)
 
-  Return an index in the range of 0 through (CONFIG_SMP_NCPUS-1)
-  that corresponds to the currently executing CPU.
+  返回一个范围在 0 到 (CONFIG_SMP_NCPUS-1) 之间的索引，
+  对应于当前正在执行的 CPU。
 
-  :return: An integer index in the range of 0 through
-    (CONFIG_SMP_NCPUS-1) that corresponds to the
-    currently executing CPU.
+  :return: 一个范围在 0 到 (CONFIG_SMP_NCPUS-1) 之间的整数索引，
+    对应于当前正在执行的 CPU。
 
 .. c:function:: int up_cpu_start(int cpu)
 
-  In an SMP configuration, only one CPU is initially active (CPU 0).
-  System initialization occurs on that single thread. At the
-  completion of the initialization of the OS, just before
-  beginning normal multitasking, the additional CPUs would
-  be started by calling this function.
+  在 SMP 配置中，最初只有 CPU 0 是活跃的。系统初始化在该单线程上进行。
+  在 OS 初始化完成之后、开始正常多任务之前，将通过调用此函数启动其他 CPU。
 
-  Each CPU is provided the entry point to is IDLE task when started.
-  A TCB for each CPU's IDLE task has been initialized and
-  placed in the CPU's g_assignedtasks[cpu] list. A stack
-  has also been allocated and initialized.
+  每个 CPU 启动时会获得其 IDLE 任务的入口点。每个 CPU 的 IDLE 任务的 TCB
+  已被初始化并放置在该 CPU 的 g_assignedtasks[cpu] 列表中。栈也已分配并初始化。
 
-  The OS initialization logic calls this function repeatedly until
-  each CPU has been started, 1 through (CONFIG_SMP_NCPUS-1).
+  OS 初始化逻辑会反复调用此函数，直到每个 CPU 都已启动，即从 1 到
+  (CONFIG_SMP_NCPUS-1)。
 
-  :param cpu: The index of the CPU being started. This will be a
-    numeric value in the range of from one to
-    ``(CONFIG_SMP_NCPUS-1)``). (CPU 0 is already active).
+  :param cpu: 要启动的 CPU 的索引。这将是一个范围从 1 到
+    ``(CONFIG_SMP_NCPUS-1)`` 的数值。（CPU 0 已经处于活跃状态）。
 
-  :return: Zero (OK) is returned on success; a negated errno value on failure.
+  :return: 成功返回零 (OK)；失败返回取负的 errno 值。
 
 .. c:function:: int up_cpu_pause(int cpu)
 
-  Save the state of the current task at the head of the
-  ``g_assignedtasks[cpu]`` task list and then pause task execution on the CPU.
+  保存 ``g_assignedtasks[cpu]`` 任务列表头部的当前任务状态，
+  然后暂停该 CPU 上的任务执行。
 
-  This function is called by the OS when the logic executing on
-  one CPU needs to modify the state of the ``g_assignedtasks[cpu]``
-  list for another CPU.
+  当一个 CPU 上执行的逻辑需要修改另一个 CPU 的 ``g_assignedtasks[cpu]``
+  列表状态时，OS 会调用此函数。
 
-  :param cpu: The index of the CPU to be paused. This will not be
-    the index of the currently executing CPU.
+  :param cpu: 要暂停的 CPU 的索引。这不应该是当前正在执行的 CPU 的索引。
 
-  :return: Zero (OK) is returned on success; a negated errno value on failure.
+  :return: 成功返回零 (OK)；失败返回取负的 errno 值。
 
 .. c:function:: int up_cpu_resume(int cpu)
 
-  Restart the cpu after it was paused via up_cpu_pause(),
-  restoring the state of the task at the head of the
-  ``g_assignedtasks[cpu]`` list, and resume normal tasking.
+  在通过 up_cpu_pause() 暂停后重新启动 CPU，恢复
+  ``g_assignedtasks[cpu]`` 列表头部的任务状态，并恢复正常任务调度。
 
-  This function is called after ``up_cpu_pause()`` in order
-  resume operation of the CPU after modifying its
-  ``g_assignedtasks[cpu]`` list.
+  此函数在 ``up_cpu_pause()`` 之后调用，用于在修改其
+  ``g_assignedtasks[cpu]`` 列表后恢复 CPU 的运行。
 
-  :param cpu: The index of the CPU being resumed. This will not be
-    the index of the currently executing CPU.
+  :param cpu: 要恢复的 CPU 的索引。这不应该是当前正在执行的 CPU 的索引。
 
-  :return: Zero (OK) is returned on success; a negated errno value on failure.
-
+  :return: 成功返回零 (OK)；失败返回取负的 errno 值。

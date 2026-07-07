@@ -2,39 +2,28 @@
 Shared Memory
 =============
 
-.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
-
-
-Shared memory interfaces are only available with the NuttX kernel
-build (``CONFIG_BUILD_KERNEL=y``). These interfaces support user
-memory regions that can be shared between multiple user processes.
-The user interfaces are provided in the standard header file
-``include/sys/shm.h>``. All logic to support shared memory is
-implemented within the NuttX kernel with the exception of two
-low-level functions that are require to configure the
-platform-specific MMU resources. Those interfaces are described
-below:
+共享内存接口仅在 NuttX 内核构建（``CONFIG_BUILD_KERNEL=y``）中可用。
+这些接口支持可在多个用户进程之间共享的用户内存区域。
+用户接口在标准头文件 ``include/sys/shm.h`` 中提供。
+除两个用于配置平台特定 MMU 资源的底层函数外，
+所有支持共享内存的逻辑都在 NuttX 内核中实现。
+这些接口描述如下：
 
 .. c:function:: int up_shmat(FAR uintptr_t *pages, unsigned int npages, uintptr_t vaddr)
 
-  Attach, i.e, map, on shared memory region to a user virtual address.
+  将共享内存区域映射（附加）到用户虚拟地址。
 
-  :param pages: A pointer to the first element in a array of
-    physical address, each corresponding to one page of memory.
-  :param npages: The number of pages in the list of physical pages
-    to be mapped.
-  :param vaddr: The virtual address corresponding to the beginning
-    of the (contiguous) virtual address region.
+  :param pages: 指向物理地址数组第一个元素的指针，每个元素对应一页内存。
+  :param npages: 要映射的物理页列表中的页数。
+  :param vaddr: 对应于（连续）虚拟地址区域起始位置的虚拟地址。
 
-  :return: Zero (OK) is returned on success; a negated errno value is returned on failure.
+  :return: 成功返回零（OK）；失败返回负的 errno 值。
 
 .. c:function:: int up_shmdt(uintptr_t vaddr, unsigned int npages)
 
-  Detach, i.e, unmap, on shared memory region from a user virtual address.
+  从用户虚拟地址取消映射（分离）共享内存区域。
 
-  :param vaddr: The virtual address corresponding to the beginning
-    of the (contiguous) virtual address region.
-  :param npages: T The number of pages to be unmapped.
+  :param vaddr: 对应于（连续）虚拟地址区域起始位置的虚拟地址。
+  :param npages: 要取消映射的页数。
 
-  :return: Zero (OK) is returned on success; a negated errno value is returned on failure.
-
+  :return: 成功返回零（OK）；失败返回负的 errno 值。

@@ -1,39 +1,36 @@
 ==========================
-Congestion Control NewReno
+拥塞控制 NewReno
 ==========================
 
-.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+NewReno 拥塞控制算法用于解决网络拥塞崩溃问题，包括：
+ - 慢启动
+ - 拥塞避免
+ - 快速重传
+ - 快速恢复。
 
-
-NewReno congestion control algorithm is used to solve the problem of network congestion breakdown, which includes:
- - Slow Start
- - Congestion Avoidance
- - Fast Retransmission
- - Fast Recovery.
-
- The implementation refers to RFC6582 and RFC5681. In addition, we optimize the congestion algorithm. In the congestion avoidance state, the maximum congestion window (max_cwnd) is used to limit the excessive growth of cwnd and prevent network jitter caused by congestion. Maximum congestion window (max_cwnd) is updated with the current congestion window (cwnd) and the update weight is 0.875 when an RTO timeout occurs.
+ 实现参考了 RFC6582 和 RFC5681。此外，我们对拥塞算法进行了优化。在拥塞避免状态，使用最大拥塞窗口（max_cwnd）来限制 cwnd 的过度增长，防止拥塞引起的网络抖动。当发生 RTO 超时时，最大拥塞窗口（max_cwnd）随当前拥塞窗口（cwnd）更新，更新权重为 0.875。
 
 工作流程
 ========
 
-The NewReno on the tcp sender adjusts the cwnd and ssthresh based on received ack and Retransmitted Timeout (RTO) events.
+tcp 发送端的 NewReno 根据接收到的 ack 和重传超时 (RTO) 事件调整 cwnd 和 ssthresh。
 
-Using the cwnd, together with snd_wnd, controls the number of bytes sent to the network. Here's how newreno works, as following:
+使用 cwnd 与 snd_wnd 一起控制发送到网络的字节数。以下是 newreno 的工作方式，如下所述：
 
-- Initialize the ssthresh and cwnd, on establishing the tcp connection.
-- When the ack is received, check whether the ack is repeated.
+- 在建立 tcp 连接时初始化 ssthresh 和 cwnd。
+- 当收到 ack 时，检查 ack 是否重复。
 
- + If yes, increase the dupack counts. If the dupack exceeds the Fast Retransmission Threshold 3, after retransmitting the lost segments (Fast Retransmission), enter to  the Fast Recovery state.
- + If no, receive the new ack.
+ + 如果是，增加 dupack 计数。如果 dupack 超过快速重传阈值 3，在重传丢失的段（快速重传）后，进入快速恢复状态。
+ + 如果否，接收新的 ack。
 
-   * If the current ackno is bigger than fr_ack which is the snd_seq when Fast Retransmission occurs, exit the Fast Recovery state and enter to congestion avoidance.
-   * If the cwnd is less than ssthresh, increase the cwnd on slow start state.
-   * If the cwnd is greater than or equal to ssthresh, the increased cwnd can not exceed max_cwnd.
+   * 如果当前 ackno 大于 fr_ack（即快速重传发生时的 snd_seq），则退出快速恢复状态并进入拥塞避免。
+   * 如果 cwnd 小于 ssthresh，在慢启动状态增加 cwnd。
+   * 如果 cwnd 大于或等于 ssthresh，增加的 cwnd 不能超过 max_cwnd。
 
-- when RTO times out, reset the values of cwnd and ssthresh, update the max_cwnd, and enter to Slow Start state.
-- When sending a segment, the minimum value of cwnd and snd_wnd is used to calculate the number of bytes that can be sent.
+- 当 RTO 超时时，重置 cwnd 和 ssthresh 的值，更新 max_cwnd，并进入慢启动状态。
+- 当发送段时，使用 cwnd 和 snd_wnd 的最小值来计算可以发送的字节数。
 
-The simple state transition diagram of the NewReno is shown below.
+NewReno 的简单状态转换图如下所示。
 
 ::
 
@@ -67,18 +64,18 @@ The simple state transition diagram of the NewReno is shown below.
              |                        v                      v
              '-----------------------------------------------'
 
-Configuration Options
+配置选项
 =====================
 ``NET_TCP_CC_NEWRENO``
-  Enable or disable NewRenofunction.
+  启用或禁用 NewReno 功能。
 
-  Depends on ``NET_TCP_FAST_RETRANSMIT``.
+  依赖于 ``NET_TCP_FAST_RETRANSMIT``。
 
 测试
 ====
 
 
-Test topology
+测试拓扑
 -------------
 
 ::
@@ -106,69 +103,68 @@ Test topology
 
              IP:10.0.1.3              IP:10.0.1.4
 
-Test steps
+测试步骤
 ----------
 
-Test the function on the Ubuntu 22.04 x86_64 with NuttX SIM by following steps:
+在 Ubuntu 22.04 x86_64 上使用 NuttX SIM 按以下步骤测试功能：
 
-:1.Configure the test environment:
+:1.配置测试环境：
 
-- Set the nuttx0 inbound speed to 10Mbps.
+- 将 nuttx0 入站速度设置为 10Mbps。
 
  ..  code-block:: bash
 
-    # Load fib module, and start ifb0 interface
+    # 加载 fib 模块，启动 ifb0 接口
     modprobe ifb
     ip link set dev ifb0 up
 
-    # Import the nuttx0 ingress packets into ifb0
+    # 将 nuttx0 入站数据包导入 ifb0
     tc qdisc add dev nuttx0 handle ffff: ingress
     tc filter add dev nuttx0 parent ffff: u32 match u32 0 0 action mirred egress redirect dev ifb0
 
-    # Limit nuttx0 ingress 10Mbps
+    # 限制 nuttx0 入站 10Mbps
     tc qdisc add dev ifb0 root tbf rate 10Mbit latency 50ms burst 1540
 
-- configure the sim simulator.
+- 配置 sim 模拟器。
 
- + Start iperf3 server on ubuntu.
-
- ..  code-block:: bash
-
-     iperf3 -s -i1 -p10003  #for sim1
-     iperf3 -s -i1 -p10004  #for sim2
-
-
- + start the emulators sim1 and sim2 and configure ip addresses.
+ + 在 ubuntu 上启动 iperf3 服务器。
 
  ..  code-block:: bash
 
-  # start and configure sim1
+     iperf3 -s -i1 -p10003  #用于 sim1
+     iperf3 -s -i1 -p10004  #用于 sim2
+
+
+ + 启动模拟器 sim1 和 sim2 并配置 ip 地址。
+
+ ..  code-block:: bash
+
+  # 启动并配置 sim1
   start gdb nuttx
   ifconfig eth0 10.0.1.3
 
-  # start and configure sim2
+  # 启动并配置 sim2
   start gdb nuttx
   ifconfig eth0 10.0.1.4 # sim2
 
 
-:2.Stream Testing:
+:2.流测试：
 
 
-- Use iperf3 to perform the stream testing.
+- 使用 iperf3 进行流测试。
 
  ..  code-block:: bash
 
   iperf3 -c 10.0.1.1 -i1 -t60 -p10003 # sim1
-
   iperf3 -c 10.0.1.1 -i1 -t60 -p10004 # sim2
 
 
-:3.Comparison Testing:
+:3.对比测试：
 
- Compares the test results of enabling and disabling NewReno.
+ 比较启用和禁用 NewReno 的测试结果。
 
 
-Test results
+测试结果
 ------------
 
- The test results should indicate that the total network throughput was significantly increased when NewReno congestion control was enabled, which was close to the actual total network bandwidth, and the rates of both sim devices were stable.
+ 测试结果应表明，启用 NewReno 拥塞控制时，总网络吞吐量显著增加，接近实际总网络带宽，并且两个 sim 设备的速率稳定。

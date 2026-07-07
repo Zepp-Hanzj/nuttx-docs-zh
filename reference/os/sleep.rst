@@ -1,124 +1,112 @@
 =====
-Sleep
+睡眠
 =====
 
-.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+NuttX 提供三种不同类型的睡眠接口。
 
-
-NuttX provides three different types of sleep interfaces.
-
-Common Sleep Interfaces
+通用睡眠接口
 =======================
 
-Scheduled Sleep Interfaces (tick-based)
+调度睡眠接口（基于 tick）
 ---------------------------------------
 
-Suspend the calling thread for a specified amount of time until the time expires
-or the thread is explicitly woken up through scheduler operations.
+挂起调用线程指定的时间，直到时间到期或线程通过调度器操作被显式唤醒。
 
 .. c:function:: void nxsched_abstick_sleep(clock_t ticks)
 
-    Suspends the calling thread from execution until the specified absolute time in clock ticks.
+    挂起调用线程，直到指定的绝对时钟 tick 时间。
 
-    :param ticks: Absolute time in clock ticks.
+    :param ticks: 以时钟 tick 为单位的绝对时间。
 
 .. c:function:: void nxsched_ticksleep(unsigned int ticks)
 
-    Suspends the calling thread from execution for the specified number of system ticks.
+    挂起调用线程指定的系统 tick 数。
 
-    :param ticks: The number of system ticks to sleep.
+    :param ticks: 要睡眠的系统 tick 数。
 
 .. c:function:: void nxsched_usleep(useconds_t usec)
 
-    Suspends the calling thread from execution for the specified number of microseconds.
+    挂起调用线程指定的微秒数。
 
-    :param usec: The number of microseconds to sleep.
+    :param usec: 要睡眠的微秒数。
 
 .. c:function:: void nxsched_msleep(unsigned int msec)
 
-    Suspends the calling thread from execution for the specified number of milliseconds.
+    挂起调用线程指定的毫秒数。
 
-    :param msec: The number of milliseconds to sleep.
+    :param msec: 要睡眠的毫秒数。
 
 .. c:function:: void nxsched_sleep(unsigned int sec)
 
-    Suspends the calling thread from execution for the specified number of seconds.
+    挂起调用线程指定的秒数。
 
-    :param sec: The number of seconds to sleep.
+    :param sec: 要睡眠的秒数。
 
 .. c:function:: int nxsched_nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
 
-    Suspends the calling thread from execution for the specified rqtp argument. This
-    function will return the remaining time via updating rmtp if the sleep is interrupted
-    by a signal.
+    挂起调用线程指定的 rqtp 参数时间。如果睡眠被信号中断，
+    此函数将通过更新 rmtp 返回剩余时间。
 
-    :param rqtp: The amount of time to be suspended from execution.
-    :param rmtp: If the rmtp argument is non-NULL, the timespec structure referenced
-     by it is updated to contain the amount of time remaining.
+    :param rqtp: 要挂起执行的时间量。
+    :param rmtp: 如果 rmtp 参数非 NULL，它引用的 timespec 结构体将被更新为剩余时间。
 
-    :return: 0 (OK), or negated errno if unsuccessful.
+    :return: 成功返回 0 (OK)，失败返回取负的 errno 值。
 
 .. c:function:: void nxsched_wakeup(struct tcb_s *tcb)
 
-    This function is used to wake up a thread that is currently in sleeping state
-    before its timeout expires.
+    此函数用于在超时到期前唤醒当前处于睡眠状态的线程。
 
-    :param tcb: Pointer to the TCB of the task to be awakened.
+    :param tcb: 指向要唤醒的任务的 TCB 的指针。
 
-Signal-based Sleep Interfaces (timespec-based)
+基于信号的睡眠接口（基于 timespec）
 ----------------------------------------------
 
-Suspend the calling thread for a specified amount of time until the
-time expires or a signal is delivered to the calling thread.
+挂起调用线程指定的时间，直到时间到期或有信号传递给调用线程。
 
     .. note::
-        Implementations are dependent on the signal framework and based on standard
-        timespec conversion.
+        实现依赖于信号框架，并基于标准 timespec 转换。
 
 .. c:function:: void nxsig_usleep(useconds_t usec)
 
-    Suspends the calling thread from execution for the specified number of microseconds.
+    挂起调用线程指定的微秒数。
 
-    :param usec: The number of microseconds to sleep.
+    :param usec: 要睡眠的微秒数。
 
 .. c:function:: void nxsig_sleep(unsigned int sec)
 
-    Suspends the calling thread from execution for the specified number of seconds.
+    挂起调用线程指定的秒数。
 
-    :param sec: The number of seconds to sleep.
+    :param sec: 要睡眠的秒数。
 
 .. c:function:: int nxsig_nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
 
-    Suspends the calling thread from execution for the specified rqtp argument. This
-    function will return the remaining time via updating rmtp if the sleep is interrupted
-    by a signal.
+    挂起调用线程指定的 rqtp 参数时间。如果睡眠被信号中断，
+    此函数将通过更新 rmtp 返回剩余时间。
 
-    :param rqtp: The amount of time to be suspended from execution.
-    :param rmtp: If the rmtp argument is non-NULL, the timespec structure referenced
-     by it is updated to contain the amount of time remaining.
+    :param rqtp: 要挂起执行的时间量。
+    :param rmtp: 如果 rmtp 参数非 NULL，它引用的 timespec 结构体将被更新为剩余时间。
 
-    :return: 0 (OK), or negated errno if unsuccessful.
+    :return: 成功返回 0 (OK)，失败返回取负的 errno 值。
 
-Busy Sleep Interfaces
+忙等待睡眠接口
 ---------------------
 
-Spin in a loop for the requested duration and never yield the CPU. The delay accuracy depends on
-``CONFIG_BOARD_LOOPSPERMSEC``.
+在请求的持续时间内循环自旋，不放弃 CPU。延迟精度取决于 ``CONFIG_BOARD_LOOPSPERMSEC``。
 
 .. c:function:: void up_mdelay(unsigned int milliseconds)
 
-    Delay inline for the requested number of milliseconds.
+    内联延迟指定的毫秒数。
 
-    :param milliseconds: The number of milliseconds to delay.
+    :param milliseconds: 要延迟的毫秒数。
 
 .. c:function:: void up_udelay(useconds_t microseconds)
 
-    Delay inline for the requested number of microseconds.
+    内联延迟指定的微秒数。
 
-    :param microseconds: The number of microseconds to delay.
+    :param microseconds: 要延迟的微秒数。
 
 .. c:function:: void up_ndelay(unsigned long nanoseconds)
 
-    Delay inline for the requested number of nanoseconds.
+    内联延迟指定的纳秒数。
 
-    :param nanoseconds: The number of nanoseconds to delay.
+    :param nanoseconds: 要延迟的纳秒数。

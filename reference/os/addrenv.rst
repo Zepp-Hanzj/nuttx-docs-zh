@@ -1,289 +1,175 @@
 ====================
-Address Environments
+地址环境
 ====================
 
-.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+支持内存管理单元 (MMU) 的 CPU 可以提供 *地址环境*，任务及其子线程在其中执行。配置通过设置配置变量 ``CONFIG_ARCH_HAVE_ADDRENV=y`` 来指示 CPU 支持地址环境的能力。这将启用实际地址环境支持的选择，通过选择配置变量 ``CONFIG_ARCH_ADDRENV=y`` 来指示。这些地址环境仅在通过 ``exec()`` 或 ``exec_module()`` 创建任务时才会创建（参见 ``include/nuttx/binfmt/binfmt.h``）。
 
+当在板级配置中设置了 ``CONFIG_ARCH_ADDRENV=y`` 时，CPU 特定逻辑必须提供头文件 ``include/nuttx/arch.h`` 中定义的一组接口。这些接口在下面列出，并在后续段落中详细描述。
 
-CPUs that support memory management units (MMUs) may provide
-*address environments* within which tasks and their child threads
-execute. The configuration indicates the CPUs ability to support
-address environments by setting the configuration variable
-``CONFIG_ARCH_HAVE_ADDRENV=y``. That will enable the selection of
-the actual address environment support which is indicated by the
-selection of the configuration variable ``CONFIG_ARCH_ADDRENV=y``.
-These address environments are created only when tasks are created
-via ``exec()`` or ``exec_module()`` (see
-``include/nuttx/binfmt/binfmt.h``).
+CPU 特定逻辑必须提供两类接口：
 
-When ``CONFIG_ARCH_ADDRENV=y`` is set in the board configuration,
-the CPU-specific logic must provide a set of interfaces as defined
-in the header file ``include/nuttx/arch.h``. These interfaces are
-listed below and described in detail in the following paragraphs.
+#. **二进制加载器支持**。这些是 ``binfmt/`` 中用于实例化具有地址环境的任务的低级接口。这些接口都操作 ``arch_addrenv_t`` 类型，该类型是任务组地址环境的抽象表示，如果定义了 ``CONFIG_ARCH_ADDRENV``，则该类型必须在 ``arch/arch.h`` 中定义。这些低级接口包括：
 
-The CPU-specific logic must provide two categories in interfaces:
+   - :c:func:`up_addrenv_create()`：创建地址环境。
+   - :c:func:`up_addrenv_destroy()`：销毁地址环境。
+   - :c:func:`up_addrenv_vtext()`：返回 ``.text`` 地址环境的虚拟基地址。
+   - :c:func:`up_addrenv_vdata()`：返回 ``.bss``/``.data`` 地址环境的虚拟基地址。
+   - :c:func:`up_addrenv_heapsize()`：返回初始堆大小。
+   - :c:func:`up_addrenv_select()`：实例化地址环境。
+   - :c:func:`up_addrenv_clone()`：将地址环境从一个位置复制到另一个位置。
 
-#. **Binary Loader Support**. These are low-level interfaces used
-   in ``binfmt/`` to instantiate tasks with address environments.
-   These interfaces all operate on type ``arch_addrenv_t`` which
-   is an abstract representation of a task group's address
-   environment and the type must be defined in\ ``arch/arch.h`` if
-   ``CONFIG_ARCH_ADDRENV`` is defined. These low-level interfaces
-   include:
+#. **任务支持**。必须提供其他接口以支持 NuttX 任务逻辑使用的高级接口。这些接口由 ``sched/`` 中的函数使用，所有接口都操作由 ``up_addrenv_clone()`` 分配了地址环境的任务组。
 
-   - :c:func:`up_addrenv_create()`: Create an address environment.
-   - :c:func:`up_addrenv_destroy()`: Destroy an address environment.
-   - :c:func:`up_addrenv_vtext()`: Returns the virtual base address of the ``.text`` address environment.
-   - :c:func:`up_addrenv_vdata()`: Returns the virtual base address of the ``.bss``/``.data`` address environment.
-   - :c:func:`up_addrenv_heapsize()`: Return the initial heap size.
-   - :c:func:`up_addrenv_select()`: Instantiate an address environment.
-   - :c:func:`up_addrenv_clone()`: Copy an address environment from one location to another.
+   - :c:func:`up_addrenv_attach()`：克隆分配给新线程的组地址环境。当创建共享相同地址环境的 pthread 时执行此操作。
+   - :c:func:`up_addrenv_detach()`：当任务/线程退出时释放线程对组地址环境的引用。
 
-#. **Tasking Support**. Other interfaces must be provided to
-   support higher-level interfaces used by the NuttX tasking
-   logic. These interfaces are used by the functions in ``sched/``
-   and all operate on the task group which as been assigned an
-   address environment by ``up_addrenv_clone()``.
+#. **动态栈支持**。``CONFIG_ARCH_STACK_DYNAMIC=y`` 表示用户进程栈位于其自己的地址空间中。如果选择了 ``CONFIG_BUILD_KERNEL`` 和 ``CONFIG_LIBC_EXECFUNCS``，则此选项也是 *必需的*。为什么？因为当我们实例化新进程的环境以进行初始化时，调用者的栈必须保存在其自己的地址空间中。
 
-   - :c:func:`up_addrenv_attach()`: Clone the group address environment assigned to a new
-     thread. This operation is done when a pthread is created
-     that share's the same address environment.
-   - :c:func:`up_addrenv_detach()`: Release the thread's reference to a group address
-     environment when a task/thread exits.
+   **注意：** ``CONFIG_ARCH_STACK_DYNAMIC`` 选择的命名意味着支持动态栈分配。如果平台支持动态栈分配，则必须设置此选项。但此配置环境更一般的含义是栈拥有自己的地址空间。
 
-#. **Dynamic Stack Support**. ``CONFIG_ARCH_STACK_DYNAMIC=y``
-   indicates that the user process stack resides in its own
-   address space. This option is also *required* if
-   ``CONFIG_BUILD_KERNEL`` and ``CONFIG_LIBC_EXECFUNCS`` are
-   selected. Why? Because the caller's stack must be preserved in
-   its own address space when we instantiate the environment of
-   the new process in order to initialize it.
+   如果选择了 ``CONFIG_ARCH_STACK_DYNAMIC=y``，则平台特定代码必须导出以下额外接口：
 
-   **NOTE:** The naming of the ``CONFIG_ARCH_STACK_DYNAMIC``
-   selection implies that dynamic stack allocation is supported.
-   Certainly this option must be set if dynamic stack allocation
-   is supported by a platform. But the more general meaning of
-   this configuration environment is simply that the stack has its
-   own address space.
+   - :c:func:`up_addrenv_ustackalloc()`：创建栈地址环境
+   - :c:func:`up_addrenv_ustackfree()`：销毁栈地址环境。
+   - :c:func:`up_addrenv_vustack()`：返回栈的虚拟基地址
+   - :c:func:`up_addrenv_ustackselect()`：实例化栈地址环境
 
-   If ``CONFIG_ARCH_STACK_DYNAMIC=y`` is selected then the
-   platform specific code must export these additional interfaces:
+#. 如果选择了 ``CONFIG_ARCH_KERNEL_STACK``，则每个用户进程将有两个栈：(1) 一个大的（可能是动态的）用户栈和 (2) 一个较小的内核栈。但是，如果同时选择了 ``CONFIG_BUILD_KERNEL`` 和 ``CONFIG_LIBC_EXECFUNCS``，则此选项是 *必需的*。为什么？因为当我们实例化和初始化新用户进程的地址环境时，我们将暂时失去旧用户进程的地址环境，包括其栈内容。内核 C 逻辑将因没有有效的栈而立即崩溃。
 
-   - :c:func:`up_addrenv_ustackalloc()`: Create a stack address environment
-   - :c:func:`up_addrenv_ustackfree()`: Destroy a stack address environment.
-   - :c:func:`up_addrenv_vustack()`: Returns the virtual base address of the stack
-   - :c:func:`up_addrenv_ustackselect()`: Instantiate a stack address environment
+   如果选择了 ``CONFIG_ARCH_KERNEL_STACK=y``，则平台特定代码必须导出以下额外接口：
 
-#. If ``CONFIG_ARCH_KERNEL_STACK`` is selected, then each user
-   process will have two stacks: (1) a large (and possibly
-   dynamic) user stack and (2) a smaller kernel stack. However,
-   this option is *required* if both ``CONFIG_BUILD_KERNEL`` and
-   ``CONFIG_LIBC_EXECFUNCS`` are selected. Why? Because when we
-   instantiate and initialize the address environment of the new
-   user process, we will temporarily lose the address environment
-   of the old user process, including its stack contents. The
-   kernel C logic will crash immediately with no valid stack in
-   place.
-
-   If ``CONFIG_ARCH_KERNEL_STACK=y`` is selected then the platform
-   specific code must export these additional interfaces:
-
-   - :c:func:`up_addrenv_kstackalloc`: Allocate the process kernel stack.
+   - :c:func:`up_addrenv_kstackalloc`：分配进程内核栈。
 
 .. c:function:: int up_addrenv_create(size_t textsize, size_t datasize, \
   size_t heapsize, FAR arch_addrenv_t *addrenv);
 
-  This function is called when a new task is created in order to
-  instantiate an address environment for the new task group.
-  up_addrenv_create() is essentially the allocator of the physical memory for the new task.
+  当创建新任务时调用此函数，以便为新任务组实例化地址环境。up_addrenv_create() 本质上是新任务物理内存的分配器。
 
-  :param textsize: The size (in bytes) of the ``.text`` address
-    environment needed by the task. This region may be read/execute
-    only.
-  :param datasize: The size (in bytes) of the ``.bss/.data`` address
-    environment needed by the task. This region may be read/write
-    only.
-  :param heapsize: The initial size (in bytes) of the heap address
-    environment needed by the task. This region may be read/write
-    only.
-  :param addrenv: The location to return the representation of the
-    task address environment.
+  :param textsize: 任务所需的 ``.text`` 地址环境大小（以字节为单位）。此区域可能只读/可执行。
+  :param datasize: 任务所需的 ``.bss/.data`` 地址环境大小（以字节为单位）。此区域可能只读/可写。
+  :param heapsize: 任务所需的堆地址环境初始大小（以字节为单位）。此区域可能只读/可写。
+  :param addrenv: 返回任务地址环境表示的位置。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_destroy(arch_addrenv_t *addrenv)
 
-  This function is called when a final thread leaves the task
-  group and the task group is destroyed. This function then destroys
-  the defunct address environment, releasing the underlying physical
-  memory allocated by up_addrenv_create().
+  当最后一个线程离开任务组且任务组被销毁时调用此函数。此函数然后销毁已失效的地址环境，释放由 up_addrenv_create() 分配的底层物理内存。
 
-  :param addrenv: The representation of the task address environment
-    previously returned by ``up_addrenv_create()``.
+  :param addrenv: 先前由 ``up_addrenv_create()`` 返回的任务地址环境表示。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_vtext(FAR arch_addrenv_t addrenv, FAR void **vtext)
 
-  Return the virtual .text address associated with the newly create
-  address environment. This function is used by the binary loaders
-  in order get an address that can be used to initialize the new task.
+  返回与新创建的地址环境关联的虚拟 .text 地址。二进制加载器使用此函数来获取可用于初始化新任务的地址。
 
-  :param addrenv: The representation of the task address environment
-     previously returned by ``up_addrenv_create()``.
-  :param vtext: The location to return the virtual address.
+  :param addrenv: 先前由 ``up_addrenv_create()`` 返回的任务地址环境表示。
+  :param vtext: 返回虚拟地址的位置。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_vdata(FAR arch_addrenv_t *addrenv, size_t textsize, FAR void **vdata)
 
-  Return the virtual .text address associated with the newly create
-  address environment. This function is used by the binary loaders
-  in order get an address that can be used to initialize the new task.
+  返回与新创建的地址环境关联的虚拟 .data 地址。二进制加载器使用此函数来获取可用于初始化新任务的地址。
 
-  :param addrenv: The representation of the task address environment
-    previously returned by ``up_addrenv_create()``.
-  :param textsize: For some implementations, the text and data will
-    be saved in the same memory region (read/write/execute) and, in
-    this case, the virtual address of the data just lies at this
-    offset into the common region.
-  :param vdata: The location to return the virtual address.
+  :param addrenv: 先前由 ``up_addrenv_create()`` 返回的任务地址环境表示。
+  :param textsize: 对于某些实现，text 和 data 将保存在同一内存区域（读/写/执行）中，在这种情况下，data 的虚拟地址仅位于公共区域的此偏移量处。
+  :param vdata: 返回虚拟地址的位置。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: ssize_t up_addrenv_heapsize(FAR const arch_addrenv_t *addrenv)
 
-  Return the initial heap allocation size. That is the amount of
-  memory allocated by up_addrenv_create() when the heap memory
-  region was first created. This may or may not differ from the
-  heapsize parameter that was passed to up_addrenv_create().
+  返回初始堆分配大小。即 up_addrenv_create() 在首次创建堆内存区域时分配的内存量。这可能与传递给 up_addrenv_create() 的 heapsize 参数相同或不同。
 
-  :param addrenv: The representation of the task address environment
-    previously returned by ``up_addrenv_create()``.
+  :param addrenv: 先前由 ``up_addrenv_create()`` 返回的任务地址环境表示。
 
-  :return: The initial heap size allocated is returned on success;
-    a negated errno value on failure.
+  :return: 成功时返回分配的初始堆大小；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_select(arch_addrenv_t *addrenv)
 
-  After an address environment has been established for a task
-  (via up_addrenv_create()), this function may be called to instantiate
-  that address environment in the virtual address space. This might be
-  necessary, for example, to load the code for the task from a file or
-  to access address environment private data.
+  在为任务建立地址环境后（通过 up_addrenv_create()），可以调用此函数在虚拟地址空间中实例化该地址环境。例如，从文件加载任务代码或访问地址环境私有数据时可能需要此操作。
 
-  :param addrenv: The representation of the task address environment
-    previously returned by ``up_addrenv_create()``.
+  :param addrenv: 先前由 ``up_addrenv_create()`` 返回的任务地址环境表示。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_clone(FAR const task_group_s *src, FAR struct task_group_s *dest)
 
-  Duplicate an address environment. This does not copy the underlying
-  memory, only the representation that can be used to instantiate
-  that memory as an address environment.
+  复制地址环境。这不会复制底层内存，只复制可用于将该内存实例化为地址环境的表示。
 
-  :param src: The address environment to be copied.
-  :param dest: The location to receive the copied address
-    environment.
+  :param src: 要复制的地址环境。
+  :param dest: 接收复制的地址环境的位置。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_attach(FAR struct task_group_s *group, FAR struct tcb_s *tcb)
 
-  This function is called from the core scheduler logic when a
-  thread is created that needs to share the address environment
-  of its task group. In this case, the group's address environment
-  may need to be "cloned" for the child thread.
+  当创建需要共享其任务组地址环境的线程时，从核心调度逻辑调用此函数。在这种情况下，可能需要为子线程"克隆"组的地址环境。
 
-  NOTE: In most platforms, nothing will need to be done in this case.
-  Simply being a member of the group that has the address environment
-  may be sufficient.
+  注意：在大多数平台上，这种情况不需要做任何事情。仅仅是拥有地址环境的组的成员可能就足够了。
 
-  :param group: The task group to which the new thread belongs.
-  :param ctcb: The TCB of the thread needing the address
-    environment.
+  :param group: 新线程所属的任务组。
+  :param ctcb: 需要地址环境的线程的 TCB。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_detach(FAR struct task_group_s *group, FAR struct task_group_s *tcb)
 
-  This function is called when a task or thread exits in order
-  to release its reference to an address environment. The address
-  environment, however, should persist until up_addrenv_destroy()
-  is called when the task group is itself destroyed. Any resources
-  unique to this thread may be destroyed now.
+  当任务或线程退出时调用此函数，以释放其对地址环境的引用。但是，地址环境应持续存在，直到任务组本身被销毁时调用 up_addrenv_destroy()。此线程独有的任何资源现在都可以被销毁。
 
-  :param group: The group to which the thread belonged.
-  :param tcb: The TCB of the task or thread whose the address
-    environment will be released.
+  :param group: 线程所属的组。
+  :param tcb: 其地址环境将被释放的任务或线程的 TCB。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_ustackalloc(FAR struct tcb_s *tcb, size_t stacksize)
 
-  This function is called when a new thread is created in order
-  to instantiate an address environment for the new thread's stack.
-  up_addrenv_ustackalloc() is essentially the allocator of the
-  physical memory for the new task's stack.
+  当创建新线程时调用此函数，以便为新线程的栈实例化地址环境。up_addrenv_ustackalloc() 本质上是新任务栈的物理内存分配器。
 
-  :param tcb: The TCB of the thread that requires the stack address
-    environment.
-  :param stacksize: The size (in bytes) of the initial stack address
-    environment needed by the task. This region may be read/write
-    only.
+  :param tcb: 需要栈地址环境的线程的 TCB。
+  :param stacksize: 任务所需的初始栈地址环境大小（以字节为单位）。此区域可能只读/可写。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_ustackfree(FAR struct tcb_s *tcb)
 
-  This function is called when any thread exits. This function then
-  destroys the defunct address environment for the thread's stack,
-  releasing the underlying physical memory.
+  当任何线程退出时调用此函数。此函数然后销毁线程栈的已失效地址环境，释放底层物理内存。
 
-  :param tcb: The TCB of the thread that no longer requires the
-    stack address environment.
+  :param tcb: 不再需要栈地址环境的线程的 TCB。
 
-  :return: Zero (OK) on success; a negated errno value on failure
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_vustack(FAR const struct tcb_s *tcb, FAR void **vstack)
 
-  Return the virtual address associated with the newly create stack address environment.
+  返回与新创建的栈地址环境关联的虚拟地址。
 
-  :param tcb: The TCB of the thread with the stack address environment of interest.
-  :param vstack: The location to return the stack virtual base address.
+  :param tcb: 具有目标栈地址环境的线程的 TCB。
+  :param vstack: 返回栈虚拟基地址的位置。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_ustackselect(FAR const struct tcb_s *tcb)
 
-  After an address environment has been established for a task's
-  stack (via up_addrenv_ustackalloc(). This function may be called to
-  instantiate that address environment in the virtual address space.
-  This is a necessary step before each context switch to the newly
-  created thread (including the initial thread startup).
+  在为任务的栈建立地址环境后（通过 up_addrenv_ustackalloc()）。可以调用此函数在虚拟地址空间中实例化该地址环境。这是每次上下文切换到新创建的线程（包括初始线程启动）之前的必要步骤。
 
-  :param tcb: The TCB of the thread with the stack address
-    environment to be instantiated.
+  :param tcb: 具有要实例化的栈地址环境的线程的 TCB。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_kstackalloc(FAR struct tcb_s *tcb)
 
-  This function is called when a new thread is created to allocate the
-  new thread's kernel stack. This function may be called for certain
-  terminating threads which have no kernel stack. It must be
-  tolerant of that case.
+  当创建新线程时调用此函数以分配新线程的内核栈。对于某些没有内核栈的终止线程，也可能调用此函数。它必须能够容忍这种情况。
 
-  :param tcb: The TCB of the thread that requires the kernel stack.
+  :param tcb: 需要内核栈的线程的 TCB。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。
 
 .. c:function:: int up_addrenv_kstackfree(FAR struct tcb_s *tcb);
 
-  This function is called when any thread exits. This function frees the kernel stack.
+  当任何线程退出时调用此函数。此函数释放内核栈。
 
-  :param tcb: The TCB of the thread that no longer requires the
-    kernel stack.
+  :param tcb: 不再需要内核栈的线程的 TCB。
 
-  :return: Zero (OK) on success; a negated errno value on failure.
+  :return: 成功时返回零 (OK)；失败时返回负的 errno 值。

@@ -1,77 +1,49 @@
 ==============================================
-APIs Exported by Board-Specific Logic to NuttX
+板级特定逻辑导出给 NuttX 的 API
 ==============================================
 
-.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+导出的板级特定接口在头文件 ``include/nuttx/board.h`` 中提供函数原型。
+从板级逻辑导出到架构特定逻辑的接口有很多。但从板级特定逻辑导出到通用
+NuttX 逻辑的接口只有少数几个。其中与初始化相关的少数接口将在本段中讨论。
+还有一些其他接口，如 ``boardctl()`` <#boardctl>`__ 使用的接口，
+将在其他段落中讨论。
 
+NuttX OS 逻辑使用的所有板级特定接口都用于受控的板级初始化。
+在三个时间点可以插入自定义的板级特定初始化逻辑：
 
-Exported board-specific interfaces are prototyped in the header
-file ``include/nuttx/board.h``. There are many interfaces exported
-from board- to architecture-specific logic. But there are only a
-few exported from board-specific logic to common NuttX logic.
-Those few of those related to initialization will be discussed in
-this paragraph. There are others, like those used by
-```boardctl()`` <#boardctl>`__ that will be discussed in other
-paragraphs.
+首先是 ``<arch>_board_initialize()``：此函数\ *不是*\ 从通用 OS 逻辑调用的，
+而是从架构特定的上电复位逻辑中调用。此函数仅用于非常底层的初始化，
+如 GPIO 引脚配置、电源设置、DRAM 初始化等。此时 OS 尚未初始化，
+因此不能分配内存或初始化设备驱动。
 
-All of the board-specific interfaces used by the NuttX OS logic
-are for controlled board initialization. There are three points in
-time where you can insert custom, board-specific initialization
-logic:
-
-First, ``<arch>_board_initialize()``: This function is *not*
-called from the common OS logic, but rather from the
-architecture-specific power on reset logic. This is used only for
-initialization of very low-level things like configuration of GPIO
-pins, power settings, DRAM initialization, etc. The OS has not
-been initialized at this point, so you cannot allocate memory or
-initialize device drivers.
-
-The other two board initialization *hooks* are called from the OS
-start-up logic and are described in the following paragraphs:
+另外两个板级初始化\ *钩子*\ 从 OS 启动逻辑中调用，如下所述：
 
 .. c:function:: void board_early_initialize(void)
 
-  The next level of initialization is performed by a call to
-  ``up_initialize()`` (in
-  ``arch/<arch>/src/common/up_initialize.c``). The OS has been
-  initialized at this point and it is okay to initialize drivers in
-  this phase. ``up_initialize()`` is *not* a board-specific
-  interface, but rather an architecture-specific, board-independent
-  interface.
+  下一级初始化通过调用 ``up_initialize()``（位于
+  ``arch/<arch>/src/common/up_initialize.c``）来执行。此时 OS 已经初始化，
+  可以在此阶段初始化驱动。``up_initialize()`` *不是*板级特定接口，
+  而是架构特定、板级无关的接口。
 
-  But at this same point in time, the OS will also call a
-  board-specific initialization function named
-  ``board_early_initialize()`` if
-  ``CONFIG_BOARD_EARLY_INITIALIZE=y`` is selected in the
-  configuration. The context in which ``board_early_initialize()``
-  executes is suitable for early initialization of most, simple
-  device drivers and is a logical, board-specific extension of
-  up_initialize().
+  但与此同时，如果在配置中选择了 ``CONFIG_BOARD_EARLY_INITIALIZE=y``，
+  OS 还会调用一个名为 ``board_early_initialize()`` 的板级特定初始化函数。
+  ``board_early_initialize()`` 的执行上下文适合大多数简单设备驱动的早期初始化，
+  是 up_initialize() 的板级特定扩展。
 
-  ``board_early_initialize()`` runs on the startup, initialization
-  thread. Some initialization operations cannot be performed on the
-  start-up, initialization thread. That is because the
-  initialization thread cannot wait for event. Waiting may be
-  required, for example, to mount a file system or or initialize a
-  device such as an SD card. For this reason, such driver initialize
-  must be deferred to ``board_late_initialize()``.
+  ``board_early_initialize()`` 在启动初始化线程上运行。某些初始化操作
+  不能在启动初始化线程上执行。这是因为初始化线程不能等待事件。
+  例如，挂载文件系统或初始化 SD 卡等设备可能需要等待。
+  因此，这类驱动初始化必须推迟到 ``board_late_initialize()``。
 
 .. c:function:: void board_late_initialize(void)
 
-  And, finally, just before the user application code starts. If
-  ``CONFIG_BOARD_LATE_INITIALIZE=y`` is selected in the
-  configuration, then an final, additional initialization call will
-  be performed in the boot-up sequence to a function called
-  ``board_late_initialize()``. ``board_late_initialize()`` will be
-  called well after ``up_initialize()`` and
-  ``board_early_initialize()`` are called.
-  ``board_late_initialize()`` will be called just before the main
-  application task is started. This additional initialization phase
-  may be used, for example, to initialize more complex,
-  board-specific device drivers.
+  最后，在用户应用代码启动之前。如果在配置中选择了
+  ``CONFIG_BOARD_LATE_INITIALIZE=y``，则在启动序列中会执行一个最终的
+  附加初始化调用，调用名为 ``board_late_initialize()`` 的函数。
+  ``board_late_initialize()`` 将在 ``up_initialize()`` 和
+  ``board_early_initialize()`` 调用之后很久才被调用。
+  ``board_late_initialize()`` 将在主应用任务启动之前被调用。
+  此附加初始化阶段可用于初始化更复杂的板级特定设备驱动。
 
-  Waiting for events, use of I2C, SPI, etc are permissible in the
-  context of board_late_initialize(). That is because
-  ``board_late_initialize()`` will run on a temporary, internal
-  kernel thread.
+  在 board_late_initialize() 的上下文中，允许等待事件、使用 I2C、SPI 等。
+  这是因为 ``board_late_initialize()`` 将在临时的内部内核线程上运行。

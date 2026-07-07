@@ -1,301 +1,153 @@
 ===========
-Work Queues
+工作队列
 ===========
 
-.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+**工作队列**。NuttX 提供 *工作队列*。工作队列是服务于要执行的工作项队列的线程。它们对于将工作卸载到不同的线程上下文、延迟处理或串行化活动非常有用。
 
-
-**Work Queues**. NuttX provides *work queues*. Work queues are
-threads that service a queue of work items to be performed. They
-are useful for off-loading work to a different threading context,
-for delayed processing, or for serializing activities.
-
-Classes of Work Queues
+工作队列类别
 ======================
 
-There are three different classes of work queues, each with
-different properties and intended usage. These classes of work
-queues along with the common work queue interface are described in
-the following paragraphs.
+有三种不同类别的工作队列，每种具有不同的属性和预期用途。这些工作队列类别以及通用工作队列接口在以下段落中描述。
 
-High Priority Kernel Work queue
+高优先级内核工作队列
 -------------------------------
 
-The dedicated high-priority
-work queue is intended to handle delayed processing from interrupt
-handlers. This work queue is required for some drivers but, if
-there are no complaints, can be safely disabled. The high priority
-worker thread also performs garbage collection -- completing any
-delayed memory deallocations from interrupt handlers. If the
-high-priority worker thread is disabled, then that clean up will
-be performed either by (1) the low-priority worker thread, if
-enabled, and if not (2) the IDLE thread instead (which runs at the
-lowest of priority and may not be appropriate if memory
-reclamation is of high priority)
+专用的高优先级工作队列旨在处理来自中断处理程序的延迟处理。某些驱动程序需要此工作队列，但如果没有问题，可以安全地禁用。高优先级工作线程还执行垃圾回收——完成来自中断处理程序的任何延迟内存释放。如果禁用了高优先级工作线程，则清理工作将由 (1) 低优先级工作线程（如果已启用）执行，如果未启用则由 (2) IDLE 线程执行（它以最低优先级运行，如果内存回收具有高优先级则可能不合适）。
 
-**Device Driver Bottom Half**. The high-priority worker thread is
-intended to serve as the *bottom half* for device drivers. As a
-consequence it must run at a very high, fixed priority rivalling
-the priority of the interrupt handler itself. Typically, the high
-priority work queue should be the highest priority thread in your
-system (the default priority is 224).
+**设备驱动程序下半部**。高优先级工作线程旨在作为设备驱动程序的 *下半部*。因此，它必须以非常高的固定优先级运行，与中断处理程序本身的优先级相当。通常，高优先级工作队列应该是系统中优先级最高的线程（默认优先级为 224）。
 
-**Thread Pool**. The work queues can be configured to support
-multiple, low-priority threads. This is essentially a *thread
-pool* that provides multi-threaded servicing of the queue work.
-This breaks the strict serialization of the "queue" (and hence,
-the work queue is no longer a queue at all).
+**线程池**。工作队列可以配置为支持多个低优先级线程。这本质上是一个 *线程池*，为队列工作提供多线程服务。这打破了"队列"的严格串行化（因此，工作队列根本不再是队列）。
 
-Multiple worker threads are required to support, for example, I/O
-operations that stall waiting for input. If there is only a single
-thread, then the entire work queue processing would stall in such
-cases. Such behavior is necessary to support asynchronous I/O,
-AIO, for example.
+需要多个工作线程来支持例如等待输入而停滞的 I/O 操作。如果只有一个线程，则整个工作队列处理将在这种情况下停滞。这种行为对于支持异步 I/O（例如 AIO）是必要的。
 
-**Compared to the Low Priority Kernel Work Queue**. For less
-critical, lower priority, application oriented worker thread
-support, consider enabling the lower priority work queue. The
-lower priority work queue runs at a lower priority, of course, but
-has the added advantage that it supports *priority inheritance*
-(if ``CONFIG_PRIORITY_INHERITANCE=y`` is also selected): The
-priority of the lower priority worker thread can then be adjusted
-to match the highest priority client.
+**与低优先级内核工作队列的比较**。对于不太关键、较低优先级、面向应用程序的工作线程支持，请考虑启用低优先级工作队列。低优先级工作队列当然以较低的优先级运行，但具有额外的优势，即支持 *优先级继承*（如果同时选择了 ``CONFIG_PRIORITY_INHERITANCE=y``）：低优先级工作线程的优先级随后可以调整以匹配最高优先级的客户端。
 
-**Configuration Options**.
+**配置选项**。
 
--  ``CONFIG_SCHED_HPWORK``. Enables the high priority work queue.
--  ``CONFIG_SCHED_HPNTHREADS``. The number of threads in the
-   high-priority queue's thread pool. Default: 1
--  ``CONFIG_SCHED_HPWORKPRIORITY``. The execution priority of the
-   high-priority worker thread. Default: 224
--  ``CONFIG_SCHED_HPWORKSTACKSIZE``. The stack size allocated for
-   the worker thread in bytes. Default: 2048.
+-  ``CONFIG_SCHED_HPWORK``。启用高优先级工作队列。
+-  ``CONFIG_SCHED_HPNTHREADS``。高优先级队列线程池中的线程数。默认：1
+-  ``CONFIG_SCHED_HPWORKPRIORITY``。高优先级工作线程的执行优先级。默认：224
+-  ``CONFIG_SCHED_HPWORKSTACKSIZE``。为工作线程分配的栈大小（以字节为单位）。默认：2048。
 
-Low Priority Kernel Work Queue
+低优先级内核工作队列
 ------------------------------
 
-This lower priority work queue
-is better suited for more extended, application oriented
-processing such as file system clean-up, memory garbage collection
-and asynchronous I/O operations.
+此较低优先级的工作队列更适合更扩展的、面向应用程序的处理，例如文件系统清理、内存垃圾回收和异步 I/O 操作。
 
-**Compared to the High Priority Work Queue**. The lower priority
-work queue runs at a lower priority than the high priority work
-queue, of course, and so is inappropriate to serve as a driver
-*bottom half*. It is, otherwise, very similar to the high priority
-work queue and most of the discussion above for the high priority
-work queue applies equally here. The lower priority work queue does
-have one important property, however, that makes it better suited
-for some tasks:
+**与高优先级工作队列的比较**。低优先级工作队列当然以比高优先级工作队列更低的优先级运行，因此不适合作为驱动程序 *下半部*。除此之外，它与高优先级工作队列非常相似，上述关于高优先级工作队列的大部分讨论同样适用于此。但是，低优先级工作队列确实有一个重要特性，使其更适合某些任务：
 
-**Priority Inheritance**. The lower priority worker thread(s)
-support *priority inheritance* (if <config>
-CONFIG_PRIORITY_INHERITANCE is also selected): The priority of the
-lower priority worker thread can then be adjusted to match the
-highest priority client.
+**优先级继承**。低优先级工作线程支持 *优先级继承*（如果同时选择了 CONFIG_PRIORITY_INHERITANCE）：低优先级工作线程的优先级随后可以调整以匹配最高优先级的客户端。
 
-   **NOTE:** This priority inheritance feature is not automatic.
-   The lower priority worker thread will always have a fixed
-   priority unless additional logic calls
-   ``lpwork_boostpriority()`` to raise the priority of the lower
-   priority worker thread (typically called before scheduling the
-   work) and then calls the matching ``lpwork_restorepriority()``
-   when the work is completed (typically called within the work
-   handler at the completion of the work). Currently, only the
-   NuttX asynchronous I/O logic uses this dynamic prioritization
-   feature.
+   **注意：** 此优先级继承功能不是自动的。低优先级工作线程将始终具有固定优先级，除非额外的逻辑调用 ``lpwork_boostpriority()`` 来提高低优先级工作线程的优先级（通常在调度工作之前调用），然后在工作完成时（通常在工作处理程序中完成工作时）调用匹配的 ``lpwork_restorepriority()``。目前，只有 NuttX 异步 I/O 逻辑使用此动态优先级功能。
 
-The higher priority worker thread, on the other hand, is intended
-to serve as the *bottom half* for device drivers. As a consequence
-must run at a very high, fixed priority. Typically, it should be
-the highest priority thread in your system.
+另一方面，高优先级工作线程旨在作为设备驱动程序的 *下半部*。因此必须以非常高的固定优先级运行。通常，它应该是系统中优先级最高的线程。
 
-**Configuration Options**.
+**配置选项**。
 
--  ``CONFIG_SCHED_LPWORK``. If CONFIG_SCHED_LPWORK is selected
-   then a lower-priority work queue will be enabled.
--  ``CONFIG_SCHED_LPNTHREADS``. The number of threads in the
-   low-priority queue's thread pool. Default: 1
--  ``CONFIG_SCHED_LPWORKPRIORITY``. The minimum execution priority
-   of the lower priority worker thread. The priority of the all
-   worker threads start at this priority. If priority inheritance
-   is in effect, the priority may be boosted from this level.
-   Default: 50.
--  ``CONFIG_SCHED_LPWORKPRIOMAX``. The maximum execution priority
-   of the lower priority worker thread. Lower priority worker
-   threads will be started at ``CONFIG_SCHED_LPWORKPRIORITY`` but
-   their priority may be boosted due to priority inheritance. The
-   boosted priority of the low priority worker thread will not,
-   however, ever exceed ``CONFIG_SCHED_LPWORKPRIOMAX``. This limit
-   would be necessary, for example, if the higher priority worker
-   thread were to defer work to the lower priority thread.
-   Clearly, in such a case, you would want to limit the maximum
-   priority of the lower priority work thread. Default: 176.
--  ``CONFIG_SCHED_LPWORKSTACKSIZE``. The stack size allocated for
-   the lower priority worker thread. Default: 2048.
+-  ``CONFIG_SCHED_LPWORK``。如果选择了 CONFIG_SCHED_LPWORK，则将启用较低优先级的工作队列。
+-  ``CONFIG_SCHED_LPNTHREADS``。低优先级队列线程池中的线程数。默认：1
+-  ``CONFIG_SCHED_LPWORKPRIORITY``。低优先级工作线程的最小执行优先级。所有工作线程的优先级从此优先级开始。如果优先级继承生效，优先级可能会从此级别提升。默认：50。
+-  ``CONFIG_SCHED_LPWORKPRIOMAX``。低优先级工作线程的最大执行优先级。低优先级工作线程将以 ``CONFIG_SCHED_LPWORKPRIORITY`` 启动，但其优先级可能因优先级继承而提升。但是，低优先级工作线程的提升优先级永远不会超过 ``CONFIG_SCHED_LPWORKPRIOMAX``。例如，如果高优先级工作线程要将工作延迟到低优先级线程，则此限制是必要的。显然，在这种情况下，您需要限制低优先级工作线程的最大优先级。默认：176。
+-  ``CONFIG_SCHED_LPWORKSTACKSIZE``。为低优先级工作线程分配的栈大小。默认：2048。
 
-User-Mode Work Queue
+用户模式工作队列
 --------------------
 
-**Work Queue Accessibility**. The high- and low-priority worker
-threads are kernel-mode threads. In the normal, *flat* NuttX
-build, these work queues are useful to application code and
-may be shared. However, in the NuttX protected and kernel build
-modes, kernel mode code is isolated and cannot be accessed from
-user-mode code.
+**工作队列可访问性**。高优先级和低优先级工作线程是内核模式线程。在正常的 *flat* NuttX 构建中，这些工作队列对应用程序代码有用并且可以共享。但是，在 NuttX 受保护和内核构建模式中，内核模式代码是隔离的，无法从用户模式代码访问。
 
-**User-Mode Work Queue**. if either ``CONFIG_BUILD_PROTECTED`` or
-``CONFIG_BUILD_KERNEL`` are selected, then the option to enable a
-special user-mode work queue is enabled. The interface to the user-
-mode work queue is identical to that of the kernel-mode work queues
-and the user-mode work queue is functionally equivalent to the high
-priority work queue. It differs in that its implementation does not
-depend on internal, kernel-space facilities.
+**用户模式工作队列**。如果选择了 ``CONFIG_BUILD_PROTECTED`` 或 ``CONFIG_BUILD_KERNEL``，则启用特殊用户模式工作队列的选项将被启用。用户模式工作队列的接口与内核模式工作队列的接口相同，并且用户模式工作队列在功能上等同于高优先级工作队列。不同之处在于其实现不依赖于内部内核空间设施。
 
-**Configuration Options**.
+**配置选项**。
 
--  ``CONFIG_LIBC_USRWORK``. If CONFIG_LIBC_USRWORK is also defined
-   then the user-mode work queue will be enabled.
--  ``CONFIG_LIBC_USRWORKPRIORITY``. The execution priority of the
-   user-mode priority worker thread. Default: 100
--  ``CONFIG_LIBC_USRWORKSTACKSIZE``. The stack size allocated for
-   the lower priority worker thread. Default: 2048.
+-  ``CONFIG_LIBC_USRWORK``。如果还定义了 CONFIG_LIBC_USRWORK，则将启用用户模式工作队列。
+-  ``CONFIG_LIBC_USRWORKPRIORITY``。用户模式优先级工作线程的执行优先级。默认：100
+-  ``CONFIG_LIBC_USRWORKSTACKSIZE``。为低优先级工作线程分配的栈大小。默认：2048。
 
-Common Work Queue Interfaces
+通用工作队列接口
 ============================
 
-Work Queue IDs
+工作队列 ID
 --------------
 
-**Work queue IDs**. All work queues use the identical interface
-functions (at least identical in terms of the function
-*signature*). The first parameter passed to the work queue
-interface function identifies the work queue:
+**工作队列 ID**。所有工作队列使用相同的接口函数（至少在函数 *签名* 方面相同）。传递给工作队列接口函数的第一个参数标识工作队列：
 
-**Kernel-Mode Work Queue IDs:**
+**内核模式工作队列 ID：**
 
--  ``HPWORK``. This ID of the high priority work queue that should
-   only be used for high-priority, time-critical, driver bottom-half
-   functions.
--  ``LPWORK``. This is the ID of the low priority work queue that
-   can be used for any purpose. If ``CONFIG_SCHED_LPWORK`` is not
-   defined, then there is only one kernel work queue and
-   ``LPWORK`` is equal to ``HPWORK``.
+-  ``HPWORK``。此高优先级工作队列的 ID 应仅用于高优先级、时间关键的驱动程序下半部函数。
+-  ``LPWORK``。这是低优先级工作队列的 ID，可用于任何目的。如果未定义 ``CONFIG_SCHED_LPWORK``，则只有一个内核工作队列，``LPWORK`` 等于 ``HPWORK``。
 
-**User-Mode Work Queue IDs:**
+**用户模式工作队列 ID：**
 
--  ``USRWORK``. This is the ID of the user-mode work queue that
-   can be used for any purpose by applications. In a flat build,
-   ``USRWORK`` is equal to ``LPWORK`` so that user applications
-   will use the lower priority work queue (if there is one).
+-  ``USRWORK``。这是用户模式工作队列的 ID，应用程序可用于任何目的。在 flat 构建中，``USRWORK`` 等于 ``LPWORK``，因此用户应用程序将使用低优先级工作队列（如果有的话）。
 
-Work Queue Interface Types
+工作队列接口类型
 --------------------------
 
--  ``typedef void (*worker_t)(FAR void *arg);`` Defines the type
-   of the work callback.
--  ``struct work_s``. Defines one entry in the work queue. This is
-   a client-allocated structure. Work queue clients should not
-   reference any field in this structure since they are subject to
-   change. The user only needs this structure in order to declare
-   instances of the work structure. Handling of all fields is
-   performed by the work queue interfaces described below.
+-  ``typedef void (*worker_t)(FAR void *arg);`` 定义工作回调的类型。
+-  ``struct work_s``。定义工作队列中的一个条目。这是客户端分配的结构。工作队列客户端不应引用此结构中的任何字段，因为它们可能会更改。用户只需要此结构来声明工作结构的实例。所有字段的处理由下面描述的工作队列接口执行。
 
-Work Queue Interfaces
+工作队列接口
 ---------------------
 
 .. c:function:: int work_queue(int qid, FAR struct work_s *work, worker_t worker, \
                FAR void *arg, uint32_t delay)
 
-  Queue work to be performed at a later time. All
-  queued work will be performed on the worker thread of execution
-  (not the caller's).
+  将工作排队以在稍后执行。所有排队的工作将在工作线程上执行（不是调用者的线程）。
 
-  The work structure is allocated and must be initialized to all
-  zero by the caller. Otherwise, the work structure is completely
-  managed by the work queue logic. The caller should never modify
-  the contents of the work queue structure directly. If
-  ``work_queue()`` is called before the previous work has been
-  performed and removed from the queue, then any pending work will
-  be canceled and lost.
+  工作结构由调用者分配并必须初始化为全零。否则，工作结构完全由工作队列逻辑管理。调用者不应直接修改工作队列结构的内容。如果在先前的工作尚未执行并从队列中移除之前调用 ``work_queue()``，则任何待处理的工作将被取消并丢失。
 
-  :param qid: The work queue ID.
-  :param work: The work structure to queue
-  :param worker: The worker callback to be invoked. The callback
-    will be invoked on the worker thread of execution.
+  :param qid: 工作队列 ID。
+  :param work: 要排队的工作结构
+  :param worker: 要调用的工作回调。回调将在工作执行线程上调用。
 
-  :param arg: The argument that will be passed to the worker
-    callback function when it is invoked.
+  :param arg: 调用工作回调函数时传递给它的参数。
 
-  :param delay: Delay (in system clock ticks) from the time queue
-    until the worker is invoked. Zero means to perform the work
-    immediately.
+  :param delay: 从排队到调用工作程序的延迟（以系统时钟节拍为单位）。零表示立即执行工作。
 
-  :return: Zero is returned on success; a negated errno is returned on failure.
+  :return: 成功时返回零；失败时返回负的 errno。
 
 .. c:function:: int work_cancel(int qid, FAR struct work_s *work)
 
-  Cancel previously queued work. This removes work
-  from the work queue. After work has been cancelled, it may be
-  re-queued by calling ``work_queue()`` again.
+  取消先前排队的工作。这会从工作队列中移除工作。工作被取消后，可以通过再次调用 ``work_queue()`` 重新排队。
 
-  :param qid: The work queue ID.
-  :param work: The previously queued work structure to cancel.
+  :param qid: 工作队列 ID。
+  :param work: 要取消的先前排队的工作结构。
 
-  :return: Zero is returned on success; a negated ``errno`` is returned on
-    failure.
+  :return: 成功时返回零；失败时返回负的 ``errno``。
 
-    -  ``ENOENT``: There is no such work queued.
-    -  ``EINVAL``: An invalid work queue was specified.
+    -  ``ENOENT``：没有排队的此类工作。
+    -  ``EINVAL``：指定了无效的工作队列。
 
 .. c:function:: int work_signal(int qid)
 
-  Signal the worker thread to process the work
-  queue now. This function is used internally by the work logic but
-  could also be used by the user to force an immediate re-assessment
-  of pending work.
+  发信号给工作线程立即处理工作队列。此函数由工作逻辑内部使用，但用户也可以使用它来强制立即重新评估待处理的工作。
 
-  :param qid: The work queue ID.
+  :param qid: 工作队列 ID。
 
-  :return: Zero is returned on success; a negated errno is returned on failure.
+  :return: 成功时返回零；失败时返回负的 errno。
 
 .. c:function:: bool work_available(FAR struct work_s *work)
 
-  Check if the work structure is available.
+  检查工作结构是否可用。
 
-  :param work: The work queue structure to check.
+  :param work: 要检查的工作队列结构。
 
-  :return: ``true`` if available; ``false`` if busy (i.e., there is still pending work).
+  :return: 如果可用则返回 ``true``；如果忙碌（即仍有待处理的工作）则返回 ``false``。
 
 .. c:function:: int work_usrstart(void)
 
-  The function is only available as a user
-  interface in the kernel-mode build. In the flat build, there is no
-  user-mode work queue; in the protected mode, the user-mode work
-  queue will automatically be started by the OS start-up code. But
-  in the kernel mode, each user process will be required to start is
-  own, private instance of the user-mode work thread using this
-  interface.
+  此函数仅在内核模式构建中作为用户接口可用。在 flat 构建中，没有用户模式工作队列；在受保护模式下，用户模式工作队列将由操作系统启动代码自动启动。但在内核模式下，每个用户进程将需要使用此接口启动自己的私有用户模式工作线程实例。
 
-  :return: The task ID of the worker thread is returned on success.
-    A negated ``errno`` value is returned on failure.
+  :return: 成功时返回工作线程的任务 ID。失败时返回负的 ``errno`` 值。
 
 .. c:function:: void lpwork_boostpriority(uint8_t reqprio)
 
-  Called by the work queue client to assure that
-  the priority of the low-priority worker thread is at least at the
-  requested level, ``reqprio``. This function would normally be
-  called just before calling ``work_queue()``.
+  由工作队列客户端调用，以确保低优先级工作线程的优先级至少处于请求的级别 ``reqprio``。通常在调用 ``work_queue()`` 之前调用此函数。
 
-  :param reqprio: Requested minimum worker thread priority.
+  :param reqprio: 请求的最小工作线程优先级。
 
 .. c:function:: void lpwork_restorepriority(uint8_t reqprio)
 
-  This function is called to restore the priority
-  after it was previously boosted. This is often done by client
-  logic on the worker thread when the scheduled work completes. It
-  will check if we need to drop the priority of the worker thread.
+  在先前提升优先级后调用此函数以恢复优先级。这通常在计划的工作完成时由工作线程上的客户端逻辑完成。它将检查是否需要降低工作线程的优先级。
 
-  :param reqprio: Previously requested minimum worker thread
-    priority to be "unboosted".
-
+  :param reqprio: 先前请求的最小工作线程优先级，将被"取消提升"。

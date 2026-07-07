@@ -1,103 +1,61 @@
 ==================================
-Naming and Header File Conventions
+命名和头文件约定
 ==================================
 
-.. note:: 本文档翻译自 NuttX 官方文档，如需查阅最新版本请访问 https://nuttx.apache.org/docs/latest/
+-  **通用微处理器接口**。所有微处理器通用的任何接口应以 ``up_`` 为前缀，
+   并在 ``include/nuttx/arch.h`` 中提供函数原型。该头文件中的定义提供了
+   NuttX 与 ``arch/`` 中架构特定实现之间的通用接口。
 
+      ``up_`` 代表微处理器（microprocessor）；``u`` 类似希腊字母 μ，
+      因此 ``up_`` 即 ``μP``，这是微处理器一词的常见缩写。
+      我不太喜欢这个名字。真希望当初用了更直观的前缀，比如 ``arch_``
+      ——这样我就不用经常回答这个问题了。
 
--  **Common Microprocessor Interfaces**. Any interface that is
-   common to all microprocessors should be prefixed with ``up_``
-   and prototyped in ``include/nuttx/arch.h``. The definitions in
-   that header file provide the common interface between NuttX and
-   the architecture-specific implementation in ``arch/``.
+-  **微处理器特定接口**。仅适用于特定微处理器的接口应以该微处理器的名称
+   为前缀，例如 ``stm32_``，并在 ``arch/`` 目录下的某个头文件中提供函数原型。
 
-      ``up_`` is supposed to stand for microprocessor; the ``u``
-      is like the Greek letter micron: μ. So it would be ``μP``
-      which is a common shortening of the word microprocessor. I
-      don't like that name very much. I wish I would have used a
-      more obvious prefix like ``arch_`` instead -- then I would
-      not have to answer this question so often.
+   还有一个 ``arch/<architecture>/include/<chip>/chip.h`` 头文件，可用于
+   在板级逻辑甚至应用逻辑之间传递其他微处理器特定信息。例如，应用逻辑
+   可能需要了解芯片的特定功能。该 ``chip.h`` 头文件中的函数原型应遵循
+   微处理器特定的命名约定。
 
--  **Microprocessor-Specific Interfaces**. An interface which is
-   unique to a certain microprocessor should be prefixed with the
-   name of the microprocessor, for example ``stm32_``, and be
-   prototyped in some header file in the ``arch/`` directories.
+-  **通用板级接口**。所有板级通用的任何接口应以 ``board_`` 为前缀，
+   并在 ``include/nuttx/board.h`` 中提供函数原型。这些 ``board_`` 定义
+   提供了板级逻辑与通用及架构特定逻辑之间的接口。
 
-   There is also a ``arch/<architecture>/include/<chip>/chip.h``
-   header file that can be used to communicate other
-   microprocessor-specific information between the board logic and
-   even application logic. Application logic may, for example,
-   need to know specific capabilities of the chip. Prototypes in
-   that ``chip.h`` header file should follow the
-   microprocessor-specific naming convention.
+-  **板级特定接口**。仅适用于某个板级的任何接口应以板级名称为前缀，
+   例如 ``stm32f4discovery_``。有时板级名称太长，使用 ``stm32_`` 也可以。
+   这些接口应在 ``boards/<arch>/<chip>/<board>/src/<board>.h`` 中提供函数原型，
+   且不应在该目录外部使用，因为板级特定定义在板级目录之外没有意义。
 
--  **Common Board Interfaces**. Any interface that is common to
-   all boards should be prefixed with ``board_`` and should also
-   be prototyped in ``include/nuttx/board.h``. These ``board_``
-   definitions provide the interface between the board-level logic
-   and the commaon and architecture-specific logic.
+-  **头文件包含范围**。头文件通过符号链接以及提供给 C/C++ 编译器的
+   *包含路径*\ 对内部 OS 逻辑和应用程序可见。通过这些包含路径，
+   NuttX 构建系统还在设计中强制执行模块化。例如，一个重要的设计原则
+   是架构的\ *分层*\ 。这里我指的是 OS 分为应用接口层、通用内部 OS 逻辑层
+   和底层平台特定层。平台特定层全部位于 ``arch/`` 子目录或 ``boards/``
+   子目录中：前者保留给微控制器特定逻辑，后者保留给板级特定逻辑。
 
--  **Board-Specific Interfaces**. Any interface which is unique to
-   a board should be prefixed with the board name, for example
-   ``stm32f4discovery_``. Sometimes the board name is too long so
-   ``stm32_`` would be okay too. These should be prototyped in
-   ``boards/<arch>/<chip>/<board>/src/<board>.h`` and should not
-   be used outside of that directory since board-specific
-   definitions have no meaning outside of the board directory.
+   在严格的分层 NuttX 架构中，上层 OS 服务始终对平台特定逻辑可用。
+   但反过来\ *不*\ 成立：通用 OS 逻辑绝不能依赖于底层平台特定代码。
+   OS 逻辑必须完全不了解其硬件环境。同样，微控制器特定逻辑必须完全
+   不了解板级特定逻辑。
 
--  **Scope of Inclusions**. Header files are made accessible to
-   internal OS logic and to applications through symbolic links
-   and through *include paths* that are provided to the C/C++
-   compiler. Through these include paths, the NuttX build system
-   also enforces modularity in the design. For example, one
-   important design principle is architectural *layering*. In this
-   case I am referring to the OS as layered into application
-   interface, common internal OS logic, and lower level
-   platform-specific layers. The platform-specific layers all
-   reside in the either ``arch/`` sub-directories or the
-   ``boards/`` subdirectories: The former sub-directories are
-   reserved for microcontroller-specific logic and the latter for
-   board-specific logic.
+   在 NuttX 构建系统中，这种严格的分层通过控制编译器包含路径来强制执行：
+   上层代码永远不能包含来自平台特定源目录的头文件；微控制器特定代码
+   永远不能包含来自板级特定源目录的头文件。因此，板级特定目录位于
+   分层层次结构的最底层。
 
-   In the strict, layered NuttX architecture, the upper level OS
-   services are always available to platform-specific logic.
-   However, the opposite is *not* true: Common OS logic must never
-   have any dependency on the lower level platform-specific code.
-   The OS logic must be totally agnostic about its hardware
-   environment. Similarly, microcontroller-specific logic was be
-   completely ignorant of board-specific logic.
+   这些包含限制的一个例外是平台特定的 *include/* 目录。这些目录
+   对上层 OS 逻辑可见。微控制器特定包含目录将链接到 ``include/arch/chip``，
+   因此可以像 ``#include <arch/hardware/chip.h`` 这样包含。
+   同样，板级特定包含目录将链接到 ``include/arch/board``，
+   因此可以像 ``#include <arch/board/board.h`` 这样包含。
 
-   This strict layering is enforced in the NuttX build system by
-   controlling the compiler include paths: Higher level code can
-   never include header files from either of the
-   platform-specific source directories; microcontroller-specific
-   code can never include header files from the board-specific
-   source directories. The board-specific directories are, then,
-   at the bottom of the layered hierarchy.
-
-   An exception to these inclusion restrictions is the
-   platform-specific *include/*. These are made available to
-   higher level OS logic. The microcontroller-specific include
-   directory will be linked at ``include/arch/chip`` and, hence,
-   can be included like ``#include <arch/hardware/chip.h``.
-   Similarly, the board-specific include directory will be linked
-   at ``include/arch/board`` and, hence, can be included like
-   ``#include <arch/board/board.h``.
-
-   Keeping in the spirit of the layered architecture, these
-   publicly visible header files must *not* export
-   platform-specific definitions; Only platform-specific
-   realizations of standardized declarations should be visible.
-   Those *standardized declarations* should appear in common
-   header files such as those provided by ``include/nuttx/arch.h``
-   and ``include/nuttx/board.h``. Similarly, these publicly
-   visible header file must *not* include files that reside in the
-   inaccessible platform-specific source directories. For example,
-   the board-specific
-   ``boards/<arch>/<chip>/<board>/include/board.h`` header file
-   must never include microcontroller-specific header files that
-   reside in ``arch/<arch>/src/<mcu>``. That practice will cause
-   inclusion failures when the publicly visible file is included
-   in common logic outside of the platform-specific source
-   directories.
-
+   本着分层架构的精神，这些公开可见的头文件\ *不得*\ 导出平台特定的定义；
+   只有标准化声明的平台特定实现才应该是可见的。这些\ *标准化声明*\ 应出现在
+   通用头文件中，例如 ``include/nuttx/arch.h`` 和 ``include/nuttx/board.h``
+   提供的头文件。同样，这些公开可见的头文件\ *不得*\ 包含位于不可访问的
+   平台特定源目录中的文件。例如，板级特定的
+   ``boards/<arch>/<chip>/<board>/include/board.h`` 头文件绝不能包含位于
+   ``arch/<arch>/src/<mcu>`` 中的微控制器特定头文件。当公开可见的文件
+   在平台特定源目录之外的通用逻辑中被包含时，这种做法会导致包含失败。
