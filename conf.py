@@ -43,7 +43,7 @@ sys.path.insert(0, "_extensions")
 project = "NuttX 中文文档"
 copyright = "2026, NuttX 中文文档社区"
 author = "NuttX 中文文档社区"
-version = release = "latest"
+version = release = "v1.2.0"
 
 
 # -- General configuration ---------------------------------------------------
